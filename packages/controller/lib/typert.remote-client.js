@@ -122,6 +122,7 @@ const _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_parameter_0
   'skip': z.number().readonly().optional().describe('Commits skipped from the tip; the paging offset. Values below zero are clamped.'),
   'limit': z.number().readonly().optional().describe('Commits to return; the Host clamps to its page cap.'),
   'search': z.string().readonly().optional().describe('Case-insensitive subject substring filter; blank means no filter.'),
+  'author': z.string().readonly().optional().describe('Case-insensitive, literal author-name filter; blank means every author.'),
   'workspaceId': z.string().readonly(),
 }))
 let _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_result$schema$value
@@ -139,6 +140,7 @@ const _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_result$sche
 })).readonly(),
   'more': z.boolean().readonly().describe('More commits exist beyond this page; the Client asks again with a larger `skip`.'),
   'branch': z.string().readonly().optional().describe('Checked-out branch name; absent in detached HEAD.'),
+  'authors': z.array(z.string()).readonly().optional().describe('Distinct author names in the read branch; sent with the first page only.'),
 })]))
 let _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0$schema$value
 const _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0$schema = () => (_deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0$schema$value ??= z.object({
@@ -323,6 +325,7 @@ const _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_parameter_0
   'skip': z.number().readonly().optional().describe('Commits skipped from the tip; the paging offset. Values below zero are clamped.'),
   'limit': z.number().readonly().optional().describe('Commits to return; the Host clamps to its page cap.'),
   'search': z.string().readonly().optional().describe('Case-insensitive subject substring filter; blank means no filter.'),
+  'author': z.string().readonly().optional().describe('Case-insensitive, literal author-name filter; blank means every author.'),
   'workspaceId': z.string().readonly(),
 }))
 let _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0_strict$schema$value
@@ -381,7 +384,7 @@ const _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_workingDiff_par
 }))
 
 export const TYPERT_REMOTE = createTypertRemoteInfo({
-  package: '@deepseek-ai/dsh-api-git-workspace-controller',
+  package: '@monster-30cl/dsh-git-workspace-controller',
   methods: {
     'gitWorkspace/checkout': {
       service: 'gitWorkspaceController',
@@ -394,13 +397,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_checkout_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"branch":{"type":"string"},"workspaceId":{"type":"string"}},"required":["branch","workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_checkout_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"branch":{"type":"string"},"workspaceId":{"type":"string"}},"required":["branch","workspaceId"],"additionalProperties":false},
           },
@@ -409,7 +412,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_checkout_result$schema,
         description: 'refreshed local branch state.',
         jsonSchema: {"oneOf":[{"type":"object","properties":{"repository":{"type":"boolean","const":false}},"required":["repository"],"additionalProperties":true},{"type":"object","properties":{"repository":{"type":"boolean","const":true},"localBranches":{"type":"array","items":{"type":"string"}},"remoteBranches":{"type":"array","items":{"type":"string"},"description":"Remote-tracking branches, excluding symbolic remote HEAD aliases."},"current":{"type":"string"},"detached":{"type":"boolean"}},"required":["repository","localBranches","remoteBranches","detached"],"additionalProperties":true}]},
@@ -427,13 +430,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_checkoutRemote_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"branch":{"type":"string"},"workspaceId":{"type":"string"}},"required":["branch","workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_checkoutRemote_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"branch":{"type":"string"},"workspaceId":{"type":"string"}},"required":["branch","workspaceId"],"additionalProperties":false},
           },
@@ -442,7 +445,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_checkoutRemote_result$schema,
         description: 'Checked-out branch and the refreshed local and remote branch lists.',
         jsonSchema: {"oneOf":[{"type":"object","properties":{"repository":{"type":"boolean","const":false}},"required":["repository"],"additionalProperties":true},{"type":"object","properties":{"repository":{"type":"boolean","const":true},"localBranches":{"type":"array","items":{"type":"string"}},"remoteBranches":{"type":"array","items":{"type":"string"},"description":"Remote-tracking branches, excluding symbolic remote HEAD aliases."},"current":{"type":"string"},"detached":{"type":"boolean"}},"required":["repository","localBranches","remoteBranches","detached"],"additionalProperties":true}]},
@@ -460,13 +463,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commit_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"message":{"type":"string"},"paths":{"type":"array","items":{"type":"string"},"description":"Workspace-relative paths selected from the current status result."},"push":{"type":"boolean","description":"Push the current branch after the commit succeeds."},"workspaceId":{"type":"string"}},"required":["message","paths","workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commit_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"message":{"type":"string"},"paths":{"type":"array","items":{"type":"string"},"description":"Workspace-relative paths selected from the current status result."},"push":{"type":"boolean","description":"Push the current branch after the commit succeeds."},"workspaceId":{"type":"string"}},"required":["message","paths","workspaceId"],"additionalProperties":false},
           },
@@ -475,7 +478,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commit_result$schema,
         description: 'Repository status after committing the selected paths and optionally pushing.',
         jsonSchema: {"type":"object","properties":{"repository":{"type":"boolean","const":true}},"required":["repository"],"additionalProperties":true},
@@ -493,13 +496,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitFileRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitFileRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitDiff_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"path":{"type":"string"},"previousPath":{"type":"string"},"commit":{"type":"string"},"workspaceId":{"type":"string"}},"required":["path","commit","workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitFileRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitFileRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitDiff_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"path":{"type":"string"},"previousPath":{"type":"string"},"commit":{"type":"string"},"workspaceId":{"type":"string"}},"required":["path","commit","workspaceId"],"additionalProperties":false},
           },
@@ -508,7 +511,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitDiffState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitDiffState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitDiff_result$schema,
         description: 'Bounded before and after contents of one committed file.',
         jsonSchema: {"type":"object","properties":{"repository":{"type":"boolean","const":true},"binary":{"type":"boolean"},"before":{"type":"string"},"after":{"type":"string"},"patch":{"type":"string"}},"required":["repository","binary","before","after","patch"],"additionalProperties":true},
@@ -526,13 +529,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitSelectionRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitSelectionRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"commit":{"type":"string"},"workspaceId":{"type":"string"}},"required":["commit","workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitSelectionRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitSelectionRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"commit":{"type":"string"},"workspaceId":{"type":"string"}},"required":["commit","workspaceId"],"additionalProperties":false},
           },
@@ -541,7 +544,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitFilesState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitFilesState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_result$schema,
         description: 'Changed files and change kinds for the selected commit.',
         jsonSchema: {"type":"object","properties":{"repository":{"type":"boolean","const":true},"files":{"type":"array","items":{"type":"object","properties":{"status":{"type":"string"},"path":{"type":"string"},"renamedFrom":{"type":"string"}},"required":["status","path"],"additionalProperties":true}}},"required":["repository","files"],"additionalProperties":true},
@@ -559,13 +562,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_create_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"branch":{"type":"string"},"workspaceId":{"type":"string"}},"required":["branch","workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_create_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"branch":{"type":"string"},"workspaceId":{"type":"string"}},"required":["branch","workspaceId"],"additionalProperties":false},
           },
@@ -574,7 +577,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_create_result$schema,
         description: 'refreshed local branch state.',
         jsonSchema: {"oneOf":[{"type":"object","properties":{"repository":{"type":"boolean","const":false}},"required":["repository"],"additionalProperties":true},{"type":"object","properties":{"repository":{"type":"boolean","const":true},"localBranches":{"type":"array","items":{"type":"string"}},"remoteBranches":{"type":"array","items":{"type":"string"},"description":"Remote-tracking branches, excluding symbolic remote HEAD aliases."},"current":{"type":"string"},"detached":{"type":"boolean"}},"required":["repository","localBranches","remoteBranches","detached"],"additionalProperties":true}]},
@@ -592,13 +595,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_delete_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"branch":{"type":"string"},"workspaceId":{"type":"string"}},"required":["branch","workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_delete_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"branch":{"type":"string"},"workspaceId":{"type":"string"}},"required":["branch","workspaceId"],"additionalProperties":false},
           },
@@ -607,7 +610,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_delete_result$schema,
         description: 'Branch lists after deleting the requested local branch.',
         jsonSchema: {"oneOf":[{"type":"object","properties":{"repository":{"type":"boolean","const":false}},"required":["repository"],"additionalProperties":true},{"type":"object","properties":{"repository":{"type":"boolean","const":true},"localBranches":{"type":"array","items":{"type":"string"}},"remoteBranches":{"type":"array","items":{"type":"string"},"description":"Remote-tracking branches, excluding symbolic remote HEAD aliases."},"current":{"type":"string"},"detached":{"type":"boolean"}},"required":["repository","localBranches","remoteBranches","detached"],"additionalProperties":true}]},
@@ -625,13 +628,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_list_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_list_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":false},
           },
@@ -640,7 +643,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_list_result$schema,
         description: 'repository absence or the complete branch lists.',
         jsonSchema: {"oneOf":[{"type":"object","properties":{"repository":{"type":"boolean","const":false}},"required":["repository"],"additionalProperties":true},{"type":"object","properties":{"repository":{"type":"boolean","const":true},"localBranches":{"type":"array","items":{"type":"string"}},"remoteBranches":{"type":"array","items":{"type":"string"},"description":"Remote-tracking branches, excluding symbolic remote HEAD aliases."},"current":{"type":"string"},"detached":{"type":"boolean"}},"required":["repository","localBranches","remoteBranches","detached"],"additionalProperties":true}]},
@@ -654,29 +657,29 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       parameters: [
         {
           name: 'request',
-          description: 'target Workspace, page bounds, and optional subject filter.',
+          description: 'target Workspace, page bounds, and optional subject and author filters.',
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceLogRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceLogRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_parameter_0$schema,
-            jsonSchema: {"type":"object","properties":{"skip":{"type":"number","description":"Commits skipped from the tip; the paging offset. Values below zero are clamped."},"limit":{"type":"number","description":"Commits to return; the Host clamps to its page cap."},"search":{"type":"string","description":"Case-insensitive subject substring filter; blank means no filter."},"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":true},
+            jsonSchema: {"type":"object","properties":{"skip":{"type":"number","description":"Commits skipped from the tip; the paging offset. Values below zero are clamped."},"limit":{"type":"number","description":"Commits to return; the Host clamps to its page cap."},"search":{"type":"string","description":"Case-insensitive subject substring filter; blank means no filter."},"author":{"type":"string","description":"Case-insensitive, literal author-name filter; blank means every author."},"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceLogRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceLogRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_parameter_0_strict$schema,
-            jsonSchema: {"type":"object","properties":{"skip":{"type":"number","description":"Commits skipped from the tip; the paging offset. Values below zero are clamped."},"limit":{"type":"number","description":"Commits to return; the Host clamps to its page cap."},"search":{"type":"string","description":"Case-insensitive subject substring filter; blank means no filter."},"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":false},
+            jsonSchema: {"type":"object","properties":{"skip":{"type":"number","description":"Commits skipped from the tip; the paging offset. Values below zero are clamped."},"limit":{"type":"number","description":"Commits to return; the Host clamps to its page cap."},"search":{"type":"string","description":"Case-insensitive subject substring filter; blank means no filter."},"author":{"type":"string","description":"Case-insensitive, literal author-name filter; blank means every author."},"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":false},
           },
         },
       ],
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceLogState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceLogState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_result$schema,
         description: 'repository absence or the page with the checked-out branch.',
-        jsonSchema: {"oneOf":[{"type":"object","properties":{"repository":{"type":"boolean","const":false}},"required":["repository"],"additionalProperties":true},{"type":"object","properties":{"repository":{"type":"boolean","const":true},"commits":{"type":"array","items":{"type":"object","properties":{"hash":{"type":"string","description":"Full commit hash."},"shortHash":{"type":"string","description":"Abbreviated hash as Git rendered it."},"subject":{"type":"string","description":"Commit subject line."},"authorName":{"type":"string"},"authorEmail":{"type":"string"},"date":{"type":"string","description":"Author date in strict ISO 8601."}},"required":["hash","shortHash","subject","authorName","authorEmail","date"],"additionalProperties":true}},"more":{"type":"boolean","description":"More commits exist beyond this page; the Client asks again with a larger `skip`."},"branch":{"type":"string","description":"Checked-out branch name; absent in detached HEAD."}},"required":["repository","commits","more"],"additionalProperties":true}]},
+        jsonSchema: {"oneOf":[{"type":"object","properties":{"repository":{"type":"boolean","const":false}},"required":["repository"],"additionalProperties":true},{"type":"object","properties":{"repository":{"type":"boolean","const":true},"commits":{"type":"array","items":{"type":"object","properties":{"hash":{"type":"string","description":"Full commit hash."},"shortHash":{"type":"string","description":"Abbreviated hash as Git rendered it."},"subject":{"type":"string","description":"Commit subject line."},"authorName":{"type":"string"},"authorEmail":{"type":"string"},"date":{"type":"string","description":"Author date in strict ISO 8601."}},"required":["hash","shortHash","subject","authorName","authorEmail","date"],"additionalProperties":true}},"more":{"type":"boolean","description":"More commits exist beyond this page; the Client asks again with a larger `skip`."},"branch":{"type":"string","description":"Checked-out branch name; absent in detached HEAD."},"authors":{"type":"array","items":{"type":"string"},"description":"Distinct author names in the read branch; sent with the first page only."}},"required":["repository","commits","more"],"additionalProperties":true}]},
       },
       sourceLocation: {"file":"packages/api/git-workspace-controller/src/index.ts","line":194,"column":9},
     },
@@ -691,13 +694,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":false},
           },
@@ -706,7 +709,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspacePendingPushState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspacePendingPushState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_result$schema,
         description: 'Current upstream and commits awaiting push.',
         jsonSchema: {"oneOf":[{"type":"object","properties":{"repository":{"type":"boolean","const":false}},"required":["repository"],"additionalProperties":true},{"type":"object","properties":{"repository":{"type":"boolean","const":true},"upstream":{"type":"boolean","description":"False when the current branch has no configured upstream."},"commits":{"type":"array","items":{"type":"object","properties":{"hash":{"type":"string","description":"Full commit hash."},"shortHash":{"type":"string","description":"Abbreviated hash as Git rendered it."},"subject":{"type":"string","description":"Commit subject line."},"authorName":{"type":"string"},"authorEmail":{"type":"string"},"date":{"type":"string","description":"Author date in strict ISO 8601."}},"required":["hash","shortHash","subject","authorName","authorEmail","date"],"additionalProperties":true}},"more":{"type":"boolean","description":"More unpublished commits exist beyond the configured response cap."}},"required":["repository","upstream","commits","more"],"additionalProperties":true}]},
@@ -724,13 +727,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pull_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pull_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":false},
           },
@@ -739,7 +742,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pull_result$schema,
         description: 'Repository status after merging updates from the configured upstream.',
         jsonSchema: {"type":"object","properties":{"repository":{"type":"boolean","const":true}},"required":["repository"],"additionalProperties":true},
@@ -757,13 +760,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_push_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_push_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":false},
           },
@@ -772,7 +775,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_push_result$schema,
         description: 'Repository status after pushing the current branch.',
         jsonSchema: {"type":"object","properties":{"repository":{"type":"boolean","const":true}},"required":["repository"],"additionalProperties":true},
@@ -790,13 +793,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRollbackRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRollbackRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_rollback_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"trackedPaths":{"type":"array","items":{"type":"string"},"description":"Tracked paths restored from HEAD in both the index and working tree."},"untrackedPaths":{"type":"array","items":{"type":"string"},"description":"Untracked paths permanently removed from the working tree."},"workspaceId":{"type":"string"}},"required":["trackedPaths","untrackedPaths","workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRollbackRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRollbackRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_rollback_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"trackedPaths":{"type":"array","items":{"type":"string"},"description":"Tracked paths restored from HEAD in both the index and working tree."},"untrackedPaths":{"type":"array","items":{"type":"string"},"description":"Untracked paths permanently removed from the working tree."},"workspaceId":{"type":"string"}},"required":["trackedPaths","untrackedPaths","workspaceId"],"additionalProperties":false},
           },
@@ -805,7 +808,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_rollback_result$schema,
         description: 'Repository status after restoring the selected paths.',
         jsonSchema: {"type":"object","properties":{"repository":{"type":"boolean","const":true}},"required":["repository"],"additionalProperties":true},
@@ -823,13 +826,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stash_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stash_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":false},
           },
@@ -838,7 +841,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stash_result$schema,
         description: 'repository absence or the complete stash list.',
         jsonSchema: {"oneOf":[{"type":"object","properties":{"repository":{"type":"boolean","const":false}},"required":["repository"],"additionalProperties":true},{"type":"object","properties":{"repository":{"type":"boolean","const":true},"entries":{"type":"array","items":{"type":"object","properties":{"selector":{"type":"string","description":"Reflog selector, e.g. `stash@{0}`."},"date":{"type":"string","description":"Entry date in strict ISO 8601."},"subject":{"type":"string","description":"Stash subject line."}},"required":["selector","date","subject"],"additionalProperties":true}}},"required":["repository","entries"],"additionalProperties":true}]},
@@ -856,13 +859,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashCreateRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashCreateRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashCreate_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"message":{"type":"string"},"paths":{"type":"array","items":{"type":"string"},"description":"Workspace-relative paths selected from the current status result."},"workspaceId":{"type":"string"}},"required":["message","paths","workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashCreateRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashCreateRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashCreate_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"message":{"type":"string"},"paths":{"type":"array","items":{"type":"string"},"description":"Workspace-relative paths selected from the current status result."},"workspaceId":{"type":"string"}},"required":["message","paths","workspaceId"],"additionalProperties":false},
           },
@@ -871,7 +874,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashCreate_result$schema,
         description: 'Repository status after storing the selected changes.',
         jsonSchema: {"type":"object","properties":{"repository":{"type":"boolean","const":true}},"required":["repository"],"additionalProperties":true},
@@ -889,13 +892,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashSelectionRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashSelectionRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashDrop_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"selector":{"type":"string"},"workspaceId":{"type":"string"}},"required":["selector","workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashSelectionRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashSelectionRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashDrop_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"selector":{"type":"string"},"workspaceId":{"type":"string"}},"required":["selector","workspaceId"],"additionalProperties":false},
           },
@@ -904,7 +907,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashDrop_result$schema,
         description: 'Repository status after removing the selected stash.',
         jsonSchema: {"type":"object","properties":{"repository":{"type":"boolean","const":true}},"required":["repository"],"additionalProperties":true},
@@ -922,13 +925,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashSelectionRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashSelectionRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashFiles_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"selector":{"type":"string"},"workspaceId":{"type":"string"}},"required":["selector","workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashSelectionRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashSelectionRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashFiles_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"selector":{"type":"string"},"workspaceId":{"type":"string"}},"required":["selector","workspaceId"],"additionalProperties":false},
           },
@@ -937,7 +940,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashFilesState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashFilesState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashFiles_result$schema,
         description: 'File paths and change kinds recorded by the selected stash.',
         jsonSchema: {"type":"object","properties":{"repository":{"type":"boolean","const":true},"files":{"type":"array","items":{"type":"object","properties":{"status":{"type":"string"},"path":{"type":"string"},"renamedFrom":{"type":"string"}},"required":["status","path"],"additionalProperties":true}}},"required":["repository","files"],"additionalProperties":true},
@@ -955,13 +958,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashSelectionRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashSelectionRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashPop_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"selector":{"type":"string"},"workspaceId":{"type":"string"}},"required":["selector","workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashSelectionRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashSelectionRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashPop_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"selector":{"type":"string"},"workspaceId":{"type":"string"}},"required":["selector","workspaceId"],"additionalProperties":false},
           },
@@ -970,7 +973,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashPop_result$schema,
         description: 'Repository status after applying and removing the selected stash.',
         jsonSchema: {"type":"object","properties":{"repository":{"type":"boolean","const":true}},"required":["repository"],"additionalProperties":true},
@@ -988,13 +991,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_status_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_status_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":false},
           },
@@ -1003,7 +1006,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStatusState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStatusState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_status_result$schema,
         description: 'repository absence or every changed and untracked file.',
         jsonSchema: {"oneOf":[{"type":"object","properties":{"repository":{"type":"boolean","const":false}},"required":["repository"],"additionalProperties":true},{"type":"object","properties":{"repository":{"type":"boolean","const":true},"files":{"type":"array","items":{"type":"object","properties":{"path":{"type":"string","description":"Workspace-relative path with forward slashes, as Git spelled it."},"indexStatus":{"type":"string","description":"Index status letter; `.` means unchanged in the index."},"worktreeStatus":{"type":"string","description":"Work-tree status letter; `.` means unchanged against the index."},"untracked":{"type":"boolean","description":"The file is untracked."},"renamedFrom":{"type":"string","description":"Original path of a rename or copy record."}},"required":["path","indexStatus","worktreeStatus","untracked"],"additionalProperties":true},"description":"Every reported file: tracked changes and untracked files together."}},"required":["repository","files"],"additionalProperties":true}]},
@@ -1021,13 +1024,13 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
           source: 'json',
           codec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceWorkingDiffRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceWorkingDiffRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_workingDiff_parameter_0$schema,
             jsonSchema: {"type":"object","properties":{"path":{"type":"string"},"previousPath":{"type":"string"},"untracked":{"type":"boolean"},"workspaceId":{"type":"string"}},"required":["path","untracked","workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
-            typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceWorkingDiffRequest',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceWorkingDiffRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_workingDiff_parameter_0_strict$schema,
             jsonSchema: {"type":"object","properties":{"path":{"type":"string"},"previousPath":{"type":"string"},"untracked":{"type":"boolean"},"workspaceId":{"type":"string"}},"required":["path","untracked","workspaceId"],"additionalProperties":false},
           },
@@ -1036,7 +1039,7 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitDiffState',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitDiffState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_workingDiff_result$schema,
         description: 'Bounded before and after contents of one working-tree file.',
         jsonSchema: {"type":"object","properties":{"repository":{"type":"boolean","const":true},"binary":{"type":"boolean"},"before":{"type":"string"},"after":{"type":"string"},"patch":{"type":"string"}},"required":["repository","binary","before","after","patch"],"additionalProperties":true},

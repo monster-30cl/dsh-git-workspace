@@ -125,6 +125,36 @@
   background: color-mix(in srgb, var(--dsw-alias-interactive-bg-hover) 72%, transparent);
 }
 
+/* The author dropdown beside the subject search: one applied filter each. */
+.authorSelect {
+  flex: 0 1 auto;
+  max-width: 46%;
+  height: 32px;
+  padding: 0 8px;
+  color: var(--dsw-alias-label-primary);
+  font: inherit;
+  text-overflow: ellipsis;
+  background: color-mix(in srgb, var(--dsw-alias-bg-layer-1) 64%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--dsw-alias-border-l4) 72%, transparent);
+  border-radius: 16px;
+  backdrop-filter: blur(16px) saturate(125%);
+  cursor: pointer;
+}
+
+.authorSelect:hover {
+  background: color-mix(in srgb, var(--dsw-alias-interactive-bg-hover) 72%, transparent);
+}
+
+.authorSelect:focus-visible {
+  outline: 2px solid var(--dsw-alias-border-l4);
+  outline-offset: 1px;
+}
+
+.authorSelect option {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-bg-layer-1);
+}
+
 .level {
   margin: 0;
   padding: 0;

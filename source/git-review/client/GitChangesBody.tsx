@@ -20,7 +20,7 @@ import {
 } from '@deepseek-ai/dsh-client-ui-primitives'
 import type {
   GitWorkspaceCommit, GitWorkspaceStashEntry, GitWorkspaceStashFile, GitWorkspaceStatusFile,
-} from '@deepseek-ai/dsh-api-git-workspace-controller/types'
+} from '@monster-30cl/dsh-git-workspace-controller/types'
 import type { WorkspaceId } from '@deepseek-ai/dsh-workspace/types'
 import type { RemoteFailure } from '@deepseek-ai/dsh-api-remotes/client'
 import type {

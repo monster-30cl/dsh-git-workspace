@@ -22,7 +22,7 @@ import {
 import { workspaceTitleOf } from '@deepseek-ai/dsh-util-workspace-path'
 import type {
   GitWorkspaceCommit, GitWorkspaceCommitDiffState, GitWorkspaceCommitFile, GitWorkspaceStatusFile,
-} from '@deepseek-ai/dsh-api-git-workspace-controller/types'
+} from '@monster-30cl/dsh-git-workspace-controller/types'
 import type { WorkspaceId } from '@deepseek-ai/dsh-workspace/types'
 import type { GitHistoryInjected } from './face.ts'
 import { matchesDiffZoomModifier, type DiffZoomModifier } from '../diff-zoom-settings.ts'
@@ -98,7 +98,7 @@ function HistoryList({ state, onOpen, t }: {
   if (state.commits.length === 0) {
     return (
       <p className={css.note} data-git-row="empty">
-        {state.search === '' ? t('empty') : t('emptySearch')}
+        {state.search === '' && state.author === '' ? t('empty') : t('emptySearch')}
       </p>
     )
   }
@@ -1047,12 +1047,13 @@ export function GitHistoryBody({
     start(tab.id, workspaceId, signal)
   }, [state, workspaceId, tab.id, signal, start])
   const historySearch = state?.search
+  const historyAuthor = state?.author
   useEffect(() => {
-    if (workspaceId === undefined || historySearch === undefined) return
+    if (workspaceId === undefined || historySearch === undefined || historyAuthor === undefined) return
     return subscribeGitHistoryRefresh(sessionId, () => {
-      if (!signal.aborted) reload(tab.id, workspaceId, historySearch, signal)
+      if (!signal.aborted) reload(tab.id, workspaceId, historySearch, historyAuthor, signal)
     })
-  }, [historySearch, reload, sessionId, signal, tab.id, workspaceId])
+  }, [historyAuthor, historySearch, reload, sessionId, signal, tab.id, workspaceId])
 
   if (workspaceId === undefined) {
     return (
@@ -1065,7 +1066,12 @@ export function GitHistoryBody({
 
   const submit = (event: FormEvent): void => {
     event.preventDefault()
-    reload(tab.id, workspaceId, query.trim(), signal)
+    reload(tab.id, workspaceId, query.trim(), state.author, signal)
+  }
+  /** Apply one author choice at once: a dropdown choice is the filter itself. */
+  const chooseAuthor = (author: string): void => {
+    if (author === state.author) return
+    reload(tab.id, workspaceId, query.trim(), author, signal)
   }
   const title = state.branch === undefined ? t('header.detached') : t('header.branch', { branch: state.branch })
   const workspaceTitle = cwd === undefined ? '' : workspaceTitleOf(cwd)
@@ -1100,12 +1106,23 @@ export function GitHistoryBody({
             aria-label={t('reload')}
             title={t('reload')}
             data-git-reload
-            onClick={() => { reload(tab.id, workspaceId, state.search, signal) }}
+            onClick={() => { reload(tab.id, workspaceId, state.search, state.author, signal) }}
           >
             <IconRefreshOutline16 />
           </button>
         </div>
         <form className={css.search} onSubmit={submit}>
+          <select
+            className={css.authorSelect}
+            value={state.author}
+            aria-label={t('search.author.label')}
+            title={t('search.author.label')}
+            data-git-author
+            onChange={(event) => { chooseAuthor(event.currentTarget.value) }}
+          >
+            <option value="">{t('search.author.all')}</option>
+            {state.authors.map(author => <option key={author} value={author}>{author}</option>)}
+          </select>
           <Input
             className={css.input}
             type="search"
@@ -1129,7 +1146,7 @@ export function GitHistoryBody({
             className={clsx(css.more, state.loadingMore && css.moreBusy)}
             data-git-more
             disabled={state.loadingMore}
-            onClick={() => { loadMore(tab.id, workspaceId, state.search, state.skip, signal) }}
+            onClick={() => { loadMore(tab.id, workspaceId, state.search, state.author, state.skip, signal) }}
           >
             {state.loadingMore ? t('loadingMore') : t('more')}
           </button>

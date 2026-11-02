@@ -13,7 +13,7 @@ import type { ClientRemote, RemoteFailure, RemoteResult } from '@deepseek-ai/dsh
 import type {
   GitWorkspaceCommit, GitWorkspaceCommitDiffState, GitWorkspaceStashEntry, GitWorkspaceStashFile,
   GitWorkspaceStatusFile,
-} from '@deepseek-ai/dsh-api-git-workspace-controller/types'
+} from '@monster-30cl/dsh-git-workspace-controller/types'
 import type { WorkspaceId } from '@deepseek-ai/dsh-workspace/types'
 import type { ReadGitCommitDiff, ReadGitCommitFiles } from './face.ts'
 import type { DiffZoomPreferenceInjected } from './diff-zoom-preference.ts'

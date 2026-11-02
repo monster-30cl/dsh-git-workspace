@@ -23,7 +23,7 @@ import type { TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
 import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import type {
   GitWorkspaceCommitDiffState, GitWorkspaceCommitFile, GitWorkspaceCommitFilesState, GitWorkspaceLogState,
-} from '@deepseek-ai/dsh-api-git-workspace-controller/types'
+} from '@monster-30cl/dsh-git-workspace-controller/types'
 import type { WorkspaceId } from '@deepseek-ai/dsh-workspace/types'
 import type { GitPage, createGitHistoryStore } from './store.ts'
 
@@ -39,7 +39,7 @@ export const GIT_HISTORY_PAGE_SIZE = 50
  */
 export type LogGitHistory = (
   workspaceId: WorkspaceId,
-  page: { readonly skip: number; readonly limit: number; readonly search: string },
+  page: { readonly skip: number; readonly limit: number; readonly search: string; readonly author: string },
   signal: AbortSignal,
 ) => Promise<RemoteResult<GitWorkspaceLogState>>
 
@@ -95,6 +95,7 @@ function pageOf(state: GitWorkspaceLogState): GitPage {
     commits: state.commits,
     more: state.more,
     ...(state.branch === undefined ? {} : { branch: state.branch }),
+    ...(state.authors === undefined ? {} : { authors: state.authors }),
     repository: true,
   }
 }
@@ -111,20 +112,24 @@ export interface GitHistoryInjected {
    */
   readonly start: (tabId: TabId, workspaceId: WorkspaceId, signal: AbortSignal) => void
   /**
-   * Re-read the first page with a subject filter; the window the reader sees is
-   * replaced. The reload control passes the window's own query; the search form
-   * passes the query it just submitted.
+   * Re-read the first page with a subject and author filter; the window the
+   * reader sees is replaced. The reload control passes the window's own filter;
+   * the search form and the author dropdown pass the filter they just chose.
    * @param tabId - the tab being drawn.
    * @param workspaceId - the workspace whose history is shown.
    * @param search - the subject filter to ask for.
+   * @param author - the author names to keep, or blank for every author.
    * @param signal - the tab record's lifetime.
    */
-  readonly reload: (tabId: TabId, workspaceId: WorkspaceId, search: string, signal: AbortSignal) => void
+  readonly reload: (
+    tabId: TabId, workspaceId: WorkspaceId, search: string, author: string, signal: AbortSignal,
+  ) => void
   /**
    * Append the page after the one already loaded.
    * @param tabId - the tab being drawn.
    * @param workspaceId - the workspace whose history is shown.
    * @param search - the subject filter the window carries.
+   * @param author - the author names the window carries.
    * @param skip - commits already loaded; the next page's offset.
    * @param signal - the tab record's lifetime.
    */
@@ -132,6 +137,7 @@ export interface GitHistoryInjected {
     tabId: TabId,
     workspaceId: WorkspaceId,
     search: string,
+    author: string,
     skip: number,
     signal: AbortSignal,
   ) => void
@@ -158,14 +164,15 @@ export function gitHistoryFace(
       tabId: TabId,
       workspaceId: WorkspaceId,
       search: string,
+      author: string,
       skip: number,
       signal: AbortSignal,
     ): void => {
       if (signal.aborted) return
       const generation = nextGeneration(tabId)
-      if (skip === 0) actions.loading(tabId, search)
+      if (skip === 0) actions.loading(tabId, search, author)
       else actions.moreLoading(tabId)
-      void log(workspaceId, { skip, limit: GIT_HISTORY_PAGE_SIZE, search }, signal).then((result) => {
+      void log(workspaceId, { skip, limit: GIT_HISTORY_PAGE_SIZE, search, author }, signal).then((result) => {
         // A newer read of this tab was asked for since, or the record is gone and
         // its bookkeeping with it: nothing left for this one to write.
         if (generations.get(tabId) !== generation) return
@@ -183,13 +190,13 @@ export function gitHistoryFace(
           generations.delete(tabId)
           actions.forget(tabId)
         }, { once: true })
-        read(tabId, workspaceId, '', 0, signal)
+        read(tabId, workspaceId, '', '', 0, signal)
       },
-      reload(tabId, workspaceId, search, signal) {
-        read(tabId, workspaceId, search, 0, signal)
+      reload(tabId, workspaceId, search, author, signal) {
+        read(tabId, workspaceId, search, author, 0, signal)
       },
-      loadMore(tabId, workspaceId, search, skip, signal) {
-        read(tabId, workspaceId, search, skip, signal)
+      loadMore(tabId, workspaceId, search, author, skip, signal) {
+        read(tabId, workspaceId, search, author, skip, signal)
       },
     }
   }

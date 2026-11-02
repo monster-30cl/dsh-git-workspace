@@ -12,7 +12,7 @@
 import { defineStore, type EngineStoreHandle } from '@deepseek-ai/dsh-client-store'
 import type { RemoteFailure } from '@deepseek-ai/dsh-api-remotes/client'
 import type { TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
-import type { GitWorkspaceCommit } from '@deepseek-ai/dsh-api-git-workspace-controller/types'
+import type { GitWorkspaceCommit } from '@monster-30cl/dsh-git-workspace-controller/types'
 import type { WorkspaceId } from '@deepseek-ai/dsh-workspace/types'
 
 /** One settled page, as the face hands it to the store. */
@@ -25,13 +25,17 @@ export interface GitPage {
   readonly branch?: string
   /** Whether the workspace is a Git repository at all. */
   readonly repository: boolean
+  /** Distinct author names seen in the read branch; sent with the first page only. */
+  readonly authors?: readonly string[]
 }
 
 /**
  * One tab's history window.
  *
  * `search` and `skip` describe the page set already loaded, so reload and
- * load-more re-ask the exact window the reader is looking at.
+ * load-more re-ask the exact window the reader is looking at. `author` is the
+ * author filter that page set was read with, so the dropdown shows what is
+ * applied rather than what is merely selected.
  */
 export interface GitTabState {
   workspaceId: WorkspaceId
@@ -40,7 +44,11 @@ export interface GitTabState {
   repository: boolean
   commits: GitWorkspaceCommit[]
   search: string
-  /** Commits already loaded for the current search; the next page's offset. */
+  /** Applied author filter; blank means every author. */
+  author: string
+  /** Selectable author names, newest-read first page's list. */
+  authors: readonly string[]
+  /** Commits already loaded for the current filter; the next page's offset. */
   skip: number
   more: boolean
   status: 'loading' | 'ready' | 'failed'
@@ -76,17 +84,21 @@ function applyPage(draft: GitTabState, page: GitPage, append: boolean): void {
     draft.commits = append ? [...draft.commits, ...page.commits] : [...page.commits]
     draft.skip = append ? draft.skip + page.commits.length : page.commits.length
     draft.more = page.more
+    // Only a first page carries the author list; a later page keeps what the
+    // window already offers so the dropdown does not empty while paging.
+    if (page.authors !== undefined) draft.authors = [...page.authors]
   } else {
     draft.commits = []
     draft.skip = 0
     draft.more = false
+    draft.authors = []
   }
 }
 
 /** The history store's write set; every action names the tab it writes. */
 type GitHistoryActions = {
   start: (draft: GitHistoryState, tabId: TabId, workspaceId: WorkspaceId) => void
-  loading: (draft: GitHistoryState, tabId: TabId, search: string) => void
+  loading: (draft: GitHistoryState, tabId: TabId, search: string, author: string) => void
   loaded: (draft: GitHistoryState, tabId: TabId, page: GitPage) => void
   moreLoading: (draft: GitHistoryState, tabId: TabId) => void
   appended: (draft: GitHistoryState, tabId: TabId, page: GitPage) => void
@@ -115,6 +127,8 @@ export function createGitHistoryStore(): EngineStoreHandle<GitHistoryState, GitH
           repository: true,
           commits: [],
           search: '',
+          author: '',
+          authors: [],
           skip: 0,
           more: false,
           status: 'loading',
@@ -123,14 +137,16 @@ export function createGitHistoryStore(): EngineStoreHandle<GitHistoryState, GitH
         }
       },
       /**
-       * Mark a first-page read (open, reload, or a new search) as in flight.
+       * Mark a first-page read (open, reload, or a new filter) as in flight.
        * @param d - draft state.
        * @param tabId - the tab being drawn.
        * @param search - the subject filter the read carries.
+       * @param author - the author filter the read carries; blank means every author.
        */
-      loading: (d, tabId: TabId, search: string) => {
+      loading: (d, tabId: TabId, search: string, author: string) => {
         const state = bucket(d, tabId)
         state.search = search
+        state.author = author
         state.status = 'loading'
         state.failure = undefined
       },

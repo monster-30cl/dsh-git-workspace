@@ -1089,6 +1089,7 @@ const GitReview=((require) => {
 				commits: state.commits,
 				more: state.more,
 				...state.branch === void 0 ? {} : { branch: state.branch },
+				...state.authors === void 0 ? {} : { authors: state.authors },
 				repository: true
 			};
 		}
@@ -1106,15 +1107,16 @@ const GitReview=((require) => {
 					generations.set(tabId, generation);
 					return generation;
 				};
-				const read = (tabId, workspaceId, search, skip, signal) => {
+				const read = (tabId, workspaceId, search, author, skip, signal) => {
 					if (signal.aborted) return;
 					const generation = nextGeneration(tabId);
-					if (skip === 0) actions.loading(tabId, search);
+					if (skip === 0) actions.loading(tabId, search, author);
 					else actions.moreLoading(tabId);
 					log(workspaceId, {
 						skip,
 						limit: 50,
-						search
+						search,
+						author
 					}, signal).then((result) => {
 						if (generations.get(tabId) !== generation) return;
 						if (result.ok) if (skip === 0) actions.loaded(tabId, pageOf(result.value));
@@ -1130,13 +1132,13 @@ const GitReview=((require) => {
 							generations.delete(tabId);
 							actions.forget(tabId);
 						}, { once: true });
-						read(tabId, workspaceId, "", 0, signal);
+						read(tabId, workspaceId, "", "", 0, signal);
 					},
-					reload(tabId, workspaceId, search, signal) {
-						read(tabId, workspaceId, search, 0, signal);
+					reload(tabId, workspaceId, search, author, signal) {
+						read(tabId, workspaceId, search, author, 0, signal);
 					},
-					loadMore(tabId, workspaceId, search, skip, signal) {
-						read(tabId, workspaceId, search, skip, signal);
+					loadMore(tabId, workspaceId, search, author, skip, signal) {
+						read(tabId, workspaceId, search, author, skip, signal);
 					}
 				};
 			};
@@ -1221,16 +1223,19 @@ const GitReview=((require) => {
 		//#region dsh-css:source/git-review/client/GitHistoryBody.module.css.mjs
 		const css$2 = "._7gOSaa_root{height:100%;min-height:0;color:var(--dsw-alias-label-primary);font-size:var(--dsh-content-font-size-secondary,13px);flex-direction:column;flex:auto;padding:4px 0 0;line-height:1.5;display:flex;overflow:hidden}._7gOSaa_chrome{z-index:2;background:color-mix(in srgb, var(--dsw-alias-bg-base) 68%, transparent);backdrop-filter:blur(18px)saturate(130%);flex:none;position:relative}body[data-dsh-background-media] ._7gOSaa_chrome{background:color-mix(in srgb, var(--dsw-alias-bg-base) 46%, transparent)}._7gOSaa_body{flex-direction:column;flex:auto;min-height:0;padding-bottom:8px;display:flex;overflow:auto}._7gOSaa_header{color:var(--dsw-alias-label-secondary);flex:none;align-items:center;gap:6px;padding:4px 10px;font-weight:500;display:flex}._7gOSaa_icon{color:var(--dsw-alias-label-secondary);flex:none}._7gOSaa_name{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}._7gOSaa_changesTool{color:var(--dsw-alias-label-secondary);font:inherit;border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;background:0 0;border-radius:6px;flex:none;padding:3px 8px}._7gOSaa_changesTool:hover,._7gOSaa_changesTool[aria-pressed=true]{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_tool{width:24px;height:24px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;justify-content:center;align-items:center;margin-left:auto;padding:0;display:inline-flex}._7gOSaa_tool:hover{background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_search{flex:none;align-items:center;gap:6px;padding:2px 10px 6px;display:flex}._7gOSaa_input{flex:auto;min-width:0}._7gOSaa_searchTool{height:32px;color:var(--dsw-alias-label-primary);font:inherit;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 64%, transparent);border:.5px solid color-mix(in srgb, var(--dsw-alias-border-l4) 72%, transparent);backdrop-filter:blur(16px)saturate(125%);cursor:pointer;border-radius:16px;flex:none;padding:0 14px}._7gOSaa_searchTool:hover{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover) 72%, transparent)}._7gOSaa_level{margin:0;padding:0;list-style:none}._7gOSaa_item{margin:0;padding:0 4px}._7gOSaa_commitButton{width:100%;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;padding:3px 6px;display:block}._7gOSaa_commitButton:hover{background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_row{align-items:baseline;gap:6px;min-width:0;display:flex}._7gOSaa_hash{color:var(--dsw-alias-link);font-family:var(--ds-font-family-code);flex:none;font-size:12px}._7gOSaa_subject{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}._7gOSaa_meta{min-width:0;color:var(--dsw-alias-label-tertiary);align-items:baseline;gap:8px;font-size:12px;display:flex}._7gOSaa_author{white-space:nowrap;text-overflow:ellipsis;overflow:hidden}._7gOSaa_date{flex:none}._7gOSaa_note{color:var(--dsw-alias-label-tertiary);margin:0;padding:3px 10px;font-size:12px}._7gOSaa_error{color:var(--dsw-alias-state-error-primary);margin:0;padding:3px 10px;font-size:12px}._7gOSaa_more{color:var(--dsw-alias-label-secondary);font:inherit;border:1px solid var(--dsw-alias-border-l2);cursor:pointer;background:0 0;border-radius:6px;align-self:center;margin:6px 0 0;padding:3px 12px}._7gOSaa_more:hover{background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_moreBusy{cursor:default;opacity:.6}._7gOSaa_status{flex-direction:column;padding:12px 10px;display:flex}._7gOSaa_statusLine{color:var(--dsw-alias-label-secondary);font-size:var(--dsh-content-font-size-secondary,13px);margin:0;line-height:1.6}._7gOSaa_detailDialog{background:var(--dsw-alias-bg-layer-2);width:min(1120px,100vw - 48px);height:min(760px,100vh - 48px);padding-bottom:18px}._7gOSaa_detailDialogFullscreen{border-radius:0;width:100vw;height:100vh;position:fixed;inset:0}body[data-dsh-background-media] ._7gOSaa_detailDialog{background:color-mix(in srgb, var(--dsw-alias-bg-layer-2) 72%, transparent);backdrop-filter:blur(16px)saturate(125%)}._7gOSaa_detailMeta{min-height:30px;color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);justify-content:space-between;align-items:center;padding:0 24px;font-size:12px;display:flex}._7gOSaa_detailMetaFullscreen{justify-content:flex-end}._7gOSaa_detailTools{flex:none;align-items:center;gap:4px;display:flex}._7gOSaa_detailLayout{border-top:.5px solid var(--dsw-alias-border-l2);height:min(620px,100vh - 180px);margin-top:12px;display:grid}._7gOSaa_detailLayoutFullscreen{height:calc(100vh - 126px);margin-top:4px}._7gOSaa_detailLayoutFullscreen ._7gOSaa_fileList,._7gOSaa_detailLayoutFullscreen ._7gOSaa_filePaneResize{display:none}._7gOSaa_detailLayoutFullscreen ._7gOSaa_diff{contain:layout paint style}._7gOSaa_workingDiffLayout{grid-template-columns:minmax(0,1fr)}._7gOSaa_fileList{min-width:0;padding:8px;overflow:auto}._7gOSaa_fileList,._7gOSaa_diffPane{scrollbar-color:color-mix(in srgb, var(--dsw-alias-label-secondary) 62%, transparent) color-mix(in srgb, var(--dsw-alias-bg-layer-1) 78%, transparent);scrollbar-width:auto}._7gOSaa_fileList::-webkit-scrollbar,._7gOSaa_diffPane::-webkit-scrollbar{width:12px;height:12px}._7gOSaa_fileList::-webkit-scrollbar-track,._7gOSaa_diffPane::-webkit-scrollbar-track{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 82%, transparent);border:1px solid color-mix(in srgb, var(--dsw-alias-border-l2) 78%, transparent);border-radius:8px}._7gOSaa_fileList::-webkit-scrollbar-thumb,._7gOSaa_diffPane::-webkit-scrollbar-thumb{background:color-mix(in srgb, var(--dsw-alias-label-secondary) 66%, transparent);background-clip:content-box;border:3px solid #0000;border-radius:8px;min-width:32px;min-height:32px}._7gOSaa_fileList::-webkit-scrollbar-thumb:hover,._7gOSaa_diffPane::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb, var(--dsw-alias-label-primary) 82%, transparent);background-clip:content-box}._7gOSaa_fileList::-webkit-scrollbar-corner,._7gOSaa_diffPane::-webkit-scrollbar-corner{background:0 0}body[data-dsh-background-media] ._7gOSaa_fileList,body[data-dsh-background-media] ._7gOSaa_diffPane{scrollbar-color:color-mix(in srgb, var(--dsw-alias-label-primary) 72%, transparent) color-mix(in srgb, var(--dsw-alias-bg-layer-1) 46%, transparent)}._7gOSaa_treeLevel{min-width:max-content;margin:0;padding:0;list-style:none}._7gOSaa_treeRow{width:100%;min-width:max-content;color:var(--dsw-alias-label-secondary);font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;align-items:center;gap:7px;padding:6px 8px;display:flex}._7gOSaa_treeRow:hover,._7gOSaa_detailFileSelected{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_treeFile{padding-right:16px}._7gOSaa_fileName{min-width:0}._7gOSaa_fileTypeIcon{width:18px;height:18px;color:var(--dsw-alias-label-secondary);font:600 6px/1 var(--ds-font-family-code);flex:0 0 18px;justify-content:center;align-items:center;display:inline-flex;position:relative}._7gOSaa_fileTypeIcon svg{width:18px;height:18px;position:absolute;inset:0}._7gOSaa_fileTypeMark{letter-spacing:-.35px;white-space:nowrap;max-width:13px;position:relative;top:2px;overflow:hidden}._7gOSaa_fileType_java ._7gOSaa_fileTypeMark:after{content:\"J\"}._7gOSaa_fileType_xml ._7gOSaa_fileTypeMark:after{content:\"<>\"}._7gOSaa_fileType_text ._7gOSaa_fileTypeMark:after{content:\"TXT\"}._7gOSaa_fileType_python ._7gOSaa_fileTypeMark:after{content:\"PY\"}._7gOSaa_fileType_typescript ._7gOSaa_fileTypeMark:after{content:\"TS\"}._7gOSaa_fileType_javascript ._7gOSaa_fileTypeMark:after{content:\"JS\"}._7gOSaa_fileType_json ._7gOSaa_fileTypeMark:after{content:\"{}\"}._7gOSaa_fileType_markdown ._7gOSaa_fileTypeMark:after{content:\"MD\"}._7gOSaa_fileType_style ._7gOSaa_fileTypeMark:after{content:\"#\"}._7gOSaa_fileType_html ._7gOSaa_fileTypeMark:after{content:\"</>\"}._7gOSaa_fileType_shell ._7gOSaa_fileTypeMark:after{content:\"$_\"}._7gOSaa_fileType_generic ._7gOSaa_fileTypeMark:after{content:\"—\"}._7gOSaa_fileType_java{color:#c96b3b}._7gOSaa_fileType_xml,._7gOSaa_fileType_html{color:#d57b2d}._7gOSaa_fileType_text,._7gOSaa_fileType_markdown{color:#66737f}._7gOSaa_fileType_python{color:#3572a5}._7gOSaa_fileType_typescript{color:#3178c6}._7gOSaa_fileType_javascript{color:#a78300}._7gOSaa_fileType_json{color:#7b7f28}._7gOSaa_fileType_style{color:#8a55b5}._7gOSaa_fileType_shell{color:#438b57}._7gOSaa_treeChevron{flex:none;transition:transform .12s}._7gOSaa_treeChevronExpanded{transform:rotate(90deg)}._7gOSaa_filePaneResize{cursor:col-resize;touch-action:none;position:relative}._7gOSaa_filePaneResize:after{content:\"\";background:var(--dsw-alias-border-l2);width:1px;position:absolute;top:0;bottom:0;left:2px}._7gOSaa_filePaneResize:hover:after{background:var(--dsw-alias-label-tertiary);width:2px}._7gOSaa_fileStatus{color:var(--dsw-alias-label-tertiary);font-size:11px;font-family:var(--ds-font-family-code);flex:none;margin-left:auto;padding-left:8px}._7gOSaa_diff{background:var(--dsw-alias-bg-base);flex-direction:column;min-width:0;display:flex;overflow:hidden}._7gOSaa_diffHint{color:var(--dsw-alias-label-tertiary);margin:0;padding:12px 16px}._7gOSaa_diffTable{width:100%;min-height:0;color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);flex:auto;grid-template-columns:minmax(0,1fr) minmax(0,1fr);font-size:12px;line-height:20px;display:grid;position:relative}._7gOSaa_syntax_comment{color:var(--dsw-alias-label-tertiary);font-style:italic}._7gOSaa_syntax_string{color:#2f8a57}._7gOSaa_syntax_number{color:#b56a2b}._7gOSaa_syntax_keyword{color:#8750b4;font-weight:500}._7gOSaa_syntax_tag{color:#167f8c}._7gOSaa_syntax_attribute{color:#a65b2e}._7gOSaa_searchMatch{color:inherit;background:#f2c94cad;border-radius:2px;padding:0 1px}._7gOSaa_searchActiveRow ._7gOSaa_searchMatch{background:#ff9f2fd1;box-shadow:0 0 0 1px #9b5b006b}._7gOSaa_zoomIndicator{z-index:4;min-width:48px;color:var(--dsw-alias-label-primary);font:12px/1 var(--ds-font-family-code);text-align:center;pointer-events:none;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 92%, transparent);border:1px solid var(--dsw-alias-border-l2);opacity:0;border-radius:7px;padding:5px 9px;transition:opacity .16s,transform .16s;position:absolute;bottom:16px;right:16px;transform:translateY(4px);box-shadow:0 4px 14px #00000029}._7gOSaa_zoomIndicatorVisible{opacity:1;transform:translateY(0)}body[data-dsh-background-media] ._7gOSaa_zoomIndicator{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 68%, transparent);backdrop-filter:blur(16px)saturate(125%)}._7gOSaa_diffHeader{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border-bottom:.5px solid var(--dsw-alias-border-l2);flex:none;grid-template-columns:minmax(0,1fr) minmax(0,1fr);font-size:12px;display:grid}._7gOSaa_diffHeaderSide{grid-template-columns:minmax(80px,1fr) minmax(150px,220px);align-items:center;min-width:0;padding:5px 8px 5px 12px;display:grid}._7gOSaa_diffHeaderSide:first-child{border-right:.5px solid var(--dsw-alias-border-l2)}._7gOSaa_diffHeaderSide>span{text-align:center;min-width:0}._7gOSaa_diffSearch{background:var(--dsw-alias-bg-base);border:1px solid var(--dsw-alias-border-l2);border-radius:7px;justify-self:end;align-items:center;width:100%;min-width:0;height:28px;display:flex;overflow:hidden}._7gOSaa_diffSearch:focus-within{border-color:var(--dsw-alias-label-secondary);box-shadow:0 0 0 2px color-mix(in srgb, var(--dsw-alias-label-secondary) 14%, transparent)}._7gOSaa_diffSearch input{min-width:0;height:100%;color:var(--dsw-alias-label-primary);font:12px/1 var(--ds-font-family);background:0 0;border:0;outline:0;padding:0 7px}._7gOSaa_diffSearch input::placeholder{color:var(--dsw-alias-label-tertiary)}._7gOSaa_diffSearch output{color:var(--dsw-alias-label-tertiary);font:10px/1 var(--ds-font-family-code);flex:none}._7gOSaa_diffSearch button{width:28px;height:26px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:0;flex:0 0 28px;justify-content:center;align-items:center;padding:0;display:inline-flex}._7gOSaa_diffSearch button:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_diffSearch ._7gOSaa_diffSearchClear{width:24px;color:var(--dsw-alias-label-tertiary);flex-basis:24px}._7gOSaa_diffSearch ._7gOSaa_diffSearchSubmit{border-left:1px solid color-mix(in srgb, var(--dsw-alias-border-l2) 72%, transparent);margin-left:0}body[data-dsh-background-media] ._7gOSaa_diffSearch{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 52%, transparent);backdrop-filter:blur(12px)saturate(125%)}body[data-dsh-background-media] ._7gOSaa_diffHeader{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 60%, transparent);backdrop-filter:blur(16px)saturate(125%)}._7gOSaa_iconTool{width:28px;height:28px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:1px solid #0000;border-radius:6px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}._7gOSaa_iconTool:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_iconTool[aria-pressed=true]{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-active);border-color:color-mix(in srgb, var(--dsw-alias-label-primary) 48%, transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--dsw-alias-label-primary) 12%, transparent)}._7gOSaa_iconTool[aria-pressed=false]{color:var(--dsw-alias-label-tertiary)}body[data-dsh-background-media] ._7gOSaa_iconTool{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 60%, transparent);backdrop-filter:blur(16px)saturate(125%)}body[data-dsh-background-media] ._7gOSaa_iconTool[aria-pressed=true]{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-active) 76%, transparent)}body[data-dsh-background-media] ._7gOSaa_diff{background:0 0}._7gOSaa_binaryNotice{color:var(--dsw-alias-label-secondary);margin:0;padding:18px}._7gOSaa_diffPane{border-right:.5px solid var(--dsw-alias-border-l2);min-width:0;overflow:auto}._7gOSaa_diffPane:last-child{border-right:0}._7gOSaa_diffCanvas{min-height:100%}._7gOSaa_diffCell{white-space:pre;grid-template-columns:48px minmax(max-content,1fr);min-width:max-content;min-height:20px;display:grid}._7gOSaa_diffPane[data-git-diff-pane=old] ._7gOSaa_diffCell{grid-template-columns:minmax(max-content,1fr) 48px}._7gOSaa_diffCell code{font:inherit;padding:0 12px}._7gOSaa_lineNumber{z-index:1;color:var(--dsw-alias-label-tertiary);text-align:end;user-select:none;background:color-mix(in srgb, var(--dsw-alias-bg-base) 84%, var(--dsw-alias-border-l2));border-right:.5px solid var(--dsw-alias-border-l2);padding:0 8px;position:sticky;left:0}._7gOSaa_diffPane[data-git-diff-pane=old] ._7gOSaa_lineNumber{border-right:0;border-left:.5px solid var(--dsw-alias-border-l2);left:auto;right:0}._7gOSaa_added{color:var(--dsw-alias-state-success-primary);background:color-mix(in srgb, var(--dsw-alias-state-success-primary) 16%, transparent)}._7gOSaa_removed{color:var(--dsw-alias-state-error-primary);background:color-mix(in srgb, var(--dsw-alias-state-error-primary) 16%, transparent)}";
 		const tagId$2 = "@deepseek-ai/dsh-client-ui-sidebar-git-history/GitHistoryBody.module.css";
+		/** The author dropdown beside the subject search: one applied filter each. */
+		const cssAuthorSelect$2 = "._7gOSaa_authorSelect{flex:0 1 auto;max-width:46%;height:32px;padding:0 8px;color:var(--dsw-alias-label-primary);font:inherit;text-overflow:ellipsis;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 64%, transparent);border:.5px solid color-mix(in srgb, var(--dsw-alias-border-l4) 72%, transparent);border-radius:16px;backdrop-filter:blur(16px)saturate(125%);cursor:pointer}._7gOSaa_authorSelect:hover{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover) 72%, transparent)}._7gOSaa_authorSelect:focus-visible{outline:2px solid var(--dsw-alias-border-l4);outline-offset:1px}._7gOSaa_authorSelect option{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-1)}";
 		if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$2) + "]") === null) {
 			const tag = document.createElement("style");
 			tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
 			tag.dataset.pluginCss = tagId$2;
-			tag.textContent = css$2;
+			tag.textContent = css$2 + cssAuthorSelect$2;
 			document.head.appendChild(tag);
 		}
 		var GitHistoryBody_module_css_default = {
 			"added": "_7gOSaa_added",
 			"author": "_7gOSaa_author",
+			"authorSelect": "_7gOSaa_authorSelect",
 			"binaryNotice": "_7gOSaa_binaryNotice",
 			"body": "_7gOSaa_body",
 			"changesTool": "_7gOSaa_changesTool",
@@ -1394,7 +1399,7 @@ const GitReview=((require) => {
 			if (state.commits.length === 0) return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
 				className: GitHistoryBody_module_css_default.note,
 				"data-git-row": "empty",
-				children: state.search === "" ? t("empty") : t("emptySearch")
+				children: state.search === "" && state.author === "" ? t("empty") : t("emptySearch")
 			});
 			return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("ul", {
 				className: GitHistoryBody_module_css_default.level,
@@ -2709,12 +2714,14 @@ const GitReview=((require) => {
 				start
 			]);
 			const historySearch = state?.search;
+			const historyAuthor = state?.author;
 			(0, react.useEffect)(() => {
-				if (workspaceId === void 0 || historySearch === void 0) return;
+				if (workspaceId === void 0 || historySearch === void 0 || historyAuthor === void 0) return;
 				return subscribeGitHistoryRefresh(sessionId, () => {
-					if (!signal.aborted) reload(tab.id, workspaceId, historySearch, signal);
+					if (!signal.aborted) reload(tab.id, workspaceId, historySearch, historyAuthor, signal);
 				});
 			}, [
+				historyAuthor,
 				historySearch,
 				reload,
 				sessionId,
@@ -2734,7 +2741,12 @@ const GitReview=((require) => {
 			if (state === void 0) return null;
 			const submit = (event) => {
 				event.preventDefault();
-				reload(tab.id, workspaceId, query.trim(), signal);
+				reload(tab.id, workspaceId, query.trim(), state.author, signal);
+			};
+			/** Apply one author choice at once: a dropdown choice is the filter itself. */
+			const chooseAuthor = (author) => {
+				if (author === state.author) return;
+				reload(tab.id, workspaceId, query.trim(), author, signal);
 			};
 			const title = state.branch === void 0 ? t("header.detached") : t("header.branch", { branch: state.branch });
 			const workspaceTitle = cwd === void 0 ? "" : workspaceTitleOf(cwd);
@@ -2780,7 +2792,7 @@ const GitReview=((require) => {
 									title: t("reload"),
 									"data-git-reload": true,
 									onClick: () => {
-										reload(tab.id, workspaceId, state.search, signal);
+										reload(tab.id, workspaceId, state.search, state.author, signal);
 									},
 									children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconRefreshOutlineRegular, {})
 								})
@@ -2788,7 +2800,23 @@ const GitReview=((require) => {
 						}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("form", {
 							className: GitHistoryBody_module_css_default.search,
 							onSubmit: submit,
-							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.Input, {
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("select", {
+								className: GitHistoryBody_module_css_default.authorSelect,
+								value: state.author,
+								"aria-label": t("search.author.label"),
+								title: t("search.author.label"),
+								"data-git-author": true,
+								onChange: (event) => {
+									chooseAuthor(event.currentTarget.value);
+								},
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+									value: "",
+									children: t("search.author.all")
+								}), state.authors.map((author) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+									value: author,
+									children: author
+								}, author))]
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.Input, {
 								className: GitHistoryBody_module_css_default.input,
 								type: "search",
 								value: query,
@@ -2834,7 +2862,7 @@ const GitReview=((require) => {
 								"data-git-more": true,
 								disabled: state.loadingMore,
 								onClick: () => {
-									loadMore(tab.id, workspaceId, state.search, state.skip, signal);
+									loadMore(tab.id, workspaceId, state.search, state.author, state.skip, signal);
 								},
 								children: state.loadingMore ? t("loadingMore") : t("more")
 							})
@@ -4118,6 +4146,8 @@ const GitReview=((require) => {
 			more: "加载更多",
 			"search.placeholder": "搜索提交说明…",
 			"search.submit": "搜索",
+			"search.author.all": "全部作者",
+			"search.author.label": "按提交作者筛选",
 			"detail.title": "提交详情",
 			"detail.close": "关闭提交详情",
 			"detail.files": "提交文件",
@@ -4221,6 +4251,8 @@ const GitReview=((require) => {
 			more: "Load more",
 			"search.placeholder": "Search commit messages…",
 			"search.submit": "Search",
+			"search.author.all": "All authors",
+			"search.author.label": "Filter by commit author",
 			"detail.title": "Commit details",
 			"detail.close": "Close commit details",
 			"detail.files": "Commit files",
@@ -4344,10 +4376,14 @@ const GitReview=((require) => {
 				draft.commits = append ? [...draft.commits, ...page.commits] : [...page.commits];
 				draft.skip = append ? draft.skip + page.commits.length : page.commits.length;
 				draft.more = page.more;
+				// Only a first page carries the author list; a later page keeps what the
+				// window already offers so the dropdown does not empty while paging.
+				if (page.authors !== void 0) draft.authors = [...page.authors];
 			} else {
 				draft.commits = [];
 				draft.skip = 0;
 				draft.more = false;
+				draft.authors = [];
 			}
 		}
 		/**
@@ -4371,6 +4407,8 @@ const GitReview=((require) => {
 							repository: true,
 							commits: [],
 							search: "",
+							author: "",
+							authors: [],
 							skip: 0,
 							more: false,
 							status: "loading",
@@ -4379,14 +4417,16 @@ const GitReview=((require) => {
 						};
 					},
 					/**
-					* Mark a first-page read (open, reload, or a new search) as in flight.
+					* Mark a first-page read (open, reload, or a new filter) as in flight.
 					* @param d - draft state.
 					* @param tabId - the tab being drawn.
 					* @param search - the subject filter the read carries.
+					* @param author - the author filter the read carries; blank means every author.
 					*/
-					loading: (d, tabId, search) => {
+					loading: (d, tabId, search, author) => {
 						const state = bucket(d, tabId);
 						state.search = search;
+						state.author = author;
 						state.status = "loading";
 						state.failure = void 0;
 					},
@@ -4617,7 +4657,7 @@ module.exports = __toCommonJS(index_exports);
 var import_react = __toESM(require("react"), 1);
 var import_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-primitives");
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/external.js
+// packages/controller/node_modules/zod/v4/classic/external.js
 var external_exports = {};
 __export(external_exports, {
   $brand: () => $brand,
@@ -4880,7 +4920,7 @@ __export(external_exports, {
   xor: () => xor
 });
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/index.js
+// packages/controller/node_modules/zod/v4/core/index.js
 var core_exports2 = {};
 __export(core_exports2, {
   $ZodAny: () => $ZodAny,
@@ -5197,7 +5237,7 @@ __export(core_exports2, {
   withParser: () => withParser
 });
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/util.js
+// packages/controller/node_modules/zod/v4/core/util.js
 var util_exports = {};
 __export(util_exports, {
   BIGINT_FORMAT_RANGES: () => BIGINT_FORMAT_RANGES,
@@ -6053,7 +6093,7 @@ function constantCatch(value) {
   return fn;
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/core.js
+// packages/controller/node_modules/zod/v4/core/core.js
 var _a;
 var NEVER = /* @__PURE__ */ Object.freeze({
   status: "aborted"
@@ -6175,7 +6215,7 @@ function config(newConfig) {
   return globalConfig;
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/errors.js
+// packages/controller/node_modules/zod/v4/core/errors.js
 function _getMessage() {
   const internals = this._zod;
   internals.message ?? (internals.message = JSON.stringify(internals.def, jsonStringifyReplacer, 2));
@@ -6367,7 +6407,7 @@ function prettifyError(error62) {
   return lines.join("\n");
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/parse.js
+// packages/controller/node_modules/zod/v4/core/parse.js
 function finalizeParams(callee, params) {
   return { callee: params?.callee ?? callee, Err: params?.Err };
 }
@@ -6527,7 +6567,7 @@ var _safeDecodeAsync = (_Err) => async (schema, value, _ctx) => {
 };
 var safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync($ZodRealError);
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/regexes.js
+// packages/controller/node_modules/zod/v4/core/regexes.js
 var regexes_exports = {};
 __export(regexes_exports, {
   anyString: () => anyString,
@@ -6699,7 +6739,7 @@ var sha512_hex = /^[0-9a-fA-F]{128}$/;
 var sha512_base64 = /* @__PURE__ */ fixedBase64(86, "==");
 var sha512_base64url = /* @__PURE__ */ fixedBase64url(86);
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/checks.js
+// packages/controller/node_modules/zod/v4/core/checks.js
 var $ZodCheck = /* @__PURE__ */ $constructor("$ZodCheck", (inst, def) => {
   var _a3;
   inst._zod ?? (inst._zod = {});
@@ -7175,7 +7215,7 @@ var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (ins
   };
 });
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/doc.js
+// packages/controller/node_modules/zod/v4/core/doc.js
 var Doc = class {
   constructor(args = [], closed = {}) {
     this.content = [];
@@ -7216,14 +7256,14 @@ ${content.join("\n")}
   }
 };
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/versions.js
+// packages/controller/node_modules/zod/v4/core/versions.js
 var version = {
   major: 4,
   minor: 6,
   patch: 7
 };
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/schemas.js
+// packages/controller/node_modules/zod/v4/core/schemas.js
 var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
   var _a3;
   inst ?? (inst = {});
@@ -9665,7 +9705,7 @@ function handleRefineResult(result, payload, input2, inst) {
   }
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/memoizer.js
+// packages/controller/node_modules/zod/v4/core/memoizer.js
 var $ZodCyclicError = class extends Error {
   constructor() {
     super(`Cannot parse a reference cycle that closes through a transform`);
@@ -9942,7 +9982,7 @@ function isBackEdge(ctx, value) {
   return backEdges !== void 0 && isRef(value) && backEdges.has(value);
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/index.js
+// packages/controller/node_modules/zod/v4/locales/index.js
 var locales_exports = {};
 __export(locales_exports, {
   ar: () => ar_default,
@@ -10010,7 +10050,7 @@ __export(locales_exports, {
   zhTW: () => zh_TW_default
 });
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ar.js
+// packages/controller/node_modules/zod/v4/locales/ar.js
 var error = () => {
   const Sizable = {
     string: { unit: "\u062D\u0631\u0641", verb: "\u0623\u0646 \u064A\u062D\u0648\u064A" },
@@ -10122,7 +10162,7 @@ function ar_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/az.js
+// packages/controller/node_modules/zod/v4/locales/az.js
 var error2 = () => {
   const Sizable = {
     string: { unit: "simvol", verb: "olmal\u0131d\u0131r" },
@@ -10233,7 +10273,7 @@ function az_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/be.js
+// packages/controller/node_modules/zod/v4/locales/be.js
 function getBelarusianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
   const lastDigit = absCount % 10;
@@ -10402,7 +10442,7 @@ function be_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/bg.js
+// packages/controller/node_modules/zod/v4/locales/bg.js
 var error4 = () => {
   const Sizable = {
     string: { unit: "\u0441\u0438\u043C\u0432\u043E\u043B\u0430", verb: "\u0434\u0430 \u0441\u044A\u0434\u044A\u0440\u0436\u0430" },
@@ -10528,7 +10568,7 @@ function bg_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/bn.js
+// packages/controller/node_modules/zod/v4/locales/bn.js
 var error5 = () => {
   const Sizable = {
     string: { unit: "\u0985\u0995\u09CD\u09B7\u09B0", verb: "\u09A5\u09BE\u0995\u09A4\u09C7 \u09B9\u09AC\u09C7" },
@@ -10642,7 +10682,7 @@ function bn_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ca.js
+// packages/controller/node_modules/zod/v4/locales/ca.js
 var error6 = () => {
   const Sizable = {
     string: { unit: "car\xE0cters", verb: "contenir" },
@@ -10756,7 +10796,7 @@ function ca_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ckb.js
+// packages/controller/node_modules/zod/v4/locales/ckb.js
 var error7 = () => {
   const Sizable = {
     string: { unit: "\u067E\u06CC\u062A", verb: "\u0628\u06CE\u062A" },
@@ -10889,7 +10929,7 @@ function ckb_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/cs.js
+// packages/controller/node_modules/zod/v4/locales/cs.js
 var error8 = () => {
   const Sizable = {
     string: { unit: "znak\u016F", verb: "m\xEDt" },
@@ -11006,7 +11046,7 @@ function cs_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/da.js
+// packages/controller/node_modules/zod/v4/locales/da.js
 var error9 = () => {
   const Sizable = {
     string: { unit: "tegn", verb: "havde" },
@@ -11127,7 +11167,7 @@ function da_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/de.js
+// packages/controller/node_modules/zod/v4/locales/de.js
 var error10 = () => {
   const Sizable = {
     string: { unit: "Zeichen", verb: "zu haben" },
@@ -11241,7 +11281,7 @@ function de_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/el.js
+// packages/controller/node_modules/zod/v4/locales/el.js
 var error11 = () => {
   const Sizable = {
     string: { unit: "\u03C7\u03B1\u03C1\u03B1\u03BA\u03C4\u03AE\u03C1\u03B5\u03C2", verb: "\u03BD\u03B1 \u03AD\u03C7\u03B5\u03B9" },
@@ -11354,7 +11394,7 @@ function el_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/en.js
+// packages/controller/node_modules/zod/v4/locales/en.js
 var error12 = () => {
   const Sizable = {
     string: { unit: "characters", verb: "to have" },
@@ -11479,7 +11519,7 @@ function en_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/eo.js
+// packages/controller/node_modules/zod/v4/locales/eo.js
 var error13 = () => {
   const Sizable = {
     string: { unit: "karaktrojn", verb: "havi" },
@@ -11594,7 +11634,7 @@ function eo_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/es.js
+// packages/controller/node_modules/zod/v4/locales/es.js
 var error14 = () => {
   const Sizable = {
     string: { unit: "caracteres", verb: "tener" },
@@ -11731,7 +11771,7 @@ function es_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fa.js
+// packages/controller/node_modules/zod/v4/locales/fa.js
 var error15 = () => {
   const Sizable = {
     string: { unit: "\u06A9\u0627\u0631\u0627\u06A9\u062A\u0631", verb: "\u062F\u0627\u0634\u062A\u0647 \u0628\u0627\u0634\u062F" },
@@ -11851,7 +11891,7 @@ function fa_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fi.js
+// packages/controller/node_modules/zod/v4/locales/fi.js
 var error16 = () => {
   const Sizable = {
     string: { unit: "merkki\xE4", subject: "merkkijonon" },
@@ -11969,7 +12009,7 @@ function fi_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fr.js
+// packages/controller/node_modules/zod/v4/locales/fr.js
 var error17 = () => {
   const Sizable = {
     string: { unit: "caract\xE8res", verb: "avoir" },
@@ -12099,7 +12139,7 @@ function fr_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fr-CA.js
+// packages/controller/node_modules/zod/v4/locales/fr-CA.js
 var error18 = () => {
   const Sizable = {
     string: { unit: "caract\xE8res", verb: "avoir" },
@@ -12212,7 +12252,7 @@ function fr_CA_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/gu.js
+// packages/controller/node_modules/zod/v4/locales/gu.js
 var error19 = () => {
   const Sizable = {
     string: { unit: "\u0A85\u0A95\u0ACD\u0AB7\u0AB0", verb: "\u0AB9\u0ACB\u0AB5\u0ABE \u0A9C\u0ACB\u0A88\u0A8F" },
@@ -12326,7 +12366,7 @@ function gu_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/he.js
+// packages/controller/node_modules/zod/v4/locales/he.js
 var error20 = () => {
   const TypeNames = {
     string: { label: "\u05DE\u05D7\u05E8\u05D5\u05D6\u05EA", gender: "f" },
@@ -12528,7 +12568,7 @@ function he_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hi.js
+// packages/controller/node_modules/zod/v4/locales/hi.js
 var error21 = () => {
   const Sizable = {
     string: { unit: "\u0905\u0915\u094D\u0937\u0930", verb: "\u0930\u0916\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F" },
@@ -12640,7 +12680,7 @@ function hi_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hr.js
+// packages/controller/node_modules/zod/v4/locales/hr.js
 var error22 = () => {
   const Sizable = {
     string: { unit: "znakova", verb: "imati" },
@@ -12767,7 +12807,7 @@ function hr_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hu.js
+// packages/controller/node_modules/zod/v4/locales/hu.js
 var error23 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "legyen" },
@@ -12881,7 +12921,7 @@ function hu_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hy.js
+// packages/controller/node_modules/zod/v4/locales/hy.js
 function getArmenianPlural(count, one, many) {
   return Math.abs(count) === 1 ? one : many;
 }
@@ -13040,7 +13080,7 @@ function hy_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/id.js
+// packages/controller/node_modules/zod/v4/locales/id.js
 var error25 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "memiliki" },
@@ -13152,7 +13192,7 @@ function id_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/is.js
+// packages/controller/node_modules/zod/v4/locales/is.js
 var error26 = () => {
   const Sizable = {
     string: { unit: "stafi", verb: "a\xF0 hafa" },
@@ -13267,7 +13307,7 @@ function is_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/it.js
+// packages/controller/node_modules/zod/v4/locales/it.js
 var error27 = () => {
   const Sizable = {
     string: { unit: "caratteri", verb: "avere" },
@@ -13381,7 +13421,7 @@ function it_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ja.js
+// packages/controller/node_modules/zod/v4/locales/ja.js
 var error28 = () => {
   const Sizable = {
     string: { unit: "\u6587\u5B57", verb: "\u3067\u3042\u308B" },
@@ -13494,7 +13534,7 @@ function ja_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ka.js
+// packages/controller/node_modules/zod/v4/locales/ka.js
 var error29 = () => {
   const Sizable = {
     string: { unit: "\u10E1\u10D8\u10DB\u10D1\u10DD\u10DA\u10DD", verb: "\u10E3\u10DC\u10D3\u10D0 \u10E8\u10D4\u10D8\u10EA\u10D0\u10D5\u10D3\u10D4\u10E1" },
@@ -13612,7 +13652,7 @@ function ka_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/km.js
+// packages/controller/node_modules/zod/v4/locales/km.js
 var error30 = () => {
   const Sizable = {
     string: { unit: "\u178F\u17BD\u17A2\u1780\u17D2\u179F\u179A", verb: "\u1782\u17BD\u179A\u1798\u17B6\u1793" },
@@ -13728,12 +13768,12 @@ function km_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/kh.js
+// packages/controller/node_modules/zod/v4/locales/kh.js
 function kh_default() {
   return km_default();
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/kn.js
+// packages/controller/node_modules/zod/v4/locales/kn.js
 var error31 = () => {
   const Sizable = {
     string: { unit: "\u0C85\u0C95\u0CCD\u0CB7\u0CB0\u0C97\u0CB3\u0CC1", verb: "\u0CB9\u0CCA\u0C82\u0CA6\u0CB2\u0CC1" },
@@ -13849,7 +13889,7 @@ function kn_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ko.js
+// packages/controller/node_modules/zod/v4/locales/ko.js
 var error32 = () => {
   const Sizable = {
     string: { unit: "\uBB38\uC790", verb: "to have" },
@@ -13966,7 +14006,7 @@ function ko_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/lt.js
+// packages/controller/node_modules/zod/v4/locales/lt.js
 var capitalizeFirstCharacter = (text) => {
   return text.charAt(0).toUpperCase() + text.slice(1);
 };
@@ -14174,7 +14214,7 @@ function lt_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/mk.js
+// packages/controller/node_modules/zod/v4/locales/mk.js
 var error34 = () => {
   const Sizable = {
     string: { unit: "\u0437\u043D\u0430\u0446\u0438", verb: "\u0434\u0430 \u0438\u043C\u0430\u0430\u0442" },
@@ -14289,7 +14329,7 @@ function mk_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ms.js
+// packages/controller/node_modules/zod/v4/locales/ms.js
 var error35 = () => {
   const Sizable = {
     string: { unit: "aksara", verb: "mempunyai" },
@@ -14402,7 +14442,7 @@ function ms_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ne.js
+// packages/controller/node_modules/zod/v4/locales/ne.js
 var error36 = () => {
   const Sizable = {
     string: { unit: "\u0905\u0915\u094D\u0937\u0930", verb: "\u0939\u0941\u0928\u0941\u092A\u0930\u094D\u091B" },
@@ -14514,7 +14554,7 @@ function ne_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/nl.js
+// packages/controller/node_modules/zod/v4/locales/nl.js
 var error37 = () => {
   const Sizable = {
     string: { unit: "tekens", verb: "heeft" },
@@ -14630,7 +14670,7 @@ function nl_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/nn.js
+// packages/controller/node_modules/zod/v4/locales/nn.js
 var error38 = () => {
   const Sizable = {
     string: { unit: "teikn", verb: "\xE5 ha" },
@@ -14744,7 +14784,7 @@ function nn_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/no.js
+// packages/controller/node_modules/zod/v4/locales/no.js
 var error39 = () => {
   const Sizable = {
     string: { unit: "tegn", verb: "\xE5 ha" },
@@ -14858,7 +14898,7 @@ function no_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ota.js
+// packages/controller/node_modules/zod/v4/locales/ota.js
 var error40 = () => {
   const Sizable = {
     string: { unit: "harf", verb: "olmal\u0131d\u0131r" },
@@ -14973,7 +15013,7 @@ function ota_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ps.js
+// packages/controller/node_modules/zod/v4/locales/ps.js
 var error41 = () => {
   const Sizable = {
     string: { unit: "\u062A\u0648\u06A9\u064A", verb: "\u0648\u0644\u0631\u064A" },
@@ -15093,7 +15133,7 @@ function ps_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pl.js
+// packages/controller/node_modules/zod/v4/locales/pl.js
 var error42 = () => {
   const Sizable = {
     string: { unit: "znak\xF3w", verb: "mie\u0107" },
@@ -15208,7 +15248,7 @@ function pl_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pt.js
+// packages/controller/node_modules/zod/v4/locales/pt.js
 var error43 = () => {
   const Sizable = {
     string: { unit: "caracteres" },
@@ -15352,7 +15392,7 @@ function pt_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pt-BR.js
+// packages/controller/node_modules/zod/v4/locales/pt-BR.js
 var error44 = () => {
   const Sizable = {
     string: { unit: "caracteres" },
@@ -15497,7 +15537,7 @@ function pt_BR_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ro.js
+// packages/controller/node_modules/zod/v4/locales/ro.js
 var error45 = () => {
   const Sizable = {
     string: { unit: "caractere", verb: "s\u0103 aib\u0103" },
@@ -15620,7 +15660,7 @@ function ro_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ru.js
+// packages/controller/node_modules/zod/v4/locales/ru.js
 function getRussianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
   const lastDigit = absCount % 10;
@@ -15789,7 +15829,7 @@ function ru_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sk.js
+// packages/controller/node_modules/zod/v4/locales/sk.js
 var error47 = () => {
   const Sizable = {
     string: { unit: "znakov", verb: "ma\u0165" },
@@ -15906,7 +15946,7 @@ function sk_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sl.js
+// packages/controller/node_modules/zod/v4/locales/sl.js
 var error48 = () => {
   const Sizable = {
     string: { unit: "znakov", verb: "imeti" },
@@ -16021,7 +16061,7 @@ function sl_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sv.js
+// packages/controller/node_modules/zod/v4/locales/sv.js
 var error49 = () => {
   const Sizable = {
     string: { unit: "tecken", verb: "att ha" },
@@ -16137,7 +16177,7 @@ function sv_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ta.js
+// packages/controller/node_modules/zod/v4/locales/ta.js
 var error50 = () => {
   const Sizable = {
     string: { unit: "\u0B8E\u0BB4\u0BC1\u0BA4\u0BCD\u0BA4\u0BC1\u0B95\u0BCD\u0B95\u0BB3\u0BCD", verb: "\u0B95\u0BCA\u0BA3\u0BCD\u0B9F\u0BBF\u0BB0\u0BC1\u0B95\u0BCD\u0B95 \u0BB5\u0BC7\u0BA3\u0BCD\u0B9F\u0BC1\u0BAE\u0BCD" },
@@ -16253,7 +16293,7 @@ function ta_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tg.js
+// packages/controller/node_modules/zod/v4/locales/tg.js
 var error51 = () => {
   const Sizable = {
     string: { unit: "\u0430\u043B\u043E\u043C\u0430\u0442", verb: "\u0434\u043E\u0448\u0442\u0430 \u0431\u043E\u0448\u0430\u0434" },
@@ -16370,7 +16410,7 @@ function tg_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/th.js
+// packages/controller/node_modules/zod/v4/locales/th.js
 var error52 = () => {
   const Sizable = {
     string: { unit: "\u0E15\u0E31\u0E27\u0E2D\u0E31\u0E01\u0E29\u0E23", verb: "\u0E04\u0E27\u0E23\u0E21\u0E35" },
@@ -16486,7 +16526,7 @@ function th_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tk.js
+// packages/controller/node_modules/zod/v4/locales/tk.js
 var error53 = () => {
   const Sizable = {
     string: { unit: "simwol", verb: "bolmaly" },
@@ -16594,7 +16634,7 @@ function tk_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tr.js
+// packages/controller/node_modules/zod/v4/locales/tr.js
 var error54 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "olmal\u0131" },
@@ -16705,7 +16745,7 @@ function tr_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/uk.js
+// packages/controller/node_modules/zod/v4/locales/uk.js
 var error55 = () => {
   const Sizable = {
     string: { unit: "\u0441\u0438\u043C\u0432\u043E\u043B\u0456\u0432", verb: "\u043C\u0430\u0442\u0438\u043C\u0435" },
@@ -16819,12 +16859,12 @@ function uk_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ua.js
+// packages/controller/node_modules/zod/v4/locales/ua.js
 function ua_default() {
   return uk_default();
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ur.js
+// packages/controller/node_modules/zod/v4/locales/ur.js
 var error56 = () => {
   const Sizable = {
     string: { unit: "\u062D\u0631\u0648\u0641", verb: "\u06C1\u0648\u0646\u0627" },
@@ -16940,7 +16980,7 @@ function ur_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/uz.js
+// packages/controller/node_modules/zod/v4/locales/uz.js
 var error57 = () => {
   const Sizable = {
     string: { unit: "belgi", verb: "bo\u2018lishi kerak" },
@@ -17054,7 +17094,7 @@ function uz_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/vi.js
+// packages/controller/node_modules/zod/v4/locales/vi.js
 var error58 = () => {
   const Sizable = {
     string: { unit: "k\xFD t\u1EF1", verb: "c\xF3" },
@@ -17168,7 +17208,7 @@ function vi_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/zh-CN.js
+// packages/controller/node_modules/zod/v4/locales/zh-CN.js
 var error59 = () => {
   const Sizable = {
     string: { unit: "\u5B57\u7B26", verb: "\u5305\u542B" },
@@ -17283,7 +17323,7 @@ function zh_CN_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/zh-TW.js
+// packages/controller/node_modules/zod/v4/locales/zh-TW.js
 var error60 = () => {
   const Sizable = {
     string: { unit: "\u5B57\u5143", verb: "\u64C1\u6709" },
@@ -17396,7 +17436,7 @@ function zh_TW_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/yo.js
+// packages/controller/node_modules/zod/v4/locales/yo.js
 var error61 = () => {
   const Sizable = {
     string: { unit: "\xE0mi", verb: "n\xED" },
@@ -17509,7 +17549,7 @@ function yo_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/registries.js
+// packages/controller/node_modules/zod/v4/core/registries.js
 var _a2;
 var $output = /* @__PURE__ */ Symbol("ZodOutput");
 var $input = /* @__PURE__ */ Symbol("ZodInput");
@@ -17559,7 +17599,7 @@ function registry() {
 (_a2 = globalThis).__zod_globalRegistry ?? (_a2.__zod_globalRegistry = registry());
 var globalRegistry = globalThis.__zod_globalRegistry;
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/compile.js
+// packages/controller/node_modules/zod/v4/core/compile.js
 var INVALID = /* @__PURE__ */ Symbol.for("zod.compile.invalid");
 var FALLBACK_FLAG = /* @__PURE__ */ Symbol.for("zod.compile.fallback");
 var ZodCompileAsyncError = class extends Error {
@@ -19169,7 +19209,7 @@ function generateTransformCheck(doc, ctx, schema, accessor) {
   return accessor;
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/api.js
+// packages/controller/node_modules/zod/v4/core/api.js
 function snapshotChecks(def) {
   if (def.checks)
     def.checks = [...def.checks];
@@ -20228,7 +20268,7 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
   return inst;
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/to-json-schema.js
+// packages/controller/node_modules/zod/v4/core/to-json-schema.js
 function assignProps(target, ...sources) {
   for (const source of sources) {
     for (const key of Reflect.ownKeys(source)) {
@@ -20758,7 +20798,7 @@ var createStandardJSONSchemaMethod = (schema, io, processors = {}) => (params) =
   return finalize(ctx, schema);
 };
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema-processors.js
+// packages/controller/node_modules/zod/v4/core/json-schema-processors.js
 var narrowMin = (agg, key, value) => {
   if (agg[key] === void 0 || value > agg[key])
     agg[key] = value;
@@ -21506,7 +21546,7 @@ function toJSONSchema(input2, params) {
   return finalize(ctx, input2);
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema-generator.js
+// packages/controller/node_modules/zod/v4/core/json-schema-generator.js
 var JSONSchemaGenerator = class {
   /** @deprecated Access via ctx instead */
   get metadataRegistry() {
@@ -21584,10 +21624,10 @@ var JSONSchemaGenerator = class {
   }
 };
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema.js
+// packages/controller/node_modules/zod/v4/core/json-schema.js
 var json_schema_exports = {};
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/schemas.js
+// packages/controller/node_modules/zod/v4/classic/schemas.js
 var schemas_exports2 = {};
 __export(schemas_exports2, {
   ZodAny: () => ZodAny,
@@ -21768,7 +21808,7 @@ __export(schemas_exports2, {
   xor: () => xor
 });
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/checks.js
+// packages/controller/node_modules/zod/v4/classic/checks.js
 var checks_exports2 = {};
 __export(checks_exports2, {
   endsWith: () => _endsWith,
@@ -21803,7 +21843,7 @@ __export(checks_exports2, {
   uppercase: () => _uppercase
 });
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/errors.js
+// packages/controller/node_modules/zod/v4/classic/errors.js
 var _installedErrorProtos = /* @__PURE__ */ new WeakSet([Object.prototype, Error.prototype]);
 function _lazyMethod(proto, key, make) {
   Object.defineProperty(proto, key, {
@@ -21849,7 +21889,7 @@ var ZodRealError = /* @__PURE__ */ $constructor("ZodError", initializer2, void 0
   Parent: Error
 });
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/parse.js
+// packages/controller/node_modules/zod/v4/classic/parse.js
 var parse2 = /* @__PURE__ */ _parse(ZodRealError);
 var parseAsync2 = /* @__PURE__ */ _parseAsync(ZodRealError);
 var safeParse2 = /* @__PURE__ */ _safeParse(ZodRealError);
@@ -21863,7 +21903,7 @@ var safeDecode2 = /* @__PURE__ */ _safeDecode(ZodRealError);
 var safeEncodeAsync2 = /* @__PURE__ */ _safeEncodeAsync(ZodRealError);
 var safeDecodeAsync2 = /* @__PURE__ */ _safeDecodeAsync(ZodRealError);
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/schemas.js
+// packages/controller/node_modules/zod/v4/classic/schemas.js
 function _ensureDefaultLocale() {
   if (!globalConfig.localeError)
     config(en_default());
@@ -23328,7 +23368,7 @@ function preprocess(fn, schema) {
   });
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/compat.js
+// packages/controller/node_modules/zod/v4/classic/compat.js
 var ZodIssueCode = {
   invalid_type: "invalid_type",
   too_big: "too_big",
@@ -23354,7 +23394,7 @@ var ZodFirstPartyTypeKind;
 /* @__PURE__ */ (function(ZodFirstPartyTypeKind2) {
 })(ZodFirstPartyTypeKind || (ZodFirstPartyTypeKind = {}));
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/iso.js
+// packages/controller/node_modules/zod/v4/classic/iso.js
 var iso_exports = {};
 __export(iso_exports, {
   ZodISODate: () => ZodISODate,
@@ -23379,7 +23419,7 @@ function duration2(params) {
   return _isoDuration(ZodISODuration, params);
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/from-json-schema.js
+// packages/controller/node_modules/zod/v4/classic/from-json-schema.js
 var z = {
   ...schemas_exports2,
   ...checks_exports2,
@@ -24112,7 +24152,7 @@ function fromJSONSchema(schema, params) {
   return convertSchema(normalized, ctx);
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/visit.js
+// packages/controller/node_modules/zod/v4/core/visit.js
 var RESOLVING = /* @__PURE__ */ Symbol("z.visit/resolving");
 function visit(schema, fnOrHandlers) {
   const fn = typeof fnOrHandlers === "function" ? fnOrHandlers : (node2, rewritten) => {
@@ -24267,7 +24307,7 @@ function visit(schema, fnOrHandlers) {
   return run(schema);
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/deep-partial.js
+// packages/controller/node_modules/zod/v4/classic/deep-partial.js
 function deepPartial(schema) {
   return visit(schema, {
     object: (s) => s.partial(),
@@ -24279,7 +24319,7 @@ function deepPartial(schema) {
   });
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/in-out.js
+// packages/controller/node_modules/zod/v4/classic/in-out.js
 function withChecks(side, checks) {
   if (!checks?.length)
     return side;
@@ -24309,7 +24349,7 @@ function output(schema) {
   });
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/coerce.js
+// packages/controller/node_modules/zod/v4/classic/coerce.js
 var coerce_exports = {};
 __export(coerce_exports, {
   bigint: () => bigint3,
@@ -24601,6 +24641,7 @@ var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_parameter_0$s
   "skip": external_exports.number().readonly().optional().describe("Commits skipped from the tip; the paging offset. Values below zero are clamped."),
   "limit": external_exports.number().readonly().optional().describe("Commits to return; the Host clamps to its page cap."),
   "search": external_exports.string().readonly().optional().describe("Case-insensitive subject substring filter; blank means no filter."),
+  "author": external_exports.string().readonly().optional().describe("Case-insensitive, literal author-name filter; blank means every author."),
   "workspaceId": external_exports.string().readonly()
 });
 var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_result$schema$value;
@@ -24617,7 +24658,8 @@ var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_result$schema
     "date": external_exports.string().readonly().describe("Author date in strict ISO 8601.")
   })).readonly(),
   "more": external_exports.boolean().readonly().describe("More commits exist beyond this page; the Client asks again with a larger `skip`."),
-  "branch": external_exports.string().readonly().optional().describe("Checked-out branch name; absent in detached HEAD.")
+  "branch": external_exports.string().readonly().optional().describe("Checked-out branch name; absent in detached HEAD."),
+  "authors": external_exports.array(external_exports.string()).readonly().optional().describe("Distinct author names in the read branch; sent with the first page only.")
 })]);
 var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0$schema$value;
 var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0$schema = () => _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0$schema$value ??= external_exports.object({
@@ -24802,6 +24844,7 @@ var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_parameter_0_s
   "skip": external_exports.number().readonly().optional().describe("Commits skipped from the tip; the paging offset. Values below zero are clamped."),
   "limit": external_exports.number().readonly().optional().describe("Commits to return; the Host clamps to its page cap."),
   "search": external_exports.string().readonly().optional().describe("Case-insensitive subject substring filter; blank means no filter."),
+  "author": external_exports.string().readonly().optional().describe("Case-insensitive, literal author-name filter; blank means every author."),
   "workspaceId": external_exports.string().readonly()
 });
 var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0_strict$schema$value;
@@ -24859,7 +24902,7 @@ var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_workingDiff_param
   "workspaceId": external_exports.string().readonly()
 });
 var TYPERT_REMOTE = createTypertRemoteInfo({
-  package: "@deepseek-ai/dsh-api-git-workspace-controller",
+  package: "@monster-30cl/dsh-git-workspace-controller",
   methods: {
     "gitWorkspace/checkout": {
       service: "gitWorkspaceController",
@@ -24872,13 +24915,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_checkout_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "branch": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["branch", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_checkout_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "branch": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["branch", "workspaceId"], "additionalProperties": false }
           }
@@ -24887,7 +24930,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_checkout_result$schema,
         description: "refreshed local branch state.",
         jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "localBranches": { "type": "array", "items": { "type": "string" } }, "remoteBranches": { "type": "array", "items": { "type": "string" }, "description": "Remote-tracking branches, excluding symbolic remote HEAD aliases." }, "current": { "type": "string" }, "detached": { "type": "boolean" } }, "required": ["repository", "localBranches", "remoteBranches", "detached"], "additionalProperties": true }] }
@@ -24905,13 +24948,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_checkoutRemote_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "branch": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["branch", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_checkoutRemote_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "branch": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["branch", "workspaceId"], "additionalProperties": false }
           }
@@ -24920,7 +24963,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_checkoutRemote_result$schema,
         description: "Checked-out branch and the refreshed local and remote branch lists.",
         jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "localBranches": { "type": "array", "items": { "type": "string" } }, "remoteBranches": { "type": "array", "items": { "type": "string" }, "description": "Remote-tracking branches, excluding symbolic remote HEAD aliases." }, "current": { "type": "string" }, "detached": { "type": "boolean" } }, "required": ["repository", "localBranches", "remoteBranches", "detached"], "additionalProperties": true }] }
@@ -24938,13 +24981,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commit_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "message": { "type": "string" }, "paths": { "type": "array", "items": { "type": "string" }, "description": "Workspace-relative paths selected from the current status result." }, "push": { "type": "boolean", "description": "Push the current branch after the commit succeeds." }, "workspaceId": { "type": "string" } }, "required": ["message", "paths", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commit_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "message": { "type": "string" }, "paths": { "type": "array", "items": { "type": "string" }, "description": "Workspace-relative paths selected from the current status result." }, "push": { "type": "boolean", "description": "Push the current branch after the commit succeeds." }, "workspaceId": { "type": "string" } }, "required": ["message", "paths", "workspaceId"], "additionalProperties": false }
           }
@@ -24953,7 +24996,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commit_result$schema,
         description: "Repository status after committing the selected paths and optionally pushing.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true } }, "required": ["repository"], "additionalProperties": true }
@@ -24971,13 +25014,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitFileRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitFileRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitDiff_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "path": { "type": "string" }, "previousPath": { "type": "string" }, "commit": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["path", "commit", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitFileRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitFileRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitDiff_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "path": { "type": "string" }, "previousPath": { "type": "string" }, "commit": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["path", "commit", "workspaceId"], "additionalProperties": false }
           }
@@ -24986,7 +25029,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitDiffState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitDiffState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitDiff_result$schema,
         description: "Bounded before and after contents of one committed file.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "binary": { "type": "boolean" }, "before": { "type": "string" }, "after": { "type": "string" }, "patch": { "type": "string" } }, "required": ["repository", "binary", "before", "after", "patch"], "additionalProperties": true }
@@ -25004,13 +25047,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitSelectionRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitSelectionRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "commit": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["commit", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitSelectionRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitSelectionRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "commit": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["commit", "workspaceId"], "additionalProperties": false }
           }
@@ -25019,7 +25062,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitFilesState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitFilesState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_result$schema,
         description: "Changed files and change kinds for the selected commit.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "files": { "type": "array", "items": { "type": "object", "properties": { "status": { "type": "string" }, "path": { "type": "string" }, "renamedFrom": { "type": "string" } }, "required": ["status", "path"], "additionalProperties": true } } }, "required": ["repository", "files"], "additionalProperties": true }
@@ -25037,13 +25080,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_create_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "branch": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["branch", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_create_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "branch": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["branch", "workspaceId"], "additionalProperties": false }
           }
@@ -25052,7 +25095,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_create_result$schema,
         description: "refreshed local branch state.",
         jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "localBranches": { "type": "array", "items": { "type": "string" } }, "remoteBranches": { "type": "array", "items": { "type": "string" }, "description": "Remote-tracking branches, excluding symbolic remote HEAD aliases." }, "current": { "type": "string" }, "detached": { "type": "boolean" } }, "required": ["repository", "localBranches", "remoteBranches", "detached"], "additionalProperties": true }] }
@@ -25070,13 +25113,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_delete_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "branch": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["branch", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_delete_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "branch": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["branch", "workspaceId"], "additionalProperties": false }
           }
@@ -25085,7 +25128,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_delete_result$schema,
         description: "Branch lists after deleting the requested local branch.",
         jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "localBranches": { "type": "array", "items": { "type": "string" } }, "remoteBranches": { "type": "array", "items": { "type": "string" }, "description": "Remote-tracking branches, excluding symbolic remote HEAD aliases." }, "current": { "type": "string" }, "detached": { "type": "boolean" } }, "required": ["repository", "localBranches", "remoteBranches", "detached"], "additionalProperties": true }] }
@@ -25103,13 +25146,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_list_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_list_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": false }
           }
@@ -25118,7 +25161,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_list_result$schema,
         description: "repository absence or the complete branch lists.",
         jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "localBranches": { "type": "array", "items": { "type": "string" } }, "remoteBranches": { "type": "array", "items": { "type": "string" }, "description": "Remote-tracking branches, excluding symbolic remote HEAD aliases." }, "current": { "type": "string" }, "detached": { "type": "boolean" } }, "required": ["repository", "localBranches", "remoteBranches", "detached"], "additionalProperties": true }] }
@@ -25132,29 +25175,29 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       parameters: [
         {
           name: "request",
-          description: "target Workspace, page bounds, and optional subject filter.",
+          description: "target Workspace, page bounds, and optional subject and author filters.",
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceLogRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceLogRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_parameter_0$schema,
-            jsonSchema: { "type": "object", "properties": { "skip": { "type": "number", "description": "Commits skipped from the tip; the paging offset. Values below zero are clamped." }, "limit": { "type": "number", "description": "Commits to return; the Host clamps to its page cap." }, "search": { "type": "string", "description": "Case-insensitive subject substring filter; blank means no filter." }, "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": true }
+            jsonSchema: { "type": "object", "properties": { "skip": { "type": "number", "description": "Commits skipped from the tip; the paging offset. Values below zero are clamped." }, "limit": { "type": "number", "description": "Commits to return; the Host clamps to its page cap." }, "search": { "type": "string", "description": "Case-insensitive subject substring filter; blank means no filter." }, "author": { "type": "string", "description": "Case-insensitive, literal author-name filter; blank means every author." }, "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceLogRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceLogRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_parameter_0_strict$schema,
-            jsonSchema: { "type": "object", "properties": { "skip": { "type": "number", "description": "Commits skipped from the tip; the paging offset. Values below zero are clamped." }, "limit": { "type": "number", "description": "Commits to return; the Host clamps to its page cap." }, "search": { "type": "string", "description": "Case-insensitive subject substring filter; blank means no filter." }, "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": false }
+            jsonSchema: { "type": "object", "properties": { "skip": { "type": "number", "description": "Commits skipped from the tip; the paging offset. Values below zero are clamped." }, "limit": { "type": "number", "description": "Commits to return; the Host clamps to its page cap." }, "search": { "type": "string", "description": "Case-insensitive subject substring filter; blank means no filter." }, "author": { "type": "string", "description": "Case-insensitive, literal author-name filter; blank means every author." }, "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": false }
           }
         }
       ],
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceLogState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceLogState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_result$schema,
         description: "repository absence or the page with the checked-out branch.",
-        jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "commits": { "type": "array", "items": { "type": "object", "properties": { "hash": { "type": "string", "description": "Full commit hash." }, "shortHash": { "type": "string", "description": "Abbreviated hash as Git rendered it." }, "subject": { "type": "string", "description": "Commit subject line." }, "authorName": { "type": "string" }, "authorEmail": { "type": "string" }, "date": { "type": "string", "description": "Author date in strict ISO 8601." } }, "required": ["hash", "shortHash", "subject", "authorName", "authorEmail", "date"], "additionalProperties": true } }, "more": { "type": "boolean", "description": "More commits exist beyond this page; the Client asks again with a larger `skip`." }, "branch": { "type": "string", "description": "Checked-out branch name; absent in detached HEAD." } }, "required": ["repository", "commits", "more"], "additionalProperties": true }] }
+        jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "commits": { "type": "array", "items": { "type": "object", "properties": { "hash": { "type": "string", "description": "Full commit hash." }, "shortHash": { "type": "string", "description": "Abbreviated hash as Git rendered it." }, "subject": { "type": "string", "description": "Commit subject line." }, "authorName": { "type": "string" }, "authorEmail": { "type": "string" }, "date": { "type": "string", "description": "Author date in strict ISO 8601." } }, "required": ["hash", "shortHash", "subject", "authorName", "authorEmail", "date"], "additionalProperties": true } }, "more": { "type": "boolean", "description": "More commits exist beyond this page; the Client asks again with a larger `skip`." }, "branch": { "type": "string", "description": "Checked-out branch name; absent in detached HEAD." }, "authors": { "type": "array", "items": { "type": "string" }, "description": "Distinct author names in the read branch; sent with the first page only." } }, "required": ["repository", "commits", "more"], "additionalProperties": true }] }
       },
       sourceLocation: { "file": "packages/api/git-workspace-controller/src/index.ts", "line": 194, "column": 9 }
     },
@@ -25169,13 +25212,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": false }
           }
@@ -25184,7 +25227,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspacePendingPushState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspacePendingPushState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_result$schema,
         description: "Current upstream and commits awaiting push.",
         jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "upstream": { "type": "boolean", "description": "False when the current branch has no configured upstream." }, "commits": { "type": "array", "items": { "type": "object", "properties": { "hash": { "type": "string", "description": "Full commit hash." }, "shortHash": { "type": "string", "description": "Abbreviated hash as Git rendered it." }, "subject": { "type": "string", "description": "Commit subject line." }, "authorName": { "type": "string" }, "authorEmail": { "type": "string" }, "date": { "type": "string", "description": "Author date in strict ISO 8601." } }, "required": ["hash", "shortHash", "subject", "authorName", "authorEmail", "date"], "additionalProperties": true } }, "more": { "type": "boolean", "description": "More unpublished commits exist beyond the configured response cap." } }, "required": ["repository", "upstream", "commits", "more"], "additionalProperties": true }] }
@@ -25202,13 +25245,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pull_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pull_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": false }
           }
@@ -25217,7 +25260,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pull_result$schema,
         description: "Repository status after merging updates from the configured upstream.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true } }, "required": ["repository"], "additionalProperties": true }
@@ -25235,13 +25278,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_push_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_push_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": false }
           }
@@ -25250,7 +25293,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_push_result$schema,
         description: "Repository status after pushing the current branch.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true } }, "required": ["repository"], "additionalProperties": true }
@@ -25268,13 +25311,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRollbackRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRollbackRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_rollback_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "trackedPaths": { "type": "array", "items": { "type": "string" }, "description": "Tracked paths restored from HEAD in both the index and working tree." }, "untrackedPaths": { "type": "array", "items": { "type": "string" }, "description": "Untracked paths permanently removed from the working tree." }, "workspaceId": { "type": "string" } }, "required": ["trackedPaths", "untrackedPaths", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRollbackRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRollbackRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_rollback_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "trackedPaths": { "type": "array", "items": { "type": "string" }, "description": "Tracked paths restored from HEAD in both the index and working tree." }, "untrackedPaths": { "type": "array", "items": { "type": "string" }, "description": "Untracked paths permanently removed from the working tree." }, "workspaceId": { "type": "string" } }, "required": ["trackedPaths", "untrackedPaths", "workspaceId"], "additionalProperties": false }
           }
@@ -25283,7 +25326,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_rollback_result$schema,
         description: "Repository status after restoring the selected paths.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true } }, "required": ["repository"], "additionalProperties": true }
@@ -25301,13 +25344,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stash_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stash_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": false }
           }
@@ -25316,7 +25359,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stash_result$schema,
         description: "repository absence or the complete stash list.",
         jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "entries": { "type": "array", "items": { "type": "object", "properties": { "selector": { "type": "string", "description": "Reflog selector, e.g. `stash@{0}`." }, "date": { "type": "string", "description": "Entry date in strict ISO 8601." }, "subject": { "type": "string", "description": "Stash subject line." } }, "required": ["selector", "date", "subject"], "additionalProperties": true } } }, "required": ["repository", "entries"], "additionalProperties": true }] }
@@ -25334,13 +25377,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashCreateRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashCreateRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashCreate_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "message": { "type": "string" }, "paths": { "type": "array", "items": { "type": "string" }, "description": "Workspace-relative paths selected from the current status result." }, "workspaceId": { "type": "string" } }, "required": ["message", "paths", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashCreateRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashCreateRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashCreate_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "message": { "type": "string" }, "paths": { "type": "array", "items": { "type": "string" }, "description": "Workspace-relative paths selected from the current status result." }, "workspaceId": { "type": "string" } }, "required": ["message", "paths", "workspaceId"], "additionalProperties": false }
           }
@@ -25349,7 +25392,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashCreate_result$schema,
         description: "Repository status after storing the selected changes.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true } }, "required": ["repository"], "additionalProperties": true }
@@ -25367,13 +25410,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashDrop_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "selector": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["selector", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashDrop_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "selector": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["selector", "workspaceId"], "additionalProperties": false }
           }
@@ -25382,7 +25425,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashDrop_result$schema,
         description: "Repository status after removing the selected stash.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true } }, "required": ["repository"], "additionalProperties": true }
@@ -25400,13 +25443,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashFiles_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "selector": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["selector", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashFiles_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "selector": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["selector", "workspaceId"], "additionalProperties": false }
           }
@@ -25415,7 +25458,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashFilesState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashFilesState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashFiles_result$schema,
         description: "File paths and change kinds recorded by the selected stash.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "files": { "type": "array", "items": { "type": "object", "properties": { "status": { "type": "string" }, "path": { "type": "string" }, "renamedFrom": { "type": "string" } }, "required": ["status", "path"], "additionalProperties": true } } }, "required": ["repository", "files"], "additionalProperties": true }
@@ -25433,13 +25476,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashPop_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "selector": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["selector", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashPop_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "selector": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["selector", "workspaceId"], "additionalProperties": false }
           }
@@ -25448,7 +25491,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashPop_result$schema,
         description: "Repository status after applying and removing the selected stash.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true } }, "required": ["repository"], "additionalProperties": true }
@@ -25466,13 +25509,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_status_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_status_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": false }
           }
@@ -25481,7 +25524,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStatusState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStatusState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_status_result$schema,
         description: "repository absence or every changed and untracked file.",
         jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "files": { "type": "array", "items": { "type": "object", "properties": { "path": { "type": "string", "description": "Workspace-relative path with forward slashes, as Git spelled it." }, "indexStatus": { "type": "string", "description": "Index status letter; `.` means unchanged in the index." }, "worktreeStatus": { "type": "string", "description": "Work-tree status letter; `.` means unchanged against the index." }, "untracked": { "type": "boolean", "description": "The file is untracked." }, "renamedFrom": { "type": "string", "description": "Original path of a rename or copy record." } }, "required": ["path", "indexStatus", "worktreeStatus", "untracked"], "additionalProperties": true }, "description": "Every reported file: tracked changes and untracked files together." } }, "required": ["repository", "files"], "additionalProperties": true }] }
@@ -25499,13 +25542,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceWorkingDiffRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceWorkingDiffRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_workingDiff_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "path": { "type": "string" }, "previousPath": { "type": "string" }, "untracked": { "type": "boolean" }, "workspaceId": { "type": "string" } }, "required": ["path", "untracked", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceWorkingDiffRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceWorkingDiffRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_workingDiff_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "path": { "type": "string" }, "previousPath": { "type": "string" }, "untracked": { "type": "boolean" }, "workspaceId": { "type": "string" } }, "required": ["path", "untracked", "workspaceId"], "additionalProperties": false }
           }
@@ -25514,7 +25557,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitDiffState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitDiffState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_workingDiff_result$schema,
         description: "Bounded before and after contents of one working-tree file.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "binary": { "type": "boolean" }, "before": { "type": "string" }, "after": { "type": "string" }, "patch": { "type": "string" } }, "required": ["repository", "binary", "before", "after", "patch"], "additionalProperties": true }

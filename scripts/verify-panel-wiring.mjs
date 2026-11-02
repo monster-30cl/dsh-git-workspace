@@ -8,6 +8,17 @@ import { readFileSync } from 'node:fs'
 
 const panelPath = process.argv[2]
 const require = createRequire(new URL('../package.json', import.meta.url))
+const controllerPackage = JSON.parse(readFileSync(new URL('../packages/controller/package.json', import.meta.url), 'utf8'))
+
+for (const file of ['typert.host.js', 'typert.remote-client.js']) {
+  const source = readFileSync(new URL(`../packages/controller/lib/${file}`, import.meta.url), 'utf8')
+  if (!source.includes(`package: '${controllerPackage.name}'`)) {
+    throw new Error(`${file} does not identify its owning package as ${controllerPackage.name}`)
+  }
+  if (source.includes('@deepseek-ai/dsh-api-git-workspace-controller')) {
+    throw new Error(`${file} still contains the upstream controller package identity`)
+  }
+}
 
 let registration
 globalThis.window = { __ModuleLoader__: { load: (value) => { registration = value } } }

@@ -4,6 +4,21 @@ import { fileURLToPath } from 'node:url'
 import { build } from 'esbuild'
 
 const root = new URL('../', import.meta.url)
+const upstreamControllerPackage = '@deepseek-ai/dsh-api-git-workspace-controller'
+const standaloneControllerPackage = '@monster-30cl/dsh-git-workspace-controller'
+
+for (const file of ['packages/controller/lib/typert.host.js', 'packages/controller/lib/typert.remote-client.js']) {
+  const url = new URL(file, root)
+  const source = await readFile(url, 'utf8')
+  if (!source.includes(upstreamControllerPackage)) {
+    if (!source.includes(standaloneControllerPackage)) {
+      throw new Error(`${file} does not declare the expected Git Workspace controller package`)
+    }
+    continue
+  }
+  await writeFile(url, source.replaceAll(upstreamControllerPackage, standaloneControllerPackage))
+}
+
 const review = await readFile(new URL('vendor/git-review/client.js', root), 'utf8')
 const factoryStart = review.indexOf('factory:') + 'factory:'.length
 const factoryEnd = review.lastIndexOf('\n});')
@@ -37,6 +52,10 @@ const result = await build({
   alias: {
     '@deepseek-ai/dsh-typert-protocol/remote-info': fileURLToPath(new URL('packages/controller/lib/remote-info-runtime.js', root)),
   },
+  // The wrapper below supplies `require`, `module`, and `exports`, so this
+  // CommonJS output does not carry the module body's own strict directive; the
+  // panel has always shipped as strict code, and the bundled sources are ESM.
+  banner: { js: '"use strict";' },
 })
 await writeFile(
   new URL('packages/panel/lib/client.js', root),

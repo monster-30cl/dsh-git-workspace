@@ -41,6 +41,9 @@ declare module '@deepseek-ai/cordis' {
   }
 }
 
+/** Recent commits scanned to build the author dropdown's options. */
+const AUTHOR_SCAN_COMMITS = 500
+
 /** Process collection policy for Git commands. */
 export interface Config {
   /** Maximum retained bytes for each Git output stream. */
@@ -178,7 +181,7 @@ export class GitWorkspaceController extends TypertRemoteService {
 
   /**
    * Read one bounded page of commit history for one Workspace.
-   * @param request - target Workspace, page bounds, and optional subject filter.
+   * @param request - target Workspace, page bounds, and optional subject and author filters.
    * @param signal - carrier cancellation.
    * @returns repository absence or the page with the checked-out branch.
    */
@@ -193,8 +196,13 @@ export class GitWorkspaceController extends TypertRemoteService {
     const limit = Math.min(Math.max(1, Math.trunc(request.limit ?? 50)), this.config.maxLogCommits)
     const args = ['log', '--pretty=format:%H%x1f%h%x1f%an%x1f%ae%x1f%aI%x1f%s%x1e', '-n', String(limit + 1)]
     if (skip > 0) args.push('--skip', String(skip))
-    const search = request.search?.trim()
-    if (search !== undefined && search !== '') args.push('-i', '-F', `--grep=${search}`)
+    const search = request.search?.trim() ?? ''
+    const author = request.author?.trim() ?? ''
+    // Both pattern options are case-insensitive and literal: the reader types a
+    // message fragment or picks a name, never a regular expression.
+    if (search !== '' || author !== '') args.push('-i', '-F')
+    if (search !== '') args.push(`--grep=${search}`)
+    if (author !== '') args.push(`--author=${author}`)
     const result = await this.git(workspace, args, signal, 'log')
     if (result.exitCode !== 0 && !hasNoCommitsYet(result.stderr)) this.failed(workspace, 'log', result)
     if (result.truncated) this.failed(workspace, 'log', result)
@@ -202,11 +210,15 @@ export class GitWorkspaceController extends TypertRemoteService {
       ? result.stdout.split('\x1e').filter(row => row !== '').map(parseCommitRow)
       : []
     const current = branch.stdout.trim()
+    // The dropdown's options travel with the first page so opening the history
+    // cost one read, not two; a later page leaves the list with the window.
+    const authors = skip === 0 ? await this.authors(workspace, signal) : undefined
     return {
       repository: true,
       commits: rows.slice(0, limit),
       more: rows.length > limit,
       ...(current === '' ? {} : { branch: current }),
+      ...(authors === undefined ? {} : { authors }),
     }
   }
 
@@ -555,6 +567,29 @@ export class GitWorkspaceController extends TypertRemoteService {
       detail,
       { workspaceId: workspace.id, operation },
     )
+  }
+
+  /**
+   * List the distinct author names among the checked-out branch's recent commits.
+   *
+   * The names feed the client's author dropdown. A refused or clipped scan leaves
+   * the list absent rather than failing the page that carries it: the history the
+   * reader asked for is complete either way, and the dropdown simply stays bare.
+   * @param workspace - the Workspace whose history is listed.
+   * @param signal - carrier cancellation.
+   * @returns the sorted names, or undefined when Git could not list them.
+   */
+  private async authors(workspace: Workspace, signal: AbortSignal): Promise<readonly string[] | undefined> {
+    const result = await this.git(
+      workspace, ['log', '-n', String(AUTHOR_SCAN_COMMITS), '--pretty=format:%an'], signal, 'log',
+    )
+    if (result.exitCode !== 0 || result.truncated) return undefined
+    const names = new Set<string>()
+    for (const line of result.stdout.split(/\r?\n/u)) {
+      const name = line.trim()
+      if (name !== '') names.add(name)
+    }
+    return [...names].sort((left, right) => (left < right ? -1 : left > right ? 1 : 0))
   }
 }
 
