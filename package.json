@@ -1,0 +1,60 @@
+{
+  "name": "@monster-30cl/dsh-git-workspace",
+  "version": "0.1.0",
+  "description": "Git history, review, working-tree actions, and branch switching for DeepSeek Harness desktop workspaces.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/monster-30cl/dsh-git-workspace.git"
+  },
+  "exports": {
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "cordis.patch.yml",
+    "icon.svg",
+    "locale/*.json",
+    "packages/controller/lib",
+    "packages/controller/package.json",
+    "packages/panel/lib",
+    "packages/panel/package.json",
+    "README.md",
+    "README_EN.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "verify": "node scripts/verify-panel-wiring.mjs packages/panel/lib/client.js",
+    "check": "pnpm run build && pnpm run verify",
+    "pack:release": "pnpm run check && pnpm pack"
+  },
+  "dependencies": {
+    "@monster-30cl/dsh-git-workspace-controller": "file:packages/controller",
+    "@monster-30cl/dsh-git-workspace-panel": "file:packages/panel"
+  },
+  "bundleDependencies": [
+    "@monster-30cl/dsh-git-workspace-controller",
+    "@monster-30cl/dsh-git-workspace-panel"
+  ],
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "zod": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "packageManager": "pnpm@11.25.0"
+}

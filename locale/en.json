@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Git branch panel",
+    "description": "Branch switching, right Sidebar history, diffs, commit, push, pull, and stash actions."
+  }
+}

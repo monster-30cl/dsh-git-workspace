@@ -1,0 +1,587 @@
+/*
+ * The working-changes region above the dock. The panel body is the flex column
+ * that splits the height; this root starts at half height and the separator
+ * lets the reader assign more room to either region. Tokens only.
+ */
+.root {
+  display: flex;
+  position: relative;
+  flex: 0 0 auto;
+  flex-direction: column;
+  height: 50%;
+  min-height: 0;
+  overflow: hidden;
+  color: var(--dsw-alias-label-primary);
+  font-size: var(--dsh-content-font-size-secondary, 13px);
+  line-height: 1.5;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+}
+
+.content {
+  min-height: 0;
+  overflow: auto;
+  padding: 4px 0 8px;
+}
+
+.resizeHandle {
+  position: absolute;
+  right: 0;
+  bottom: -3px;
+  left: 0;
+  z-index: 3;
+  height: 6px;
+  cursor: row-resize;
+  touch-action: none;
+}
+
+.resizeHandle::after {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  left: 0;
+  height: 1px;
+  content: '';
+  background: var(--dsw-alias-border-l2);
+}
+
+.resizeHandle:hover::after {
+  height: 2px;
+  background: var(--dsw-alias-label-tertiary);
+}
+
+.reviewToolbar {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 28px;
+  padding: 0 10px 10px;
+}
+
+.reviewTitle {
+  color: var(--dsw-alias-label-primary);
+  font-size: 14px;
+}
+
+.header {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
+  align-items: center;
+  padding: 3px 10px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.sectionToggle {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 5px;
+  align-items: center;
+  min-width: 0;
+  padding: 4px 8px;
+  color: var(--dsw-alias-label-primary);
+  font: inherit;
+  font-size: 14px;
+  text-align: start;
+  background: color-mix(in srgb, var(--dsw-alias-bg-base) 68%, transparent);
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 7px;
+  backdrop-filter: blur(18px) saturate(130%);
+  cursor: pointer;
+}
+
+.sectionToggle:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.sectionToggle .count {
+  color: var(--dsw-alias-label-secondary);
+  font-size: 13px;
+}
+
+:global(body[data-dsh-background-media]) .sectionToggle {
+  background: color-mix(in srgb, var(--dsw-alias-bg-base) 46%, transparent);
+}
+
+.sectionChevron {
+  flex: 0 0 auto;
+  transform: rotate(-90deg);
+  transition: transform 120ms ease;
+}
+
+.sectionChevronExpanded {
+  transform: rotate(0deg);
+}
+
+.subsectionHeader {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  padding: 5px 18px 2px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.headerActions {
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+  margin-left: auto;
+}
+
+.operationStatus {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  max-width: 180px;
+  margin-right: 4px;
+  overflow: hidden;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.operationSpinner {
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid color-mix(in srgb, currentColor 28%, transparent);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: git-operation-spin 720ms linear infinite;
+}
+
+@keyframes git-operation-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .operationSpinner { animation-duration: 1.8s; }
+}
+
+.actionButton {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  color: var(--dsw-alias-label-secondary);
+  font: inherit;
+  background: color-mix(in srgb, var(--dsw-alias-bg-base) 68%, transparent);
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.actionButton:hover:not(:disabled) {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.actionButton:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.rollbackButton {
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.rollbackWarning {
+  margin: 0;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.actionIcon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.actionError {
+  margin: 0 10px 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--dsw-alias-state-error-primary);
+  border-radius: 8px;
+  color: var(--dsw-alias-state-error-primary);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+:global(body[data-dsh-background-media]) .actionDialog {
+  background: color-mix(in srgb, var(--dsw-alias-bg-layer-2) 72%, transparent);
+  backdrop-filter: blur(16px) saturate(125%);
+}
+
+.lastMessage {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+  padding: 7px 9px;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  background: var(--dsw-alias-bg-layer-1);
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+}
+
+:global(body[data-dsh-background-media]) .lastMessage {
+  background: color-mix(in srgb, var(--dsw-alias-bg-layer-1) 60%, transparent);
+  backdrop-filter: blur(16px) saturate(125%);
+}
+
+.lastMessageLabel {
+  white-space: nowrap;
+}
+
+.lastMessageText {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--dsw-alias-label-primary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.fillMessageButton {
+  padding: 2px 7px;
+  color: var(--dsw-alias-label-secondary);
+  font: inherit;
+  background: var(--dsw-alias-interactive-bg-hover);
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.fillMessageButton:hover {
+  color: var(--dsw-alias-label-primary);
+}
+
+.name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.count {
+  flex: 0 0 auto;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+}
+
+/* Compact controls at the header's right edge. */
+.tool {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: var(--dsw-alias-label-secondary);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.tool:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.closeFloating {
+  position: absolute;
+  top: 4px;
+  right: 10px;
+}
+
+.list {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+}
+
+.level {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pendingCommit {
+  padding: 0 10px;
+}
+
+.pendingCommitButton {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0 7px;
+  align-items: baseline;
+  width: 100%;
+  padding: 3px 8px;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pendingCommitButton:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.pendingHash {
+  grid-row: 1 / span 2;
+  color: var(--dsw-alias-link);
+  font-family: var(--ds-font-family-code);
+  font-size: 12px;
+}
+
+.pendingSubject {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.pendingMeta {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0 4px;
+}
+
+.fileCheckbox {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  margin: 0 2px;
+  accent-color: var(--dsw-alias-brand-primary);
+  cursor: pointer;
+}
+
+.fileRow {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  width: 100%;
+  padding: 3px 6px;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.fileRow:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.rowAction {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: var(--dsw-alias-label-tertiary);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.rowAction:hover:not(:disabled) {
+  color: var(--dsw-alias-state-error-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.rowAction:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.badge {
+  flex: 0 0 auto;
+  color: var(--dsw-alias-label-secondary);
+  font-family: var(--ds-font-family-code);
+  font-size: 12px;
+}
+
+.badgeModified {
+  color: var(--dsw-alias-state-warn-primary);
+}
+
+.badgeAdded {
+  color: var(--dsw-alias-state-success-primary);
+}
+
+.badgeDeleted {
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.badgeRenamed {
+  color: var(--dsw-alias-link);
+}
+
+.badgeConflict {
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.fileName {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.fileDir {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.stashRow {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 2px 6px;
+}
+
+.stashCollection {
+  margin: 0 4px 4px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--dsw-alias-bg-base) 52%, transparent);
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 7px;
+}
+
+.stashToggle {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 5px;
+  align-items: center;
+  min-width: 0;
+  padding: 4px 2px;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.stashChevron {
+  flex: 0 0 auto;
+  transform: rotate(-90deg);
+  transition: transform 120ms ease;
+}
+
+.stashChevronExpanded {
+  transform: rotate(0deg);
+}
+
+.stashSubject {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.stashDate {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+}
+
+.restoreButton {
+  flex: 0 0 auto;
+  padding: 2px 7px;
+  color: var(--dsw-alias-label-secondary);
+  font: inherit;
+  background: var(--dsw-alias-interactive-bg-hover);
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.stashActions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 4px;
+}
+
+.deleteButton {
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.restoreButton:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.stashDetails {
+  padding: 2px 4px 5px 19px;
+  border-top: 0.5px solid var(--dsw-alias-border-l2);
+}
+
+.stashFile {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  min-width: 0;
+  padding: 2px 6px;
+}
+
+.note {
+  margin: 0;
+  padding: 3px 10px;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+}
+
+.ignoreNote {
+  margin: 3px 8px 5px;
+  padding: 6px 9px;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  background: color-mix(in srgb, var(--dsw-alias-bg-layer-1) 76%, transparent);
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 6px;
+}
+
+:global(body[data-dsh-background-media]) .ignoreNote {
+  background: color-mix(in srgb, var(--dsw-alias-bg-layer-1) 48%, transparent);
+  backdrop-filter: blur(12px) saturate(125%);
+}
+
+.error {
+  margin: 0;
+  padding: 3px 10px;
+  color: var(--dsw-alias-state-error-primary);
+  font-size: 12px;
+}

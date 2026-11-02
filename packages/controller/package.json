@@ -1,0 +1,25 @@
+{
+  "name": "@monster-30cl/dsh-git-workspace-controller",
+  "version": "0.1.0",
+  "description": "Workspace-scoped Git inspection and mutations for dsh.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/monster-30cl/dsh-git-workspace.git",
+    "directory": "packages/controller"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./typert": "./lib/typert.host.js",
+    "./remote": "./lib/typert.remote-client.js",
+    "./package.json": "./package.json"
+  },
+  "files": ["lib"],
+  "dependencies": {
+    "@deepseek-ai/dsh-typert-protocol": "0.2.1-rc.3",
+    "@deepseek-ai/schemastery": "^3.18.5",
+    "zod": "^4.0.0"
+  }
+}

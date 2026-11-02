@@ -1,0 +1,6 @@
+# Git controller and desktop review interface.
+- insert:
+    - id: git-workspace-controller
+      name: "@monster-30cl/dsh-git-workspace-controller"
+    - id: git-branch-panel
+      name: "@monster-30cl/dsh-git-workspace-panel"
