@@ -1,5 +1,80 @@
 window.__ModuleLoader__.load({id:"@monster-30cl/dsh-git-workspace-panel",factory:(require)=>{
 const GitReview=((require) => {
+const CommitMessageGenerator = ((require) => { const module = { exports: {} }; const exports = module.exports;
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// source/git-review/client/CommitMessageGenerator.tsx
+var CommitMessageGenerator_exports = {};
+__export(CommitMessageGenerator_exports, {
+  CommitMessageGenerator: () => CommitMessageGenerator
+});
+module.exports = __toCommonJS(CommitMessageGenerator_exports);
+var import_react = __toESM(require("react"), 1);
+function CommitMessageGenerator({ workspaceId, paths, message, generate, onMessage, className }) {
+  const [busy, setBusy] = (0, import_react.useState)(false);
+  const [error, setError] = (0, import_react.useState)("");
+  const request = (0, import_react.useRef)(void 0);
+  const selection = JSON.stringify(paths);
+  (0, import_react.useEffect)(() => {
+    request.current?.abort();
+    request.current = void 0;
+    setBusy(false);
+    setError("");
+    return () => {
+      request.current?.abort();
+    };
+  }, [workspaceId, selection, message]);
+  const run = async () => {
+    if (request.current) return;
+    const controller = new AbortController();
+    request.current = controller;
+    setBusy(true);
+    setError("");
+    try {
+      const generated = await generate(workspaceId, controller.signal, paths);
+      if (!controller.signal.aborted) onMessage(generated);
+    } catch (failure) {
+      if (!controller.signal.aborted) setError(failure instanceof Error ? failure.message : "\u751F\u6210\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5\u3002");
+    } finally {
+      if (request.current === controller) {
+        request.current = void 0;
+        setBusy(false);
+      }
+    }
+  };
+  return /* @__PURE__ */ import_react.default.createElement("div", { "data-git-ai-message": true, style: { marginTop: 10 } }, /* @__PURE__ */ import_react.default.createElement("button", { type: "button", className, disabled: busy || paths.length === 0, "aria-busy": busy, onClick: () => {
+    void run();
+  } }, busy ? "AI \u751F\u6210\u4E2D\u2026" : "AI \u751F\u6210\u63D0\u4EA4\u5907\u6CE8"), busy && /* @__PURE__ */ import_react.default.createElement("span", { role: "status", style: { marginLeft: 8, color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, "\u6B63\u5728\u5206\u6790\u52FE\u9009\u6587\u4EF6\u7684\u6539\u52A8\u2026"), error && /* @__PURE__ */ import_react.default.createElement("p", { role: "alert", style: { color: "var(--dsw-alias-state-error-primary)", margin: "8px 0" } }, error));
+}
+
+return module.exports.CommitMessageGenerator; })(require);
+
 const HistoryDatePicker = ((require) => { const module = { exports: {} }; const exports = module.exports;
 var __create = Object.create;
 var __defProp = Object.defineProperty;
@@ -3735,7 +3810,7 @@ return module.exports.HistoryDatePicker; })(require);
 			return t("actions.failedWithReason", { message: failure.message });
 		}
 		/** Mutation controls shown in the working-changes header. */
-		function GitActionControls({ workspaceId, paths, commit, commitAndPush, push, pull, stash, onRollback, operation, setOperation, error, setError, onDone, t }) {
+		function GitActionControls({ workspaceId, paths, generateCommitMessage, commit, commitAndPush, push, pull, stash, onRollback, operation, setOperation, error, setError, onDone, t }) {
 			const operationRef = (0, react.useRef)(void 0);
 			const [menuOpen, setMenuOpen] = (0, react.useState)(false);
 			const [mode, setMode] = (0, react.useState)(void 0);
@@ -3901,7 +3976,7 @@ return module.exports.HistoryDatePicker; })(require);
 								setMessage(event.target.value);
 							}
 						}),
-						lastMessage !== void 0 && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						mode !== void 0 && mode !== "stash" && react.createElement(CommitMessageGenerator, { key: workspaceId, workspaceId, paths, message, generate: generateCommitMessage, onMessage: setMessage, className: GitChangesBody_module_css_default.fillMessageButton }), lastMessage !== void 0 && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
 							className: GitChangesBody_module_css_default.lastMessage,
 							"data-git-last-message": true,
 							children: [
@@ -3934,7 +4009,7 @@ return module.exports.HistoryDatePicker; })(require);
 			] });
 		}
 		/** The code-review region and its independently collapsible Git sections. */
-		function GitChangesBody({ sessionId, useSessions, useWorkspaces, readChanges, commitChanges, commitAndPushChanges, pushChanges, pullChanges, stashChanges, rollbackChanges, readStashFiles, restoreStash, dropStash, readWorkingDiff, readCommitFiles, readCommitDiff, useDiffZoomModifier, t }) {
+		function GitChangesBody({ sessionId, useSessions, useWorkspaces, readChanges, commitChanges, commitAndPushChanges, pushChanges, pullChanges, stashChanges, rollbackChanges, readStashFiles, restoreStash, dropStash, readWorkingDiff, readCommitFiles, readCommitDiff, useDiffZoomModifier, t , generateCommitMessage }) {
 			const zoomModifier = useDiffZoomModifier((value) => value);
 			const visible = useGitChangesVisible(sessionId);
 			const rootRef = (0, react.useRef)(null);
@@ -4087,7 +4162,8 @@ return module.exports.HistoryDatePicker; })(require);
 								operations: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(GitActionControls, {
 									workspaceId,
 									paths: operationPaths,
-									commit: commitChanges,
+									generateCommitMessage,
+								commit: commitChanges,
 									commitAndPush: commitAndPushChanges,
 									push: pushChanges,
 									pull: pullChanges,
@@ -4772,6 +4848,11 @@ return module.exports.HistoryDatePicker; })(require);
 			const zoomPreference = new DiffZoomPreferenceController(ctx.configForms.get(GIT_HISTORY_SETTINGS_NAMESPACE));
 			const zoomHooks = { diffZoomModifier: zoomPreference.diffZoomModifier };
 			const changesFace = {
+generateCommitMessage: async (workspaceId, signal, paths) => {
+      const result = await ctx.remote.gitWorkspace.generateCommitMessage({ workspaceId, paths }, signal)
+      if (!result.ok) throw new Error(result.error.message)
+      return result.value.message
+    },
 				readChanges: createReadChanges(ctx.remote),
 				commitChanges: async (workspaceId, signal, paths, message) => {
 					const result = await ctx.remote.gitWorkspace.commit({
@@ -25165,9 +25246,20 @@ var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_workingDiff_param
   "untracked": external_exports.boolean().readonly(),
   "workspaceId": external_exports.string().readonly()
 });
+var commitMessageRequestSchema = () => external_exports.object({ workspaceId: external_exports.string(), paths: external_exports.array(external_exports.string()) });
+var commitMessageStrictSchema = () => external_exports.strictObject({ workspaceId: external_exports.string(), paths: external_exports.array(external_exports.string()) });
+var commitMessageResultSchema = () => external_exports.object({ message: external_exports.string() });
 var TYPERT_REMOTE = createTypertRemoteInfo({
   package: "@monster-30cl/dsh-git-workspace-controller",
   methods: {
+    "gitWorkspace/generateCommitMessage": {
+      service: "gitWorkspaceController",
+      description: "Generate a commit message for selected changes using the configured AI model.",
+      invocation: { kind: "direct" },
+      parameters: [{ name: "request", source: "json", codec: { mode: "strict", typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageRequest", create: commitMessageRequestSchema, jsonSchema: { type: "object", properties: { workspaceId: { type: "string" }, paths: { type: "array", items: { type: "string" } } }, required: ["workspaceId", "paths"], additionalProperties: true } }, strictCodec: { mode: "strict", typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageRequest", create: commitMessageStrictSchema, jsonSchema: { type: "object", properties: { workspaceId: { type: "string" }, paths: { type: "array", items: { type: "string" } } }, required: ["workspaceId", "paths"], additionalProperties: false } } }],
+      cancellation: { parameter: "signal" },
+      result: { mode: "strict", typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageResult", create: commitMessageResultSchema, jsonSchema: { type: "object", properties: { message: { type: "string" } }, required: ["message"], additionalProperties: true } }
+    },
     "gitWorkspace/checkout": {
       service: "gitWorkspaceController",
       description: "Check out one existing local branch in the Workspace directory.",

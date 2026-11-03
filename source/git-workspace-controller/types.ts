@@ -225,3 +225,13 @@ declare module '@deepseek-ai/dsh-typert-protocol' {
     }
   }
 }
+
+/** Read-only request to generate a message for the selected changes. */
+export interface GenerateCommitMessageRequest extends GitWorkspaceRequest {
+  readonly paths: readonly string[]
+}
+
+/** Editable message returned by the configured AI model. */
+export interface GenerateCommitMessageResult {
+  readonly message: string
+}

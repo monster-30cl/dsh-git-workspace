@@ -60,6 +60,8 @@ Each `v*` tag produces a `.tgz` Release asset. Download it, enter its absolute p
 - The full branch page selects a Workspace, refreshes branches, creates a branch, and checks out remote branches.
 
 <a id="safety-boundary"></a>
+In the commit or commit-and-push message dialog, click “AI 生成提交备注” to generate a Chinese commit message from the selected file diffs using the host’s configured default model. The result remains editable. Closing the dialog, editing the message, or changing the selection cancels the request. Each request supports up to 60 files and truncates long diffs. Generation does not create a commit.
+
 ## Safety boundary
 
 Commit, push, pull, stash, restore, and branch switching modify the shared Workspace. The plugin requests confirmation before switching branches. Rolling back uncommitted files and dropping a stash can permanently remove data; inspect the selected files first. The Host accepts only registered Workspace ids and confines paths to the selected Workspace.

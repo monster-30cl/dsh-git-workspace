@@ -19,6 +19,12 @@ for (const file of ['packages/controller/lib/typert.host.js', 'packages/controll
   await writeFile(url, source.replaceAll(upstreamControllerPackage, standaloneControllerPackage))
 }
 
+const controller = await build({
+  entryPoints: [fileURLToPath(new URL('source/git-workspace-controller/index.ts', root))],
+  bundle: true, write: false, format: 'esm', platform: 'node', target: 'node22', packages: 'external',
+})
+await writeFile(new URL('packages/controller/lib/index.js', root), controller.outputFiles[0].text)
+
 const review = await readFile(new URL('vendor/git-review/client.js', root), 'utf8')
 const factoryStart = review.indexOf('factory:') + 'factory:'.length
 const factoryEnd = review.lastIndexOf('\n});')
@@ -35,6 +41,12 @@ const calendarBinding = '\nconst HistoryDatePicker = ((require) => { const modul
   + calendar.outputFiles[0].text + '\nreturn module.exports.HistoryDatePicker; })(require);\n'
 if (!factory.startsWith('(require) => {')) throw new Error('Git review calendar adapter needs updating')
 factory = factory.replace('(require) => {', '(require) => {' + calendarBinding)
+
+const messageUi = await build({
+  entryPoints: [fileURLToPath(new URL('source/git-review/client/CommitMessageGenerator.tsx', root))],
+  bundle: true, write: false, format: 'cjs', platform: 'browser', target: 'es2022', external: ['react'],
+})
+factory = factory.replace('(require) => {', '(require) => {\nconst CommitMessageGenerator = ((require) => { const module = { exports: {} }; const exports = module.exports;\n' + messageUi.outputFiles[0].text + '\nreturn module.exports.CommitMessageGenerator; })(require);\n')
 
 // Desktop 0.2.1-rc.3 exposes entry configuration through ConfigForms.
 const settingsBinding = 'ctx.settingsScope.bind({ namespace: GIT_HISTORY_SETTINGS_NAMESPACE })'

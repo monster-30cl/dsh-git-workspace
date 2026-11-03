@@ -31,6 +31,7 @@ import { notifyGitHistoryRefresh, setGitChangesVisible, useGitChangesVisible } f
 import { CommitDetailModal, failureLine, formatCommitDate, WorkingTreeDiffModal } from './GitHistoryBody.tsx'
 import { readLastGitMessage, writeLastGitMessage } from './last-messages.ts'
 import type {} from './locales.ts'
+import { CommitMessageGenerator } from './CommitMessageGenerator'
 import css from './GitChangesBody.module.css'
 
 const MIN_REGION_HEIGHT = 96
@@ -424,10 +425,11 @@ function actionFailureLine(t: TranslateNS<'sidebarGitHistory'>, failure: RemoteF
 
 /** Mutation controls shown in the working-changes header. */
 function GitActionControls({
-  workspaceId, paths, commit, commitAndPush, push, pull, stash, onRollback, operation, setOperation, error, setError, onDone, t,
+  workspaceId, paths, generateCommitMessage, commit, commitAndPush, push, pull, stash, onRollback, operation, setOperation, error, setError, onDone, t,
 }: {
   workspaceId: WorkspaceId
   paths: readonly string[]
+  generateCommitMessage: GitChangesInjected['generateCommitMessage']
   commit: GitChangesMutation
   commitAndPush: GitChangesMutation
   push: SyncGitChanges
@@ -550,6 +552,7 @@ function GitActionControls({
         )}
       >
         <Input autoFocus value={message} placeholder={mode === 'stash' ? t('stash.messagePlaceholder') : t('actions.messagePlaceholder')} onChange={(event) => { setMessage(event.target.value) }} />
+        {mode !== undefined && mode !== 'stash' && <CommitMessageGenerator key={workspaceId} workspaceId={workspaceId} paths={paths} message={message} generate={generateCommitMessage} onMessage={setMessage} className={css.fillMessageButton} />}
         {lastMessage !== undefined && (
           <div className={css.lastMessage} data-git-last-message>
             <span className={css.lastMessageLabel}>{t('actions.lastMessage')}</span>
@@ -567,7 +570,7 @@ function GitActionControls({
 
 /** The code-review region and its independently collapsible Git sections. */
 export function GitChangesBody({
-  sessionId, useSessions, useWorkspaces, readChanges, commitChanges, commitAndPushChanges, pushChanges, pullChanges, stashChanges,
+  sessionId, useSessions, useWorkspaces, readChanges, generateCommitMessage, commitChanges, commitAndPushChanges, pushChanges, pullChanges, stashChanges,
   rollbackChanges,
   readStashFiles, restoreStash, dropStash, readWorkingDiff, readCommitFiles, readCommitDiff, useDiffZoomModifier, t,
 }: GitChangesBodyProps): ReactNode {
@@ -699,6 +702,7 @@ export function GitChangesBody({
             <GitActionControls
               workspaceId={workspaceId}
               paths={operationPaths}
+              generateCommitMessage={generateCommitMessage}
               commit={commitChanges}
               commitAndPush={commitAndPushChanges}
               push={pushChanges}

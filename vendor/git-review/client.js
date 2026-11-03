@@ -3610,7 +3610,7 @@ window.__ModuleLoader__.load({
 			return t("actions.failedWithReason", { message: failure.message });
 		}
 		/** Mutation controls shown in the working-changes header. */
-		function GitActionControls({ workspaceId, paths, commit, commitAndPush, push, pull, stash, onRollback, operation, setOperation, error, setError, onDone, t }) {
+		function GitActionControls({ workspaceId, paths, generateCommitMessage, commit, commitAndPush, push, pull, stash, onRollback, operation, setOperation, error, setError, onDone, t }) {
 			const operationRef = (0, react.useRef)(void 0);
 			const [menuOpen, setMenuOpen] = (0, react.useState)(false);
 			const [mode, setMode] = (0, react.useState)(void 0);
@@ -3776,7 +3776,7 @@ window.__ModuleLoader__.load({
 								setMessage(event.target.value);
 							}
 						}),
-						lastMessage !== void 0 && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						mode !== void 0 && mode !== "stash" && react.createElement(CommitMessageGenerator, { key: workspaceId, workspaceId, paths, message, generate: generateCommitMessage, onMessage: setMessage, className: GitChangesBody_module_css_default.fillMessageButton }), lastMessage !== void 0 && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
 							className: GitChangesBody_module_css_default.lastMessage,
 							"data-git-last-message": true,
 							children: [
@@ -3809,7 +3809,7 @@ window.__ModuleLoader__.load({
 			] });
 		}
 		/** The code-review region and its independently collapsible Git sections. */
-		function GitChangesBody({ sessionId, useSessions, useWorkspaces, readChanges, commitChanges, commitAndPushChanges, pushChanges, pullChanges, stashChanges, rollbackChanges, readStashFiles, restoreStash, dropStash, readWorkingDiff, readCommitFiles, readCommitDiff, useDiffZoomModifier, t }) {
+		function GitChangesBody({ sessionId, useSessions, useWorkspaces, readChanges, commitChanges, commitAndPushChanges, pushChanges, pullChanges, stashChanges, rollbackChanges, readStashFiles, restoreStash, dropStash, readWorkingDiff, readCommitFiles, readCommitDiff, useDiffZoomModifier, t , generateCommitMessage }) {
 			const zoomModifier = useDiffZoomModifier((value) => value);
 			const visible = useGitChangesVisible(sessionId);
 			const rootRef = (0, react.useRef)(null);
@@ -3962,7 +3962,8 @@ window.__ModuleLoader__.load({
 								operations: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(GitActionControls, {
 									workspaceId,
 									paths: operationPaths,
-									commit: commitChanges,
+									generateCommitMessage,
+								commit: commitChanges,
 									commitAndPush: commitAndPushChanges,
 									push: pushChanges,
 									pull: pullChanges,
@@ -4647,6 +4648,11 @@ window.__ModuleLoader__.load({
 			const zoomPreference = new DiffZoomPreferenceController(ctx.settingsScope.bind({ namespace: GIT_HISTORY_SETTINGS_NAMESPACE }));
 			const zoomHooks = { diffZoomModifier: zoomPreference.diffZoomModifier };
 			const changesFace = {
+generateCommitMessage: async (workspaceId, signal, paths) => {
+      const result = await ctx.remote.gitWorkspace.generateCommitMessage({ workspaceId, paths }, signal)
+      if (!result.ok) throw new Error(result.error.message)
+      return result.value.message
+    },
 				readChanges: createReadChanges(ctx.remote),
 				commitChanges: async (workspaceId, signal, paths, message) => {
 					const result = await ctx.remote.gitWorkspace.commit({

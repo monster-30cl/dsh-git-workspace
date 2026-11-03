@@ -1,5 +1,6 @@
 /** Workspace-scoped Git branch discovery and checkout over Typert Remote. */
 
+import { generateCommitMessage } from './commit-message'
 import type { Context } from '@deepseek-ai/cordis'
 import { stripVTControlCharacters } from 'node:util'
 import z from '@deepseek-ai/schemastery'
@@ -7,6 +8,8 @@ import type { SubprocessHandle } from '@deepseek-ai/dsh-subprocess'
 import { Remote, RemoteError, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
 import type { Workspace } from '@deepseek-ai/dsh-workspace'
 import type {
+  GenerateCommitMessageRequest,
+  GenerateCommitMessageResult,
   GitWorkspaceBranchRequest,
   GitWorkspaceBranchState,
   GitWorkspaceCommit,
@@ -276,6 +279,20 @@ export class GitWorkspaceController extends TypertRemoteService {
       before: before.exitCode === 0 ? before.stdout : '',
       after: after.exitCode === 0 ? after.stdout : '',
       patch: result.stdout,
+    }
+  }
+
+  /** Generate a commit message from selected changes without modifying Git. */
+  @Remote('generateCommitMessage')
+  async generateCommitMessage(request: GenerateCommitMessageRequest, signal: AbortSignal): Promise<GenerateCommitMessageResult> {
+    this.workspace(request.workspaceId as GitWorkspaceRequest['workspaceId'])
+    selectedPaths(request.paths, request.workspaceId as GitWorkspaceRequest['workspaceId'], 'commit')
+    try {
+      return await generateCommitMessage(this.ctx, request, signal,
+        callSignal => this.status({ workspaceId: request.workspaceId as GitWorkspaceRequest['workspaceId'] }, callSignal),
+        (file, callSignal) => this.workingDiff({ workspaceId: request.workspaceId as GitWorkspaceRequest['workspaceId'], path: file.path, previousPath: file.renamedFrom, untracked: file.untracked }, callSignal))
+    } catch (error) {
+      throw new RemoteError('git/operation-failed', error instanceof Error ? error.message : 'AI generation failed.', { workspaceId: request.workspaceId, operation: 'generate-commit-message' })
     }
   }
 

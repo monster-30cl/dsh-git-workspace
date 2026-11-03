@@ -387,9 +387,19 @@ const _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_workingDiff_par
   'workspaceId': z.string().readonly(),
 }))
 
+
+const commitMessageRequestSchema = () => z.object({ workspaceId: z.string(), paths: z.array(z.string()) })
+const commitMessageStrictSchema = () => z.strictObject({ workspaceId: z.string(), paths: z.array(z.string()) })
+const commitMessageResultSchema = () => z.object({ message: z.string() })
 const $remote = createTypertRemoteInfo({
   package: '@monster-30cl/dsh-git-workspace-controller',
   methods: {
+    'gitWorkspace/generateCommitMessage': {
+      service: 'gitWorkspaceController', description: 'Generate a commit message for selected changes using the configured AI model.', invocation: { kind: 'direct' },
+      parameters: [{ name: 'request', source: 'json', codec: { mode: 'strict', typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageRequest', create: commitMessageRequestSchema, jsonSchema: { type: 'object', properties: { workspaceId: { type: 'string' }, paths: { type: 'array', items: { type: 'string' } } }, required: ['workspaceId', 'paths'], additionalProperties: true } }, strictCodec: { mode: 'strict', typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageRequest', create: commitMessageStrictSchema, jsonSchema: { type: 'object', properties: { workspaceId: { type: 'string' }, paths: { type: 'array', items: { type: 'string' } } }, required: ['workspaceId', 'paths'], additionalProperties: false } } }],
+      cancellation: { parameter: 'signal' },
+      result: { mode: 'strict', typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageResult', create: commitMessageResultSchema, jsonSchema: { type: 'object', properties: { message: { type: 'string' } }, required: ['message'], additionalProperties: true } },
+    },
     'gitWorkspace/checkout': {
       service: 'gitWorkspaceController',
       description: 'Check out one existing local branch in the Workspace directory.',

@@ -117,6 +117,7 @@ export function createReadChanges(remote: GitWorkspaceChangesRemote): ReadGitCha
 export interface GitChangesInjected extends DiffZoomPreferenceInjected {
   /** Read pending commits, uncommitted files, and stashes for one workspace. */
   readonly readChanges: ReadGitChanges
+  readonly generateCommitMessage: (workspaceId: WorkspaceId, signal: AbortSignal, paths: readonly string[]) => Promise<string>
   readonly commitChanges: GitChangesMutation
   readonly commitAndPushChanges: GitChangesMutation
   readonly pushChanges: SyncGitChanges
