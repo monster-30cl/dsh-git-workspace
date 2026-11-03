@@ -3748,8 +3748,9 @@ window.__ModuleLoader__.load({
 					onClick: onRollback,
 					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(RollbackIcon, {}), t("rollback.batch")]
 				}),
-				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)(_deepseek_ai_dsh_client_ui_primitives.Modal, {
+				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)(CommitMessageDialog, {
 					open: mode !== void 0,
+          ai: mode !== void 0 && mode !== "stash" ? { workspaceId, paths, message, generate: generateCommitMessage, onMessage: setMessage, onError: setError } : void 0,
 					className: clsx(GitChangesBody_module_css_default.actionDialog),
 					onClose: () => {
 						setMode(void 0);
@@ -3776,7 +3777,7 @@ window.__ModuleLoader__.load({
 								setMessage(event.target.value);
 							}
 						}),
-						mode !== void 0 && mode !== "stash" && react.createElement(CommitMessageGenerator, { key: workspaceId, workspaceId, paths, message, generate: generateCommitMessage, onMessage: setMessage, className: GitChangesBody_module_css_default.fillMessageButton }), lastMessage !== void 0 && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						lastMessage !== void 0 && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
 							className: GitChangesBody_module_css_default.lastMessage,
 							"data-git-last-message": true,
 							children: [

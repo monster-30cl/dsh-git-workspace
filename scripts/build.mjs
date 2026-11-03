@@ -43,10 +43,10 @@ if (!factory.startsWith('(require) => {')) throw new Error('Git review calendar 
 factory = factory.replace('(require) => {', '(require) => {' + calendarBinding)
 
 const messageUi = await build({
-  entryPoints: [fileURLToPath(new URL('source/git-review/client/CommitMessageGenerator.tsx', root))],
-  bundle: true, write: false, format: 'cjs', platform: 'browser', target: 'es2022', external: ['react'],
+  entryPoints: [fileURLToPath(new URL('source/git-review/client/CommitMessageDialog.tsx', root))],
+  bundle: true, write: false, format: 'cjs', platform: 'browser', target: 'es2022', external: ['react', '@deepseek-ai/dsh-client-ui-primitives'],
 })
-factory = factory.replace('(require) => {', '(require) => {\nconst CommitMessageGenerator = ((require) => { const module = { exports: {} }; const exports = module.exports;\n' + messageUi.outputFiles[0].text + '\nreturn module.exports.CommitMessageGenerator; })(require);\n')
+factory = factory.replace('(require) => {', '(require) => {\nconst CommitMessageDialog = ((require) => { const module = { exports: {} }; const exports = module.exports;\n' + messageUi.outputFiles[0].text + '\nreturn module.exports.CommitMessageDialog; })(require);\n')
 
 // Desktop 0.2.1-rc.3 exposes entry configuration through ConfigForms.
 const settingsBinding = 'ctx.settingsScope.bind({ namespace: GIT_HISTORY_SETTINGS_NAMESPACE })'

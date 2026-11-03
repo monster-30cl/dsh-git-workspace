@@ -31,7 +31,7 @@ import { notifyGitHistoryRefresh, setGitChangesVisible, useGitChangesVisible } f
 import { CommitDetailModal, failureLine, formatCommitDate, WorkingTreeDiffModal } from './GitHistoryBody.tsx'
 import { readLastGitMessage, writeLastGitMessage } from './last-messages.ts'
 import type {} from './locales.ts'
-import { CommitMessageGenerator } from './CommitMessageGenerator'
+import { CommitMessageDialog } from './CommitMessageDialog'
 import css from './GitChangesBody.module.css'
 
 const MIN_REGION_HEIGHT = 96
@@ -538,8 +538,9 @@ function GitActionControls({
       />
       <button type="button" className={css.actionButton} disabled={operation !== undefined || paths.length === 0} data-git-stash-create onClick={() => { openMessageDialog('stash') }}><StashIcon />{t('actions.stash')}</button>
       <button type="button" className={clsx(css.actionButton, css.rollbackButton)} disabled={operation !== undefined || paths.length === 0} data-git-rollback-selected onClick={onRollback}><RollbackIcon />{t('rollback.batch')}</button>
-      <Modal
+      <CommitMessageDialog
         open={mode !== undefined}
+        ai={mode !== undefined && mode !== 'stash' ? { workspaceId, paths, message, generate: generateCommitMessage, onMessage: setMessage, onError: setError } : undefined}
         className={clsx(css.actionDialog)}
         onClose={() => { setMode(undefined) }}
         title={mode === 'stash' ? t('actions.stash') : mode === 'commit-push' ? t('actions.commitPush') : t('actions.commit')}
@@ -552,7 +553,6 @@ function GitActionControls({
         )}
       >
         <Input autoFocus value={message} placeholder={mode === 'stash' ? t('stash.messagePlaceholder') : t('actions.messagePlaceholder')} onChange={(event) => { setMessage(event.target.value) }} />
-        {mode !== undefined && mode !== 'stash' && <CommitMessageGenerator key={workspaceId} workspaceId={workspaceId} paths={paths} message={message} generate={generateCommitMessage} onMessage={setMessage} className={css.fillMessageButton} />}
         {lastMessage !== undefined && (
           <div className={css.lastMessage} data-git-last-message>
             <span className={css.lastMessageLabel}>{t('actions.lastMessage')}</span>
@@ -563,7 +563,7 @@ function GitActionControls({
           </div>
         )}
         {error !== undefined && <p className={css.error} role="alert">{error}</p>}
-      </Modal>
+      </CommitMessageDialog>
     </>
   )
 }

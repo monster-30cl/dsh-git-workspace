@@ -1,6 +1,6 @@
 window.__ModuleLoader__.load({id:"@monster-30cl/dsh-git-workspace-panel",factory:(require)=>{
 const GitReview=((require) => {
-const CommitMessageGenerator = ((require) => { const module = { exports: {} }; const exports = module.exports;
+const CommitMessageDialog = ((require) => { const module = { exports: {} }; const exports = module.exports;
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -29,23 +29,27 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// source/git-review/client/CommitMessageGenerator.tsx
-var CommitMessageGenerator_exports = {};
-__export(CommitMessageGenerator_exports, {
-  CommitMessageGenerator: () => CommitMessageGenerator
+// source/git-review/client/CommitMessageDialog.tsx
+var CommitMessageDialog_exports = {};
+__export(CommitMessageDialog_exports, {
+  CommitMessageDialog: () => CommitMessageDialog
 });
-module.exports = __toCommonJS(CommitMessageGenerator_exports);
+module.exports = __toCommonJS(CommitMessageDialog_exports);
+var import_react2 = __toESM(require("react"), 1);
+var import_dsh_client_ui_primitives2 = require("@deepseek-ai/dsh-client-ui-primitives");
+
+// source/git-review/client/CommitMessageGenerator.tsx
 var import_react = __toESM(require("react"), 1);
-function CommitMessageGenerator({ workspaceId, paths, message, generate, onMessage, className }) {
+var import_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-primitives");
+function CommitMessageGenerator({ workspaceId, paths, message, generate, onMessage, className, onError }) {
   const [busy, setBusy] = (0, import_react.useState)(false);
-  const [error, setError] = (0, import_react.useState)("");
   const request = (0, import_react.useRef)(void 0);
   const selection = JSON.stringify(paths);
   (0, import_react.useEffect)(() => {
     request.current?.abort();
     request.current = void 0;
     setBusy(false);
-    setError("");
+    onError(void 0);
     return () => {
       request.current?.abort();
     };
@@ -55,12 +59,12 @@ function CommitMessageGenerator({ workspaceId, paths, message, generate, onMessa
     const controller = new AbortController();
     request.current = controller;
     setBusy(true);
-    setError("");
+    onError(void 0);
     try {
       const generated = await generate(workspaceId, controller.signal, paths);
       if (!controller.signal.aborted) onMessage(generated);
     } catch (failure) {
-      if (!controller.signal.aborted) setError(failure instanceof Error ? failure.message : "\u751F\u6210\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5\u3002");
+      if (!controller.signal.aborted) onError(failure instanceof Error ? failure.message : "\u751F\u6210\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5\u3002");
     } finally {
       if (request.current === controller) {
         request.current = void 0;
@@ -68,12 +72,18 @@ function CommitMessageGenerator({ workspaceId, paths, message, generate, onMessa
       }
     }
   };
-  return /* @__PURE__ */ import_react.default.createElement("div", { "data-git-ai-message": true, style: { marginTop: 10 } }, /* @__PURE__ */ import_react.default.createElement("button", { type: "button", className, disabled: busy || paths.length === 0, "aria-busy": busy, onClick: () => {
+  const label = busy ? "AI \u751F\u6210\u4E2D\u2026" : "AI \u751F\u6210\u63D0\u4EA4\u5907\u6CE8";
+  return /* @__PURE__ */ import_react.default.createElement(import_dsh_client_ui_primitives.Tooltip, { label, side: "bottom", portal: true }, /* @__PURE__ */ import_react.default.createElement("span", { "data-git-ai-message": true, style: { display: "inline-flex", alignItems: "center" } }, /* @__PURE__ */ import_react.default.createElement("button", { type: "button", className, disabled: busy || paths.length === 0, "aria-label": label, "aria-busy": busy, onClick: () => {
     void run();
-  } }, busy ? "AI \u751F\u6210\u4E2D\u2026" : "AI \u751F\u6210\u63D0\u4EA4\u5907\u6CE8"), busy && /* @__PURE__ */ import_react.default.createElement("span", { role: "status", style: { marginLeft: 8, color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, "\u6B63\u5728\u5206\u6790\u52FE\u9009\u6587\u4EF6\u7684\u6539\u52A8\u2026"), error && /* @__PURE__ */ import_react.default.createElement("p", { role: "alert", style: { color: "var(--dsw-alias-state-error-primary)", margin: "8px 0" } }, error));
+  } }, busy ? /* @__PURE__ */ import_react.default.createElement("svg", { className: "dsh-commit-ai-spinner", width: "18", height: "18", viewBox: "0 0 20 20", fill: "none", stroke: "currentColor", strokeWidth: "1.5", "aria-hidden": "true" }, /* @__PURE__ */ import_react.default.createElement("circle", { cx: "10", cy: "10", r: "7", opacity: ".25" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "M10 3a7 7 0 0 1 7 7" })) : /* @__PURE__ */ import_react.default.createElement("svg", { width: "18", height: "18", viewBox: "0 0 20 20", fill: "none", stroke: "currentColor", strokeWidth: "1.4", strokeLinejoin: "round", "aria-hidden": "true" }, /* @__PURE__ */ import_react.default.createElement("path", { d: "m8 3 1.8 4.8L15 10l-5.2 2.2L8 17l-1.8-4.8L1 10l5.2-2.2L8 3Z" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "m16 1 .8 2.2L19 4l-2.2.8L16 7l-.8-2.2L13 4l2.2-.8L16 1Z" }))), busy && /* @__PURE__ */ import_react.default.createElement("span", { role: "status", style: { position: "absolute", width: 1, height: 1, overflow: "hidden", clipPath: "inset(50%)" } }, "\u6B63\u5728\u5206\u6790\u52FE\u9009\u6587\u4EF6\u7684\u6539\u52A8\u2026")));
 }
 
-return module.exports.CommitMessageGenerator; })(require);
+// source/git-review/client/CommitMessageDialog.tsx
+function CommitMessageDialog({ open, className, onClose, title, closeLabel, footer, children, ai }) {
+  return /* @__PURE__ */ import_react2.default.createElement(import_dsh_client_ui_primitives2.Modal, { open, headless: true, className, onClose, title }, /* @__PURE__ */ import_react2.default.createElement("style", null, `.dsh-commit-dialog-header{display:flex;align-items:center;gap:8px;padding:22px 14px 12px 24px}.dsh-commit-dialog-header h2{margin:0;color:var(--dsw-alias-label-primary);font-size:16px;line-height:24px;font-weight:500}.dsh-commit-title-tool{display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;color:var(--dsw-alias-label-secondary);background:transparent;border:0;border-radius:6px;cursor:pointer}.dsh-commit-title-tool:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}.dsh-commit-title-tool:focus-visible{outline:2px solid var(--dsw-alias-link);outline-offset:2px}.dsh-commit-title-tool:disabled{cursor:default;opacity:.55}.dsh-commit-ai-spinner{animation:dsh-commit-ai-spin 1s linear infinite}@keyframes dsh-commit-ai-spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.dsh-commit-ai-spinner{animation:none}}`), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dsh-commit-dialog-header" }, /* @__PURE__ */ import_react2.default.createElement("h2", null, title), ai && /* @__PURE__ */ import_react2.default.createElement(CommitMessageGenerator, { ...ai, className: "dsh-commit-title-tool" }), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", className: "dsh-commit-title-tool", style: { marginLeft: "auto" }, "aria-label": closeLabel, onClick: onClose }, /* @__PURE__ */ import_react2.default.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", "aria-hidden": "true" }, /* @__PURE__ */ import_react2.default.createElement("path", { d: "m3 3 10 10M13 3 3 13" })))), /* @__PURE__ */ import_react2.default.createElement("div", { style: { display: "flex", flexDirection: "column", minWidth: 0, marginTop: 20, padding: "0 24px" } }, children), /* @__PURE__ */ import_react2.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, padding: "0 24px" } }, footer));
+}
+
+return module.exports.CommitMessageDialog; })(require);
 
 const HistoryDatePicker = ((require) => { const module = { exports: {} }; const exports = module.exports;
 var __create = Object.create;
@@ -3948,8 +3958,9 @@ return module.exports.HistoryDatePicker; })(require);
 					onClick: onRollback,
 					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(RollbackIcon, {}), t("rollback.batch")]
 				}),
-				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)(_deepseek_ai_dsh_client_ui_primitives.Modal, {
+				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)(CommitMessageDialog, {
 					open: mode !== void 0,
+          ai: mode !== void 0 && mode !== "stash" ? { workspaceId, paths, message, generate: generateCommitMessage, onMessage: setMessage, onError: setError } : void 0,
 					className: clsx(GitChangesBody_module_css_default.actionDialog),
 					onClose: () => {
 						setMode(void 0);
@@ -3976,7 +3987,7 @@ return module.exports.HistoryDatePicker; })(require);
 								setMessage(event.target.value);
 							}
 						}),
-						mode !== void 0 && mode !== "stash" && react.createElement(CommitMessageGenerator, { key: workspaceId, workspaceId, paths, message, generate: generateCommitMessage, onMessage: setMessage, className: GitChangesBody_module_css_default.fillMessageButton }), lastMessage !== void 0 && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						lastMessage !== void 0 && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
 							className: GitChangesBody_module_css_default.lastMessage,
 							"data-git-last-message": true,
 							children: [
