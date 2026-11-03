@@ -586,6 +586,7 @@ export function GitChangesBody({
   const [revision, setRevision] = useState(0)
   const [pendingExpanded, setPendingExpanded] = useState(true)
   const [changesExpanded, setChangesExpanded] = useState(true)
+  const [untrackedExpanded, setUntrackedExpanded] = useState(false)
   const [stashExpanded, setStashExpanded] = useState(true)
   const [selectedCommit, setSelectedCommit] = useState<GitWorkspaceCommit | undefined>(undefined)
   const [selectedWorkingFile, setSelectedWorkingFile] = useState<GitWorkspaceStatusFile | undefined>(undefined)
@@ -800,8 +801,11 @@ export function GitChangesBody({
           )}
           {repository && untracked.length > 0 && (
             <>
-              <div className={css.subsectionHeader} data-git-changes-header="untracked"><span>{t('changes.untrackedTitle')}</span><span className={css.count}>{untracked.length}</span></div>
-              <ul className={css.level}>{untracked.map(file => (
+              <button type="button" className={css.subsectionHeader} data-git-changes-header="untracked" aria-expanded={untrackedExpanded} onClick={() => { setUntrackedExpanded(value => !value) }}>
+                <IconChevronDownOutline14 className={clsx(css.sectionChevron, untrackedExpanded && css.sectionChevronExpanded)} />
+                <span>{t('changes.untrackedTitle')}</span><span className={css.count}>{untracked.length}</span>
+              </button>
+              {untrackedExpanded && <ul className={css.level}>{untracked.map(file => (
                 <FileRow
                   key={file.path}
                   file={file}
@@ -812,7 +816,7 @@ export function GitChangesBody({
                   onRollback={(target) => { setRollbackFiles([target]) }}
                   t={t}
                 />
-              ))}</ul>
+              ))}</ul>}
             </>
           )}
         </div>}
