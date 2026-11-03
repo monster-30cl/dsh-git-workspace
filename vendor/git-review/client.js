@@ -2799,6 +2799,8 @@ window.__ModuleLoader__.load({
 				}, signal);
 			};
 			const clearDates = () => {
+				setDateOpen(true);
+				if (state.since === '' && state.until === '') return;
 				reload(tab.id, workspaceId, filterOf({
 					since: "",
 					until: ""

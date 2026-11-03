@@ -1099,6 +1099,8 @@ export function GitHistoryBody({
     reload(tab.id, workspaceId, bound === 'since' ? { ...next, since: value } : { ...next, until: value }, signal)
   }
   const clearDates = (): void => {
+    setDateOpen(true)
+    if (state.since === '' && state.until === '') return
     reload(tab.id, workspaceId, filterOf({ since: '', until: '' }), signal)
   }
   const dateFiltered = state.since !== '' || state.until !== ''
