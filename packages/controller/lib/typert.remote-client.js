@@ -123,6 +123,8 @@ const _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_parameter_0
   'limit': z.number().readonly().optional().describe('Commits to return; the Host clamps to its page cap.'),
   'search': z.string().readonly().optional().describe('Case-insensitive subject substring filter; blank means no filter.'),
   'author': z.string().readonly().optional().describe('Case-insensitive, literal author-name filter; blank means every author.'),
+  'since': z.string().readonly().optional().describe('Inclusive `YYYY-MM-DD` lower bound on the commit date; blank means unbounded.'),
+  'until': z.string().readonly().optional().describe('Inclusive `YYYY-MM-DD` upper bound on the commit date; blank means unbounded.'),
   'workspaceId': z.string().readonly(),
 }))
 let _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_result$schema$value
@@ -326,6 +328,8 @@ const _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_parameter_0
   'limit': z.number().readonly().optional().describe('Commits to return; the Host clamps to its page cap.'),
   'search': z.string().readonly().optional().describe('Case-insensitive subject substring filter; blank means no filter.'),
   'author': z.string().readonly().optional().describe('Case-insensitive, literal author-name filter; blank means every author.'),
+  'since': z.string().readonly().optional().describe('Inclusive `YYYY-MM-DD` lower bound on the commit date; blank means unbounded.'),
+  'until': z.string().readonly().optional().describe('Inclusive `YYYY-MM-DD` upper bound on the commit date; blank means unbounded.'),
   'workspaceId': z.string().readonly(),
 }))
 let _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0_strict$schema$value
@@ -657,19 +661,19 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       parameters: [
         {
           name: 'request',
-          description: 'target Workspace, page bounds, and optional subject and author filters.',
+          description: 'target Workspace, page bounds, and optional subject, author, and date filters.',
           source: 'json',
           codec: {
             mode: 'strict',
             typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceLogRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_parameter_0$schema,
-            jsonSchema: {"type":"object","properties":{"skip":{"type":"number","description":"Commits skipped from the tip; the paging offset. Values below zero are clamped."},"limit":{"type":"number","description":"Commits to return; the Host clamps to its page cap."},"search":{"type":"string","description":"Case-insensitive subject substring filter; blank means no filter."},"author":{"type":"string","description":"Case-insensitive, literal author-name filter; blank means every author."},"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":true},
+            jsonSchema: {"type":"object","properties":{"skip":{"type":"number","description":"Commits skipped from the tip; the paging offset. Values below zero are clamped."},"limit":{"type":"number","description":"Commits to return; the Host clamps to its page cap."},"search":{"type":"string","description":"Case-insensitive subject substring filter; blank means no filter."},"author":{"type":"string","description":"Case-insensitive, literal author-name filter; blank means every author."},"since":{"type":"string","description":"Inclusive `YYYY-MM-DD` lower bound on the commit date; blank means unbounded."},"until":{"type":"string","description":"Inclusive `YYYY-MM-DD` upper bound on the commit date; blank means unbounded."},"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":true},
           },
           strictCodec: {
             mode: 'strict',
             typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceLogRequest',
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_parameter_0_strict$schema,
-            jsonSchema: {"type":"object","properties":{"skip":{"type":"number","description":"Commits skipped from the tip; the paging offset. Values below zero are clamped."},"limit":{"type":"number","description":"Commits to return; the Host clamps to its page cap."},"search":{"type":"string","description":"Case-insensitive subject substring filter; blank means no filter."},"author":{"type":"string","description":"Case-insensitive, literal author-name filter; blank means every author."},"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":false},
+            jsonSchema: {"type":"object","properties":{"skip":{"type":"number","description":"Commits skipped from the tip; the paging offset. Values below zero are clamped."},"limit":{"type":"number","description":"Commits to return; the Host clamps to its page cap."},"search":{"type":"string","description":"Case-insensitive subject substring filter; blank means no filter."},"author":{"type":"string","description":"Case-insensitive, literal author-name filter; blank means every author."},"since":{"type":"string","description":"Inclusive `YYYY-MM-DD` lower bound on the commit date; blank means unbounded."},"until":{"type":"string","description":"Inclusive `YYYY-MM-DD` upper bound on the commit date; blank means unbounded."},"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":false},
           },
         },
       ],

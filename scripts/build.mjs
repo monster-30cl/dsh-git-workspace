@@ -25,6 +25,17 @@ const factoryEnd = review.lastIndexOf('\n});')
 if (factoryStart < 9 || factoryEnd < factoryStart) throw new Error('Git review bundle factory is missing')
 let factory = review.slice(factoryStart, factoryEnd).trim().replace(/,$/u, '')
 
+// Compile the themed calendar from its reviewable source for the vendor factory.
+const calendar = await build({
+  entryPoints: [fileURLToPath(new URL('source/git-review/client/HistoryDatePicker.tsx', root))],
+  bundle: true, write: false, format: 'cjs', platform: 'browser', target: 'es2022',
+  external: ['react'], loader: { '.css': 'text' },
+})
+const calendarBinding = '\nconst HistoryDatePicker = ((require) => { const module = { exports: {} }; const exports = module.exports;\n'
+  + calendar.outputFiles[0].text + '\nreturn module.exports.HistoryDatePicker; })(require);\n'
+if (!factory.startsWith('(require) => {')) throw new Error('Git review calendar adapter needs updating')
+factory = factory.replace('(require) => {', '(require) => {' + calendarBinding)
+
 // Desktop 0.2.1-rc.3 exposes entry configuration through ConfigForms.
 const settingsBinding = 'ctx.settingsScope.bind({ namespace: GIT_HISTORY_SETTINGS_NAMESPACE })'
 if (factory.split(settingsBinding).length !== 2 || factory.split('"settingsScope"').length !== 2) {

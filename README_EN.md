@@ -53,6 +53,7 @@ Each `v*` tag produces a `.tgz` Release asset. Download it, enter its absolute p
 
 - Select Review on the right Sidebar start page to see commit history and working-tree changes together.
 - The search box above the history filters commit messages; the author dropdown beside it filters by commit author. Both filters combine, and each can be cleared on its own.
+- The header's Date control expands a date range: a start date alone means "on or after that day", an end date alone means "on or before that day", and both bounds mean "between those days". Both bounds include the day they name, filter on Git's commit time, and combine with the other filters.
 - Select a commit to inspect its file list, complete before-and-after contents, and patch.
 - The Code changes region can commit, commit and push, pull, push, stash, and roll back selected files.
 - Select the branch name in the Session header to switch branches; the final menu row opens the full branch page.

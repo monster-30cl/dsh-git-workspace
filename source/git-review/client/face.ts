@@ -25,10 +25,13 @@ import type {
   GitWorkspaceCommitDiffState, GitWorkspaceCommitFile, GitWorkspaceCommitFilesState, GitWorkspaceLogState,
 } from '@monster-30cl/dsh-git-workspace-controller/types'
 import type { WorkspaceId } from '@deepseek-ai/dsh-workspace/types'
-import type { GitPage, createGitHistoryStore } from './store.ts'
+import type { GitHistoryFilter, GitPage, createGitHistoryStore } from './store.ts'
 
 /** Commits one read asks for. The Host clamps a larger page to its own cap. */
 export const GIT_HISTORY_PAGE_SIZE = 50
+
+/** The filter a first read carries: nothing typed, every author, no date bounds. */
+const NO_FILTER: GitHistoryFilter = { search: '', author: '', since: '', until: '' }
 
 /**
  * One commit page, bound to a Remote face.
@@ -39,7 +42,14 @@ export const GIT_HISTORY_PAGE_SIZE = 50
  */
 export type LogGitHistory = (
   workspaceId: WorkspaceId,
-  page: { readonly skip: number; readonly limit: number; readonly search: string; readonly author: string },
+  page: {
+    readonly skip: number
+    readonly limit: number
+    readonly search: string
+    readonly author: string
+    readonly since: string
+    readonly until: string
+  },
   signal: AbortSignal,
 ) => Promise<RemoteResult<GitWorkspaceLogState>>
 
@@ -112,32 +122,29 @@ export interface GitHistoryInjected {
    */
   readonly start: (tabId: TabId, workspaceId: WorkspaceId, signal: AbortSignal) => void
   /**
-   * Re-read the first page with a subject and author filter; the window the
-   * reader sees is replaced. The reload control passes the window's own filter;
-   * the search form and the author dropdown pass the filter they just chose.
+   * Re-read the first page with a filter; the window the reader sees is
+   * replaced. The reload control passes the window's own filter; the search
+   * form, the author dropdown, and the date bounds pass the filter they chose.
    * @param tabId - the tab being drawn.
    * @param workspaceId - the workspace whose history is shown.
-   * @param search - the subject filter to ask for.
-   * @param author - the author names to keep, or blank for every author.
+   * @param filter - the subject, author, and date filters to ask for.
    * @param signal - the tab record's lifetime.
    */
   readonly reload: (
-    tabId: TabId, workspaceId: WorkspaceId, search: string, author: string, signal: AbortSignal,
+    tabId: TabId, workspaceId: WorkspaceId, filter: GitHistoryFilter, signal: AbortSignal,
   ) => void
   /**
    * Append the page after the one already loaded.
    * @param tabId - the tab being drawn.
    * @param workspaceId - the workspace whose history is shown.
-   * @param search - the subject filter the window carries.
-   * @param author - the author names the window carries.
+   * @param filter - the subject, author, and date filters the window carries.
    * @param skip - commits already loaded; the next page's offset.
    * @param signal - the tab record's lifetime.
    */
   readonly loadMore: (
     tabId: TabId,
     workspaceId: WorkspaceId,
-    search: string,
-    author: string,
+    filter: GitHistoryFilter,
     skip: number,
     signal: AbortSignal,
   ) => void
@@ -163,16 +170,15 @@ export function gitHistoryFace(
     const read = (
       tabId: TabId,
       workspaceId: WorkspaceId,
-      search: string,
-      author: string,
+      filter: GitHistoryFilter,
       skip: number,
       signal: AbortSignal,
     ): void => {
       if (signal.aborted) return
       const generation = nextGeneration(tabId)
-      if (skip === 0) actions.loading(tabId, search, author)
+      if (skip === 0) actions.loading(tabId, filter)
       else actions.moreLoading(tabId)
-      void log(workspaceId, { skip, limit: GIT_HISTORY_PAGE_SIZE, search, author }, signal).then((result) => {
+      void log(workspaceId, { skip, limit: GIT_HISTORY_PAGE_SIZE, ...filter }, signal).then((result) => {
         // A newer read of this tab was asked for since, or the record is gone and
         // its bookkeeping with it: nothing left for this one to write.
         if (generations.get(tabId) !== generation) return
@@ -190,13 +196,13 @@ export function gitHistoryFace(
           generations.delete(tabId)
           actions.forget(tabId)
         }, { once: true })
-        read(tabId, workspaceId, '', '', 0, signal)
+        read(tabId, workspaceId, NO_FILTER, 0, signal)
       },
-      reload(tabId, workspaceId, search, author, signal) {
-        read(tabId, workspaceId, search, author, 0, signal)
+      reload(tabId, workspaceId, filter, signal) {
+        read(tabId, workspaceId, filter, 0, signal)
       },
-      loadMore(tabId, workspaceId, search, author, skip, signal) {
-        read(tabId, workspaceId, search, author, skip, signal)
+      loadMore(tabId, workspaceId, filter, skip, signal) {
+        read(tabId, workspaceId, filter, skip, signal)
       },
     }
   }

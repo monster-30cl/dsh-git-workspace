@@ -94,7 +94,7 @@
   background: var(--dsw-alias-interactive-bg-hover);
 }
 
-/* The subject-search row under the header. */
+/* The filter row under the header: author dropdown, date toggle, then the subject search. */
 .search {
   display: flex;
   flex: 0 0 auto;
@@ -128,6 +128,7 @@
 /* The author dropdown beside the subject search: one applied filter each. */
 .authorSelect {
   flex: 0 1 auto;
+  min-width: 0;
   max-width: 46%;
   height: 32px;
   padding: 0 8px;
@@ -153,6 +154,65 @@
 .authorSelect option {
   color: var(--dsw-alias-label-primary);
   background: var(--dsw-alias-bg-layer-1);
+}
+
+/* The date toggle shares searchTool with the search button. */
+/* The applied-date state of that control. */
+.dateToolActive {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-active);
+  border-color: color-mix(in srgb, var(--dsw-alias-label-primary) 48%, transparent);
+}
+
+/* The date bounds row below the filter row: two whole days, either one optional. */
+.dateRow {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px 6px;
+}
+
+.dateInput {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 32px;
+  padding: 0 10px;
+  color: var(--dsw-alias-label-primary);
+  font: inherit;
+  background: color-mix(in srgb, var(--dsw-alias-bg-layer-1) 64%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--dsw-alias-border-l4) 72%, transparent);
+  border-radius: 16px;
+}
+
+.dateInput:focus-visible {
+  outline: 2px solid var(--dsw-alias-border-l4);
+  outline-offset: 1px;
+}
+
+.dateDash {
+  flex: 0 0 auto;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.dateClear {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: var(--dsw-alias-label-tertiary);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.dateClear:hover {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
 }
 
 .level {

@@ -469,6 +469,13 @@ let GitWorkspaceController = (() => {
 			if (search !== "" || author !== "") args.push("-i", "-F");
 			if (search !== "") args.push(`--grep=${search}`);
 			if (author !== "") args.push(`--author=${author}`);
+			// Git compares these bounds with the commit's own timestamp, while the
+			// reader picks whole calendar days: a lower bound starts that day and an
+			// upper bound ends it, so both bounds include the days they name.
+			const since = calendarDate(request.since);
+			const until = calendarDate(request.until);
+			if (since !== void 0) args.push(`--since=${since}T00:00:00`);
+			if (until !== void 0) args.push(`--until=${until}T23:59:59`);
 			const result = await this.git(workspace, args, signal, "log");
 			if (result.exitCode !== 0 && !hasNoCommitsYet(result.stderr)) this.failed(workspace, "log", result);
 			if (result.truncated) this.failed(workspace, "log", result);
@@ -947,6 +954,22 @@ let GitWorkspaceController = (() => {
 const AUTHOR_SCAN_COMMITS = 500;
 function wouldOverwriteLocalChanges(stderr) {
 	return /local changes[\s\S]*would be overwritten by (?:checkout|switch)/iu.test(stderr);
+}
+/**
+* Read one `YYYY-MM-DD` calendar date, or undefined when the text names none.
+*
+* The value reaches a Git argument, so only a complete, real calendar date is
+* accepted: anything else leaves that bound unset instead of failing the read.
+* @param value - the date the Client sent, if any.
+* @returns the date as Git spells it, or undefined.
+*/
+function calendarDate(value) {
+	const candidate = value?.trim() ?? "";
+	if (!/^\d{4}-\d{2}-\d{2}$/u.test(candidate)) return void 0;
+	const [year = 0, month = 0, day = 0] = candidate.split("-").map(Number);
+	const parsed = new Date(Date.UTC(year, month - 1, day));
+	const real = parsed.getUTCFullYear() === year && parsed.getUTCMonth() === month - 1 && parsed.getUTCDate() === day;
+	return real ? candidate : void 0;
 }
 /** An empty repository is a complete history, not a failed read. */
 function hasNoCommitsYet(stderr) {

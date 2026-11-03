@@ -946,13 +946,17 @@ window.__ModuleLoader__.load({
 		//#region dsh-css:source/git-review/client/DiffZoomShortcutRow.module.css.mjs
 		const css$3 = ".NYjLYG_row{border-bottom:.5px solid var(--dsw-alias-border-l2);align-items:center;gap:8px;padding:16px 0;display:flex}.NYjLYG_rowText{flex-direction:column;flex:1;gap:4px;min-width:0;padding-right:48px;display:flex}.NYjLYG_title{color:var(--dsw-alias-label-primary);font-size:14px;font-weight:400;line-height:22px}.NYjLYG_desc{color:var(--dsw-alias-label-tertiary);font-size:12px;font-weight:400;line-height:18px}.NYjLYG_selector{height:36px;color:var(--dsw-alias-label-primary);font:inherit;white-space:nowrap;cursor:pointer;background:var(--dsw-alias-bg-module-platform);border:none;border-radius:18px;align-items:center;gap:12px;padding:0 14px;font-size:14px;line-height:22px;display:inline-flex}.NYjLYG_selector:hover{background:var(--dsw-alias-interactive-bg-hover)}.NYjLYG_chevron{flex:none}";
 		const tagId$3 = "@deepseek-ai/dsh-client-ui-sidebar-git-history/DiffZoomShortcutRow.module.css";
-		if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$3) + "]") === null) {
-			const tag = document.createElement("style");
-			tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
-			tag.dataset.pluginCss = tagId$3;
-			tag.textContent = css$3;
-			document.head.appendChild(tag);
-		}
+		if (typeof document !== "undefined") {
+			const sheet = css$3;
+			const existing = document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$3) + "]");
+			if (existing === null) {
+				const tag = document.createElement("style");
+				tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
+				tag.dataset.pluginCss = tagId$3;
+				tag.textContent = sheet;
+				document.head.appendChild(tag);
+			} else if (existing.textContent !== sheet) existing.textContent = sheet;
+			}
 		var DiffZoomShortcutRow_module_css_default = {
 			"chevron": "NYjLYG_chevron",
 			"desc": "NYjLYG_desc",
@@ -1094,6 +1098,13 @@ window.__ModuleLoader__.load({
 				repository: true
 			};
 		}
+		/** The filter a first read carries: nothing typed, every author, no date bounds. */
+		const NO_FILTER = {
+			search: "",
+			author: "",
+			since: "",
+			until: ""
+		};
 		/**
 		* Bind the history's face to one commit read.
 		* @param log - the bound `gitWorkspace.log` call.
@@ -1108,16 +1119,15 @@ window.__ModuleLoader__.load({
 					generations.set(tabId, generation);
 					return generation;
 				};
-				const read = (tabId, workspaceId, search, author, skip, signal) => {
+				const read = (tabId, workspaceId, filter, skip, signal) => {
 					if (signal.aborted) return;
 					const generation = nextGeneration(tabId);
-					if (skip === 0) actions.loading(tabId, search, author);
+					if (skip === 0) actions.loading(tabId, filter);
 					else actions.moreLoading(tabId);
 					log(workspaceId, {
 						skip,
 						limit: 50,
-						search,
-						author
+						...filter
 					}, signal).then((result) => {
 						if (generations.get(tabId) !== generation) return;
 						if (result.ok) if (skip === 0) actions.loaded(tabId, pageOf(result.value));
@@ -1133,13 +1143,13 @@ window.__ModuleLoader__.load({
 							generations.delete(tabId);
 							actions.forget(tabId);
 						}, { once: true });
-						read(tabId, workspaceId, "", "", 0, signal);
+						read(tabId, workspaceId, NO_FILTER, 0, signal);
 					},
-					reload(tabId, workspaceId, search, author, signal) {
-						read(tabId, workspaceId, search, author, 0, signal);
+					reload(tabId, workspaceId, filter, signal) {
+						read(tabId, workspaceId, filter, 0, signal);
 					},
-					loadMore(tabId, workspaceId, search, author, skip, signal) {
-						read(tabId, workspaceId, search, author, skip, signal);
+					loadMore(tabId, workspaceId, filter, skip, signal) {
+						read(tabId, workspaceId, filter, skip, signal);
 					}
 				};
 			};
@@ -1225,14 +1235,18 @@ window.__ModuleLoader__.load({
 		const css$2 = "._7gOSaa_root{height:100%;min-height:0;color:var(--dsw-alias-label-primary);font-size:var(--dsh-content-font-size-secondary,13px);flex-direction:column;flex:auto;padding:4px 0 0;line-height:1.5;display:flex;overflow:hidden}._7gOSaa_chrome{z-index:2;background:color-mix(in srgb, var(--dsw-alias-bg-base) 68%, transparent);backdrop-filter:blur(18px)saturate(130%);flex:none;position:relative}body[data-dsh-background-media] ._7gOSaa_chrome{background:color-mix(in srgb, var(--dsw-alias-bg-base) 46%, transparent)}._7gOSaa_body{flex-direction:column;flex:auto;min-height:0;padding-bottom:8px;display:flex;overflow:auto}._7gOSaa_header{color:var(--dsw-alias-label-secondary);flex:none;align-items:center;gap:6px;padding:4px 10px;font-weight:500;display:flex}._7gOSaa_icon{color:var(--dsw-alias-label-secondary);flex:none}._7gOSaa_name{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}._7gOSaa_changesTool{color:var(--dsw-alias-label-secondary);font:inherit;border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;background:0 0;border-radius:6px;flex:none;padding:3px 8px}._7gOSaa_changesTool:hover,._7gOSaa_changesTool[aria-pressed=true]{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_tool{width:24px;height:24px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;justify-content:center;align-items:center;margin-left:auto;padding:0;display:inline-flex}._7gOSaa_tool:hover{background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_search{flex:none;align-items:center;gap:6px;padding:2px 10px 6px;display:flex}._7gOSaa_input{flex:auto;min-width:0}._7gOSaa_searchTool{height:32px;color:var(--dsw-alias-label-primary);font:inherit;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 64%, transparent);border:.5px solid color-mix(in srgb, var(--dsw-alias-border-l4) 72%, transparent);backdrop-filter:blur(16px)saturate(125%);cursor:pointer;border-radius:16px;flex:none;padding:0 14px}._7gOSaa_searchTool:hover{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover) 72%, transparent)}._7gOSaa_level{margin:0;padding:0;list-style:none}._7gOSaa_item{margin:0;padding:0 4px}._7gOSaa_commitButton{width:100%;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;padding:3px 6px;display:block}._7gOSaa_commitButton:hover{background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_row{align-items:baseline;gap:6px;min-width:0;display:flex}._7gOSaa_hash{color:var(--dsw-alias-link);font-family:var(--ds-font-family-code);flex:none;font-size:12px}._7gOSaa_subject{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}._7gOSaa_meta{min-width:0;color:var(--dsw-alias-label-tertiary);align-items:baseline;gap:8px;font-size:12px;display:flex}._7gOSaa_author{white-space:nowrap;text-overflow:ellipsis;overflow:hidden}._7gOSaa_date{flex:none}._7gOSaa_note{color:var(--dsw-alias-label-tertiary);margin:0;padding:3px 10px;font-size:12px}._7gOSaa_error{color:var(--dsw-alias-state-error-primary);margin:0;padding:3px 10px;font-size:12px}._7gOSaa_more{color:var(--dsw-alias-label-secondary);font:inherit;border:1px solid var(--dsw-alias-border-l2);cursor:pointer;background:0 0;border-radius:6px;align-self:center;margin:6px 0 0;padding:3px 12px}._7gOSaa_more:hover{background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_moreBusy{cursor:default;opacity:.6}._7gOSaa_status{flex-direction:column;padding:12px 10px;display:flex}._7gOSaa_statusLine{color:var(--dsw-alias-label-secondary);font-size:var(--dsh-content-font-size-secondary,13px);margin:0;line-height:1.6}._7gOSaa_detailDialog{background:var(--dsw-alias-bg-layer-2);width:min(1120px,100vw - 48px);height:min(760px,100vh - 48px);padding-bottom:18px}._7gOSaa_detailDialogFullscreen{border-radius:0;width:100vw;height:100vh;position:fixed;inset:0}body[data-dsh-background-media] ._7gOSaa_detailDialog{background:color-mix(in srgb, var(--dsw-alias-bg-layer-2) 72%, transparent);backdrop-filter:blur(16px)saturate(125%)}._7gOSaa_detailMeta{min-height:30px;color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);justify-content:space-between;align-items:center;padding:0 24px;font-size:12px;display:flex}._7gOSaa_detailMetaFullscreen{justify-content:flex-end}._7gOSaa_detailTools{flex:none;align-items:center;gap:4px;display:flex}._7gOSaa_detailLayout{border-top:.5px solid var(--dsw-alias-border-l2);height:min(620px,100vh - 180px);margin-top:12px;display:grid}._7gOSaa_detailLayoutFullscreen{height:calc(100vh - 126px);margin-top:4px}._7gOSaa_detailLayoutFullscreen ._7gOSaa_fileList,._7gOSaa_detailLayoutFullscreen ._7gOSaa_filePaneResize{display:none}._7gOSaa_detailLayoutFullscreen ._7gOSaa_diff{contain:layout paint style}._7gOSaa_workingDiffLayout{grid-template-columns:minmax(0,1fr)}._7gOSaa_fileList{min-width:0;padding:8px;overflow:auto}._7gOSaa_fileList,._7gOSaa_diffPane{scrollbar-color:color-mix(in srgb, var(--dsw-alias-label-secondary) 62%, transparent) color-mix(in srgb, var(--dsw-alias-bg-layer-1) 78%, transparent);scrollbar-width:auto}._7gOSaa_fileList::-webkit-scrollbar,._7gOSaa_diffPane::-webkit-scrollbar{width:12px;height:12px}._7gOSaa_fileList::-webkit-scrollbar-track,._7gOSaa_diffPane::-webkit-scrollbar-track{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 82%, transparent);border:1px solid color-mix(in srgb, var(--dsw-alias-border-l2) 78%, transparent);border-radius:8px}._7gOSaa_fileList::-webkit-scrollbar-thumb,._7gOSaa_diffPane::-webkit-scrollbar-thumb{background:color-mix(in srgb, var(--dsw-alias-label-secondary) 66%, transparent);background-clip:content-box;border:3px solid #0000;border-radius:8px;min-width:32px;min-height:32px}._7gOSaa_fileList::-webkit-scrollbar-thumb:hover,._7gOSaa_diffPane::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb, var(--dsw-alias-label-primary) 82%, transparent);background-clip:content-box}._7gOSaa_fileList::-webkit-scrollbar-corner,._7gOSaa_diffPane::-webkit-scrollbar-corner{background:0 0}body[data-dsh-background-media] ._7gOSaa_fileList,body[data-dsh-background-media] ._7gOSaa_diffPane{scrollbar-color:color-mix(in srgb, var(--dsw-alias-label-primary) 72%, transparent) color-mix(in srgb, var(--dsw-alias-bg-layer-1) 46%, transparent)}._7gOSaa_treeLevel{min-width:max-content;margin:0;padding:0;list-style:none}._7gOSaa_treeRow{width:100%;min-width:max-content;color:var(--dsw-alias-label-secondary);font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;align-items:center;gap:7px;padding:6px 8px;display:flex}._7gOSaa_treeRow:hover,._7gOSaa_detailFileSelected{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_treeFile{padding-right:16px}._7gOSaa_fileName{min-width:0}._7gOSaa_fileTypeIcon{width:18px;height:18px;color:var(--dsw-alias-label-secondary);font:600 6px/1 var(--ds-font-family-code);flex:0 0 18px;justify-content:center;align-items:center;display:inline-flex;position:relative}._7gOSaa_fileTypeIcon svg{width:18px;height:18px;position:absolute;inset:0}._7gOSaa_fileTypeMark{letter-spacing:-.35px;white-space:nowrap;max-width:13px;position:relative;top:2px;overflow:hidden}._7gOSaa_fileType_java ._7gOSaa_fileTypeMark:after{content:\"J\"}._7gOSaa_fileType_xml ._7gOSaa_fileTypeMark:after{content:\"<>\"}._7gOSaa_fileType_text ._7gOSaa_fileTypeMark:after{content:\"TXT\"}._7gOSaa_fileType_python ._7gOSaa_fileTypeMark:after{content:\"PY\"}._7gOSaa_fileType_typescript ._7gOSaa_fileTypeMark:after{content:\"TS\"}._7gOSaa_fileType_javascript ._7gOSaa_fileTypeMark:after{content:\"JS\"}._7gOSaa_fileType_json ._7gOSaa_fileTypeMark:after{content:\"{}\"}._7gOSaa_fileType_markdown ._7gOSaa_fileTypeMark:after{content:\"MD\"}._7gOSaa_fileType_style ._7gOSaa_fileTypeMark:after{content:\"#\"}._7gOSaa_fileType_html ._7gOSaa_fileTypeMark:after{content:\"</>\"}._7gOSaa_fileType_shell ._7gOSaa_fileTypeMark:after{content:\"$_\"}._7gOSaa_fileType_generic ._7gOSaa_fileTypeMark:after{content:\"—\"}._7gOSaa_fileType_java{color:#c96b3b}._7gOSaa_fileType_xml,._7gOSaa_fileType_html{color:#d57b2d}._7gOSaa_fileType_text,._7gOSaa_fileType_markdown{color:#66737f}._7gOSaa_fileType_python{color:#3572a5}._7gOSaa_fileType_typescript{color:#3178c6}._7gOSaa_fileType_javascript{color:#a78300}._7gOSaa_fileType_json{color:#7b7f28}._7gOSaa_fileType_style{color:#8a55b5}._7gOSaa_fileType_shell{color:#438b57}._7gOSaa_treeChevron{flex:none;transition:transform .12s}._7gOSaa_treeChevronExpanded{transform:rotate(90deg)}._7gOSaa_filePaneResize{cursor:col-resize;touch-action:none;position:relative}._7gOSaa_filePaneResize:after{content:\"\";background:var(--dsw-alias-border-l2);width:1px;position:absolute;top:0;bottom:0;left:2px}._7gOSaa_filePaneResize:hover:after{background:var(--dsw-alias-label-tertiary);width:2px}._7gOSaa_fileStatus{color:var(--dsw-alias-label-tertiary);font-size:11px;font-family:var(--ds-font-family-code);flex:none;margin-left:auto;padding-left:8px}._7gOSaa_diff{background:var(--dsw-alias-bg-base);flex-direction:column;min-width:0;display:flex;overflow:hidden}._7gOSaa_diffHint{color:var(--dsw-alias-label-tertiary);margin:0;padding:12px 16px}._7gOSaa_diffTable{width:100%;min-height:0;color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);flex:auto;grid-template-columns:minmax(0,1fr) minmax(0,1fr);font-size:12px;line-height:20px;display:grid;position:relative}._7gOSaa_syntax_comment{color:var(--dsw-alias-label-tertiary);font-style:italic}._7gOSaa_syntax_string{color:#2f8a57}._7gOSaa_syntax_number{color:#b56a2b}._7gOSaa_syntax_keyword{color:#8750b4;font-weight:500}._7gOSaa_syntax_tag{color:#167f8c}._7gOSaa_syntax_attribute{color:#a65b2e}._7gOSaa_searchMatch{color:inherit;background:#f2c94cad;border-radius:2px;padding:0 1px}._7gOSaa_searchActiveRow ._7gOSaa_searchMatch{background:#ff9f2fd1;box-shadow:0 0 0 1px #9b5b006b}._7gOSaa_zoomIndicator{z-index:4;min-width:48px;color:var(--dsw-alias-label-primary);font:12px/1 var(--ds-font-family-code);text-align:center;pointer-events:none;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 92%, transparent);border:1px solid var(--dsw-alias-border-l2);opacity:0;border-radius:7px;padding:5px 9px;transition:opacity .16s,transform .16s;position:absolute;bottom:16px;right:16px;transform:translateY(4px);box-shadow:0 4px 14px #00000029}._7gOSaa_zoomIndicatorVisible{opacity:1;transform:translateY(0)}body[data-dsh-background-media] ._7gOSaa_zoomIndicator{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 68%, transparent);backdrop-filter:blur(16px)saturate(125%)}._7gOSaa_diffHeader{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border-bottom:.5px solid var(--dsw-alias-border-l2);flex:none;grid-template-columns:minmax(0,1fr) minmax(0,1fr);font-size:12px;display:grid}._7gOSaa_diffHeaderSide{grid-template-columns:minmax(80px,1fr) minmax(150px,220px);align-items:center;min-width:0;padding:5px 8px 5px 12px;display:grid}._7gOSaa_diffHeaderSide:first-child{border-right:.5px solid var(--dsw-alias-border-l2)}._7gOSaa_diffHeaderSide>span{text-align:center;min-width:0}._7gOSaa_diffSearch{background:var(--dsw-alias-bg-base);border:1px solid var(--dsw-alias-border-l2);border-radius:7px;justify-self:end;align-items:center;width:100%;min-width:0;height:28px;display:flex;overflow:hidden}._7gOSaa_diffSearch:focus-within{border-color:var(--dsw-alias-label-secondary);box-shadow:0 0 0 2px color-mix(in srgb, var(--dsw-alias-label-secondary) 14%, transparent)}._7gOSaa_diffSearch input{min-width:0;height:100%;color:var(--dsw-alias-label-primary);font:12px/1 var(--ds-font-family);background:0 0;border:0;outline:0;padding:0 7px}._7gOSaa_diffSearch input::placeholder{color:var(--dsw-alias-label-tertiary)}._7gOSaa_diffSearch output{color:var(--dsw-alias-label-tertiary);font:10px/1 var(--ds-font-family-code);flex:none}._7gOSaa_diffSearch button{width:28px;height:26px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:0;flex:0 0 28px;justify-content:center;align-items:center;padding:0;display:inline-flex}._7gOSaa_diffSearch button:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_diffSearch ._7gOSaa_diffSearchClear{width:24px;color:var(--dsw-alias-label-tertiary);flex-basis:24px}._7gOSaa_diffSearch ._7gOSaa_diffSearchSubmit{border-left:1px solid color-mix(in srgb, var(--dsw-alias-border-l2) 72%, transparent);margin-left:0}body[data-dsh-background-media] ._7gOSaa_diffSearch{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 52%, transparent);backdrop-filter:blur(12px)saturate(125%)}body[data-dsh-background-media] ._7gOSaa_diffHeader{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 60%, transparent);backdrop-filter:blur(16px)saturate(125%)}._7gOSaa_iconTool{width:28px;height:28px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:1px solid #0000;border-radius:6px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}._7gOSaa_iconTool:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_iconTool[aria-pressed=true]{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-active);border-color:color-mix(in srgb, var(--dsw-alias-label-primary) 48%, transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--dsw-alias-label-primary) 12%, transparent)}._7gOSaa_iconTool[aria-pressed=false]{color:var(--dsw-alias-label-tertiary)}body[data-dsh-background-media] ._7gOSaa_iconTool{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 60%, transparent);backdrop-filter:blur(16px)saturate(125%)}body[data-dsh-background-media] ._7gOSaa_iconTool[aria-pressed=true]{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-active) 76%, transparent)}body[data-dsh-background-media] ._7gOSaa_diff{background:0 0}._7gOSaa_binaryNotice{color:var(--dsw-alias-label-secondary);margin:0;padding:18px}._7gOSaa_diffPane{border-right:.5px solid var(--dsw-alias-border-l2);min-width:0;overflow:auto}._7gOSaa_diffPane:last-child{border-right:0}._7gOSaa_diffCanvas{min-height:100%}._7gOSaa_diffCell{white-space:pre;grid-template-columns:48px minmax(max-content,1fr);min-width:max-content;min-height:20px;display:grid}._7gOSaa_diffPane[data-git-diff-pane=old] ._7gOSaa_diffCell{grid-template-columns:minmax(max-content,1fr) 48px}._7gOSaa_diffCell code{font:inherit;padding:0 12px}._7gOSaa_lineNumber{z-index:1;color:var(--dsw-alias-label-tertiary);text-align:end;user-select:none;background:color-mix(in srgb, var(--dsw-alias-bg-base) 84%, var(--dsw-alias-border-l2));border-right:.5px solid var(--dsw-alias-border-l2);padding:0 8px;position:sticky;left:0}._7gOSaa_diffPane[data-git-diff-pane=old] ._7gOSaa_lineNumber{border-right:0;border-left:.5px solid var(--dsw-alias-border-l2);left:auto;right:0}._7gOSaa_added{color:var(--dsw-alias-state-success-primary);background:color-mix(in srgb, var(--dsw-alias-state-success-primary) 16%, transparent)}._7gOSaa_removed{color:var(--dsw-alias-state-error-primary);background:color-mix(in srgb, var(--dsw-alias-state-error-primary) 16%, transparent)}";
 		const tagId$2 = "@deepseek-ai/dsh-client-ui-sidebar-git-history/GitHistoryBody.module.css";
 		/** The author dropdown beside the subject search: one applied filter each. */
-		const cssAuthorSelect$2 = "._7gOSaa_authorSelect{flex:0 1 auto;max-width:46%;height:32px;padding:0 8px;color:var(--dsw-alias-label-primary);font:inherit;text-overflow:ellipsis;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 64%, transparent);border:.5px solid color-mix(in srgb, var(--dsw-alias-border-l4) 72%, transparent);border-radius:16px;backdrop-filter:blur(16px)saturate(125%);cursor:pointer}._7gOSaa_authorSelect:hover{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover) 72%, transparent)}._7gOSaa_authorSelect:focus-visible{outline:2px solid var(--dsw-alias-border-l4);outline-offset:1px}._7gOSaa_authorSelect option{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-1)}";
-		if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$2) + "]") === null) {
-			const tag = document.createElement("style");
-			tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
-			tag.dataset.pluginCss = tagId$2;
-			tag.textContent = css$2 + cssAuthorSelect$2;
-			document.head.appendChild(tag);
-		}
+		const cssAuthorSelect$2 = "._7gOSaa_authorSelect{flex:0 1 auto;min-width:0;max-width:46%;height:32px;padding:0 8px;color:var(--dsw-alias-label-primary);font:inherit;text-overflow:ellipsis;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 64%, transparent);border:.5px solid color-mix(in srgb, var(--dsw-alias-border-l4) 72%, transparent);border-radius:16px;backdrop-filter:blur(16px)saturate(125%);cursor:pointer}._7gOSaa_authorSelect:hover{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover) 72%, transparent)}._7gOSaa_authorSelect:focus-visible{outline:2px solid var(--dsw-alias-border-l4);outline-offset:1px}._7gOSaa_authorSelect option{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-1)}._7gOSaa_dateToolActive{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-active);border-color:color-mix(in srgb, var(--dsw-alias-label-primary) 48%, transparent)}._7gOSaa_dateRow{display:flex;flex:0 0 auto;align-items:center;gap:6px;padding:0 10px 6px}._7gOSaa_dateInput{flex:1 1 auto;min-width:0;height:32px;padding:0 10px;color:var(--dsw-alias-label-primary);font:inherit;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 64%, transparent);border:.5px solid color-mix(in srgb, var(--dsw-alias-border-l4) 72%, transparent);border-radius:16px}._7gOSaa_dateInput:focus-visible{outline:2px solid var(--dsw-alias-border-l4);outline-offset:1px}._7gOSaa_dateDash{flex:0 0 auto;color:var(--dsw-alias-label-tertiary)}._7gOSaa_dateClear{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;width:24px;height:24px;padding:0;color:var(--dsw-alias-label-tertiary);background:0 0;border:0;border-radius:6px;cursor:pointer}._7gOSaa_dateClear:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}";
+		if (typeof document !== "undefined") {
+			const sheet = css$2 + cssAuthorSelect$2;
+			const existing = document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$2) + "]");
+			if (existing === null) {
+				const tag = document.createElement("style");
+				tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
+				tag.dataset.pluginCss = tagId$2;
+				tag.textContent = sheet;
+				document.head.appendChild(tag);
+			} else if (existing.textContent !== sheet) existing.textContent = sheet;
+			}
 		var GitHistoryBody_module_css_default = {
 			"added": "_7gOSaa_added",
 			"author": "_7gOSaa_author",
@@ -1243,6 +1257,11 @@ window.__ModuleLoader__.load({
 			"chrome": "_7gOSaa_chrome",
 			"commitButton": "_7gOSaa_commitButton",
 			"date": "_7gOSaa_date",
+			"dateClear": "_7gOSaa_dateClear",
+			"dateDash": "_7gOSaa_dateDash",
+			"dateInput": "_7gOSaa_dateInput",
+			"dateRow": "_7gOSaa_dateRow",
+			"dateToolActive": "_7gOSaa_dateToolActive",
 			"detailDialog": "_7gOSaa_detailDialog",
 			"detailDialogFullscreen": "_7gOSaa_detailDialogFullscreen",
 			"detailFileSelected": "_7gOSaa_detailFileSelected",
@@ -1400,7 +1419,7 @@ window.__ModuleLoader__.load({
 			if (state.commits.length === 0) return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
 				className: GitHistoryBody_module_css_default.note,
 				"data-git-row": "empty",
-				children: state.search === "" && state.author === "" ? t("empty") : t("emptySearch")
+				children: state.search === "" && state.author === "" && state.since === "" && state.until === "" ? t("empty") : t("emptySearch")
 			});
 			return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("ul", {
 				className: GitHistoryBody_module_css_default.level,
@@ -2703,6 +2722,7 @@ window.__ModuleLoader__.load({
 			const state = useStore((store) => store.byTab[tab.id]);
 			const [query, setQuery] = (0, react.useState)("");
 			const [selectedCommit, setSelectedCommit] = (0, react.useState)(void 0);
+			const [dateOpen, setDateOpen] = (0, react.useState)(false);
 			const changesVisible = useGitChangesVisible(sessionId);
 			(0, react.useEffect)(() => {
 				if (state !== void 0 || workspaceId === void 0 || signal.aborted) return;
@@ -2716,14 +2736,23 @@ window.__ModuleLoader__.load({
 			]);
 			const historySearch = state?.search;
 			const historyAuthor = state?.author;
+			const historySince = state?.since;
+			const historyUntil = state?.until;
 			(0, react.useEffect)(() => {
-				if (workspaceId === void 0 || historySearch === void 0 || historyAuthor === void 0) return;
+				if (workspaceId === void 0 || historySearch === void 0 || historyAuthor === void 0 || historySince === void 0 || historyUntil === void 0) return;
 				return subscribeGitHistoryRefresh(sessionId, () => {
-					if (!signal.aborted) reload(tab.id, workspaceId, historySearch, historyAuthor, signal);
+					if (!signal.aborted) reload(tab.id, workspaceId, {
+						search: historySearch,
+						author: historyAuthor,
+						since: historySince,
+						until: historyUntil
+					}, signal);
 				});
 			}, [
 				historyAuthor,
 				historySearch,
+				historySince,
+				historyUntil,
 				reload,
 				sessionId,
 				signal,
@@ -2740,15 +2769,46 @@ window.__ModuleLoader__.load({
 				})
 			});
 			if (state === void 0) return null;
+			/** The filter one read carries: the window's applied bounds, plus what the reader just typed. */
+			const filterOf = (overrides = {}) => ({
+				search: query.trim(),
+				author: state.author,
+				since: state.since,
+				until: state.until,
+				...overrides
+			});
 			const submit = (event) => {
 				event.preventDefault();
-				reload(tab.id, workspaceId, query.trim(), state.author, signal);
+				reload(tab.id, workspaceId, filterOf({ search: query.trim() }), signal);
 			};
 			/** Apply one author choice at once: a dropdown choice is the filter itself. */
 			const chooseAuthor = (author) => {
 				if (author === state.author) return;
-				reload(tab.id, workspaceId, query.trim(), author, signal);
+				reload(tab.id, workspaceId, filterOf({ author }), signal);
 			};
+			/** Apply one date bound at once; a cleared field simply drops that bound. */
+			const chooseDate = (bound, value) => {
+				if (state[bound] === value) return;
+				const next = filterOf();
+				reload(tab.id, workspaceId, bound === "since" ? {
+					...next,
+					since: value
+				} : {
+					...next,
+					until: value
+				}, signal);
+			};
+			const clearDates = () => {
+				reload(tab.id, workspaceId, filterOf({
+					since: "",
+					until: ""
+				}), signal);
+			};
+			const dateFiltered = state.since !== "" || state.until !== "";
+			const dateTitle = state.since !== "" && state.until !== "" ? t("search.date.range", {
+				since: state.since,
+				until: state.until
+			}) : state.since !== "" ? t("search.date.sinceRange", { since: state.since }) : state.until !== "" ? t("search.date.untilRange", { until: state.until }) : t("search.date.toggle");
 			const title = state.branch === void 0 ? t("header.detached") : t("header.branch", { branch: state.branch });
 			const workspaceTitle = cwd === void 0 ? "" : workspaceTitleOf(cwd);
 			const failed = state.failure === void 0 ? void 0 : failureLine(t, state.failure);
@@ -2793,7 +2853,12 @@ window.__ModuleLoader__.load({
 									title: t("reload"),
 									"data-git-reload": true,
 									onClick: () => {
-										reload(tab.id, workspaceId, state.search, state.author, signal);
+										reload(tab.id, workspaceId, {
+											search: state.search,
+											author: state.author,
+											since: state.since,
+											until: state.until
+										}, signal);
 									},
 									children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconRefreshOutline16, {})
 								})
@@ -2817,6 +2882,17 @@ window.__ModuleLoader__.load({
 									value: author,
 									children: author
 								}, author))]
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: clsx(GitHistoryBody_module_css_default.searchTool, dateFiltered && GitHistoryBody_module_css_default.dateToolActive),
+								"aria-label": dateTitle,
+								title: dateTitle,
+								"aria-pressed": dateFiltered,
+								"data-git-date-toggle": true,
+								onClick: () => {
+									setDateOpen((value) => !value);
+								},
+								children: t("search.date.toggle")
 							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.Input, {
 								className: GitHistoryBody_module_css_default.input,
 								type: "search",
@@ -2831,6 +2907,36 @@ window.__ModuleLoader__.load({
 								className: GitHistoryBody_module_css_default.searchTool,
 								"data-git-search": true,
 								children: t("search.submit")
+							})]
+						}), (dateOpen || dateFiltered) && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+							className: GitHistoryBody_module_css_default.dateRow,
+							"data-git-date-row": true,
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(HistoryDatePicker, {
+								value: state.since,
+								max: state.until === "" ? void 0 : state.until,
+								"aria-label": t("search.date.since"),
+								title: t("search.date.since"),
+								"data-git-since": true,
+								onChange: (value) => { chooseDate("since", value); }
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: GitHistoryBody_module_css_default.dateDash,
+								"aria-hidden": "true",
+								children: "–"
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)(HistoryDatePicker, {
+								value: state.until,
+								min: state.since === "" ? void 0 : state.since,
+								"aria-label": t("search.date.until"),
+								title: t("search.date.until"),
+								"data-git-until": true,
+								onChange: (value) => { chooseDate("until", value); }
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: GitHistoryBody_module_css_default.dateClear,
+								"aria-label": t("search.date.clear"),
+								title: t("search.date.clear"),
+								"data-git-date-clear": true,
+								onClick: clearDates,
+								children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconCloseOutline16, { size: 13 })
 							})]
 						})]
 					}),
@@ -2863,7 +2969,12 @@ window.__ModuleLoader__.load({
 								"data-git-more": true,
 								disabled: state.loadingMore,
 								onClick: () => {
-									loadMore(tab.id, workspaceId, state.search, state.author, state.skip, signal);
+									loadMore(tab.id, workspaceId, {
+										search: state.search,
+										author: state.author,
+										since: state.since,
+										until: state.until
+									}, state.skip, signal);
 								},
 								children: state.loadingMore ? t("loadingMore") : t("more")
 							})
@@ -2927,13 +3038,17 @@ window.__ModuleLoader__.load({
 		//#region dsh-css:source/git-review/client/GitChangesBody.module.css.mjs
 		const css$1 = ".jdsH1W_root{height:50%;min-height:0;color:var(--dsw-alias-label-primary);font-size:var(--dsh-content-font-size-secondary,13px);border-bottom:.5px solid var(--dsw-alias-border-l2);flex-direction:column;flex:none;line-height:1.5;display:flex;position:relative;overflow:hidden}.jdsH1W_content{min-height:0;padding:4px 0 8px;overflow:auto}.jdsH1W_resizeHandle{z-index:3;cursor:row-resize;touch-action:none;height:6px;position:absolute;bottom:-3px;left:0;right:0}.jdsH1W_resizeHandle:after{content:\"\";background:var(--dsw-alias-border-l2);height:1px;position:absolute;top:2px;left:0;right:0}.jdsH1W_resizeHandle:hover:after{background:var(--dsw-alias-label-tertiary);height:2px}.jdsH1W_reviewToolbar{flex:none;justify-content:space-between;align-items:center;min-height:28px;padding:0 10px 10px;display:flex}.jdsH1W_reviewTitle{color:var(--dsw-alias-label-primary);font-size:14px}.jdsH1W_header{color:var(--dsw-alias-label-secondary);flex:none;align-items:center;gap:6px;padding:3px 10px;display:flex}.jdsH1W_sectionToggle{min-width:0;color:var(--dsw-alias-label-primary);font:inherit;text-align:start;background:color-mix(in srgb, var(--dsw-alias-bg-base) 68%, transparent);border:.5px solid var(--dsw-alias-border-l2);backdrop-filter:blur(18px)saturate(130%);cursor:pointer;border-radius:7px;flex:auto;align-items:center;gap:5px;padding:4px 8px;font-size:14px;display:flex}.jdsH1W_sectionToggle:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_sectionToggle .jdsH1W_count{color:var(--dsw-alias-label-secondary);font-size:13px}body[data-dsh-background-media] .jdsH1W_sectionToggle{background:color-mix(in srgb, var(--dsw-alias-bg-base) 46%, transparent)}.jdsH1W_sectionChevron{flex:none;transition:transform .12s;transform:rotate(-90deg)}.jdsH1W_sectionChevronExpanded{transform:rotate(0)}.jdsH1W_subsectionHeader{color:var(--dsw-alias-label-secondary);align-items:center;gap:5px;padding:5px 18px 2px;display:flex}.jdsH1W_headerActions{align-items:center;gap:2px;margin-left:auto;display:inline-flex}.jdsH1W_operationStatus{max-width:180px;color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis;align-items:center;gap:6px;margin-right:4px;font-size:12px;display:inline-flex;overflow:hidden}.jdsH1W_operationSpinner{border:1.5px solid color-mix(in srgb, currentColor 28%, transparent);border-top-color:currentColor;border-radius:50%;width:12px;height:12px;animation:.72s linear infinite jdsH1W_git-operation-spin}@keyframes jdsH1W_git-operation-spin{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.jdsH1W_operationSpinner{animation-duration:1.8s}}.jdsH1W_actionButton{height:24px;color:var(--dsw-alias-label-secondary);font:inherit;background:color-mix(in srgb, var(--dsw-alias-bg-base) 68%, transparent);border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;border-radius:6px;align-items:center;gap:3px;padding:0 8px;display:inline-flex}.jdsH1W_actionButton:hover:not(:disabled){color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_actionButton:disabled{cursor:default;opacity:.5}.jdsH1W_rollbackButton{color:var(--dsw-alias-state-error-primary)}.jdsH1W_rollbackWarning{color:var(--dsw-alias-label-secondary);margin:0}.jdsH1W_actionIcon{stroke:currentColor;stroke-width:1.25px;stroke-linecap:round;stroke-linejoin:round;width:16px;height:16px;display:block}.jdsH1W_actionError{border:1px solid var(--dsw-alias-state-error-primary);color:var(--dsw-alias-state-error-primary);overflow-wrap:anywhere;white-space:pre-wrap;border-radius:8px;margin:0 10px 8px;padding:6px 10px;font-size:12px}body[data-dsh-background-media] .jdsH1W_actionDialog{background:color-mix(in srgb, var(--dsw-alias-bg-layer-2) 72%, transparent);backdrop-filter:blur(16px)saturate(125%)}.jdsH1W_lastMessage{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border:.5px solid var(--dsw-alias-border-l2);border-radius:8px;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;margin-top:10px;padding:7px 9px;font-size:12px;display:grid}body[data-dsh-background-media] .jdsH1W_lastMessage{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 60%, transparent);backdrop-filter:blur(16px)saturate(125%)}.jdsH1W_lastMessageLabel{white-space:nowrap}.jdsH1W_lastMessageText{min-width:0;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.jdsH1W_fillMessageButton{color:var(--dsw-alias-label-secondary);font:inherit;background:var(--dsw-alias-interactive-bg-hover);border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;border-radius:5px;padding:2px 7px}.jdsH1W_fillMessageButton:hover{color:var(--dsw-alias-label-primary)}.jdsH1W_name{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_count{color:var(--dsw-alias-label-tertiary);flex:none;font-size:12px}.jdsH1W_tool{width:24px;height:24px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.jdsH1W_tool:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_closeFloating{position:absolute;top:4px;right:10px}.jdsH1W_list{flex-direction:column;flex:none;display:flex}.jdsH1W_level{margin:0;padding:0;list-style:none}.jdsH1W_pendingCommit{padding:0 10px}.jdsH1W_pendingCommitButton{width:100%;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;grid-template-columns:auto minmax(0,1fr);align-items:baseline;gap:0 7px;padding:3px 8px;display:grid}.jdsH1W_pendingCommitButton:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_pendingHash{color:var(--dsw-alias-link);font-family:var(--ds-font-family-code);grid-row:1/span 2;font-size:12px}.jdsH1W_pendingSubject{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_pendingMeta{min-width:0;color:var(--dsw-alias-label-tertiary);white-space:nowrap;text-overflow:ellipsis;font-size:12px;overflow:hidden}.jdsH1W_item{align-items:center;margin:0;padding:0 4px;display:flex}.jdsH1W_fileCheckbox{width:14px;height:14px;accent-color:var(--dsw-alias-brand-primary);cursor:pointer;flex:none;margin:0 2px}.jdsH1W_fileRow{width:100%;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;align-items:baseline;gap:6px;padding:3px 6px;display:flex}.jdsH1W_fileRow:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_rowAction{width:24px;height:24px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.jdsH1W_rowAction:hover:not(:disabled){color:var(--dsw-alias-state-error-primary);background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_rowAction:disabled{cursor:default;opacity:.5}.jdsH1W_badge{color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);flex:none;font-size:12px}.jdsH1W_badgeModified{color:var(--dsw-alias-state-warn-primary)}.jdsH1W_badgeAdded{color:var(--dsw-alias-state-success-primary)}.jdsH1W_badgeDeleted{color:var(--dsw-alias-state-error-primary)}.jdsH1W_badgeRenamed{color:var(--dsw-alias-link)}.jdsH1W_badgeConflict{color:var(--dsw-alias-state-error-primary)}.jdsH1W_fileName{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_fileDir{min-width:0;color:var(--dsw-alias-label-tertiary);white-space:nowrap;text-overflow:ellipsis;flex:0 auto;font-size:12px;overflow:hidden}.jdsH1W_stashRow{align-items:center;gap:6px;padding:2px 6px;display:flex}.jdsH1W_stashCollection{background:color-mix(in srgb, var(--dsw-alias-bg-base) 52%, transparent);border:.5px solid var(--dsw-alias-border-l2);border-radius:7px;margin:0 4px 4px;overflow:hidden}.jdsH1W_stashToggle{min-width:0;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;flex:auto;align-items:center;gap:5px;padding:4px 2px;display:flex}.jdsH1W_stashChevron{flex:none;transition:transform .12s;transform:rotate(-90deg)}.jdsH1W_stashChevronExpanded{transform:rotate(0)}.jdsH1W_stashSubject{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_stashDate{color:var(--dsw-alias-label-tertiary);flex:none;margin-left:auto;font-size:12px}.jdsH1W_restoreButton{color:var(--dsw-alias-label-secondary);font:inherit;background:var(--dsw-alias-interactive-bg-hover);border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;border-radius:5px;flex:none;padding:2px 7px}.jdsH1W_stashActions{flex:none;gap:4px;display:inline-flex}.jdsH1W_deleteButton{color:var(--dsw-alias-state-error-primary)}.jdsH1W_restoreButton:disabled{cursor:default;opacity:.5}.jdsH1W_stashDetails{border-top:.5px solid var(--dsw-alias-border-l2);padding:2px 4px 5px 19px}.jdsH1W_stashFile{align-items:baseline;gap:6px;min-width:0;padding:2px 6px;display:flex}.jdsH1W_note{color:var(--dsw-alias-label-tertiary);margin:0;padding:3px 10px;font-size:12px}.jdsH1W_ignoreNote{color:var(--dsw-alias-label-secondary);background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 76%, transparent);border:.5px solid var(--dsw-alias-border-l2);border-radius:6px;margin:3px 8px 5px;padding:6px 9px;font-size:12px}body[data-dsh-background-media] .jdsH1W_ignoreNote{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 48%, transparent);backdrop-filter:blur(12px)saturate(125%)}.jdsH1W_error{color:var(--dsw-alias-state-error-primary);margin:0;padding:3px 10px;font-size:12px}";
 		const tagId$1 = "@deepseek-ai/dsh-client-ui-sidebar-git-history/GitChangesBody.module.css";
-		if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$1) + "]") === null) {
-			const tag = document.createElement("style");
-			tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
-			tag.dataset.pluginCss = tagId$1;
-			tag.textContent = css$1;
-			document.head.appendChild(tag);
-		}
+		if (typeof document !== "undefined") {
+			const sheet = css$1;
+			const existing = document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$1) + "]");
+			if (existing === null) {
+				const tag = document.createElement("style");
+				tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
+				tag.dataset.pluginCss = tagId$1;
+				tag.textContent = sheet;
+				document.head.appendChild(tag);
+			} else if (existing.textContent !== sheet) existing.textContent = sheet;
+			}
 		var GitChangesBody_module_css_default = {
 			"actionButton": "jdsH1W_actionButton",
 			"actionDialog": "jdsH1W_actionDialog",
@@ -4109,13 +4224,17 @@ window.__ModuleLoader__.load({
 		//#region dsh-css:source/git-review/client/GitReviewPage.module.css.mjs
 		const css = ".VpfCBq_page{height:100%;min-height:0;color:var(--dsw-alias-label-primary);flex-direction:column;flex:auto;display:flex;overflow:hidden}";
 		const tagId = "@deepseek-ai/dsh-client-ui-sidebar-git-history/GitReviewPage.module.css";
-		if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId) + "]") === null) {
-			const tag = document.createElement("style");
-			tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
-			tag.dataset.pluginCss = tagId;
-			tag.textContent = css;
-			document.head.appendChild(tag);
-		}
+		if (typeof document !== "undefined") {
+			const sheet = css;
+			const existing = document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId) + "]");
+			if (existing === null) {
+				const tag = document.createElement("style");
+				tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
+				tag.dataset.pluginCss = tagId;
+				tag.textContent = sheet;
+				document.head.appendChild(tag);
+			} else if (existing.textContent !== sheet) existing.textContent = sheet;
+			}
 		var GitReviewPage_module_css_default = { "page": "VpfCBq_page" };
 		//#endregion
 		//#region src/client/GitReviewPage.tsx
@@ -4149,6 +4268,13 @@ window.__ModuleLoader__.load({
 			"search.submit": "搜索",
 			"search.author.all": "全部作者",
 			"search.author.label": "按提交作者筛选",
+			"search.date.toggle": "日期",
+			"search.date.since": "起始日期（含当天）",
+			"search.date.until": "结束日期（含当天）",
+			"search.date.clear": "清除日期",
+			"search.date.range": "提交日期：{since} 至 {until}",
+			"search.date.sinceRange": "提交日期：{since} 之后",
+			"search.date.untilRange": "提交日期：{until} 之前",
 			"detail.title": "提交详情",
 			"detail.close": "关闭提交详情",
 			"detail.files": "提交文件",
@@ -4254,6 +4380,13 @@ window.__ModuleLoader__.load({
 			"search.submit": "Search",
 			"search.author.all": "All authors",
 			"search.author.label": "Filter by commit author",
+			"search.date.toggle": "Date",
+			"search.date.since": "Start date (inclusive)",
+			"search.date.until": "End date (inclusive)",
+			"search.date.clear": "Clear dates",
+			"search.date.range": "Commit date: {since} to {until}",
+			"search.date.sinceRange": "Commit date: from {since}",
+			"search.date.untilRange": "Commit date: up to {until}",
 			"detail.title": "Commit details",
 			"detail.close": "Close commit details",
 			"detail.files": "Commit files",
@@ -4409,6 +4542,8 @@ window.__ModuleLoader__.load({
 							commits: [],
 							search: "",
 							author: "",
+							since: "",
+							until: "",
 							authors: [],
 							skip: 0,
 							more: false,
@@ -4421,13 +4556,14 @@ window.__ModuleLoader__.load({
 					* Mark a first-page read (open, reload, or a new filter) as in flight.
 					* @param d - draft state.
 					* @param tabId - the tab being drawn.
-					* @param search - the subject filter the read carries.
-					* @param author - the author filter the read carries; blank means every author.
+					* @param filter - the subject, author, and date filters the read carries.
 					*/
-					loading: (d, tabId, search, author) => {
+					loading: (d, tabId, filter) => {
 						const state = bucket(d, tabId);
-						state.search = search;
-						state.author = author;
+						state.search = filter.search;
+						state.author = filter.author;
+						state.since = filter.since;
+						state.until = filter.until;
 						state.status = "loading";
 						state.failure = void 0;
 					},

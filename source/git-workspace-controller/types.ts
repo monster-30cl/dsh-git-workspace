@@ -56,6 +56,10 @@ export interface GitWorkspaceLogRequest extends GitWorkspaceRequest {
   readonly search?: string
   /** Case-insensitive, literal author-name filter; blank means every author. */
   readonly author?: string
+  /** Inclusive `YYYY-MM-DD` lower bound on the commit date; blank means unbounded. */
+  readonly since?: string
+  /** Inclusive `YYYY-MM-DD` upper bound on the commit date; blank means unbounded. */
+  readonly until?: string
 }
 
 /** Request that identifies one commit returned by this controller. */

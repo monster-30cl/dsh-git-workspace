@@ -32,10 +32,9 @@ export interface GitPage {
 /**
  * One tab's history window.
  *
- * `search` and `skip` describe the page set already loaded, so reload and
- * load-more re-ask the exact window the reader is looking at. `author` is the
- * author filter that page set was read with, so the dropdown shows what is
- * applied rather than what is merely selected.
+ * `search`, `author`, `since`, and `until` describe the page set already
+ * loaded, so reload and load-more re-ask the exact window the reader is looking
+ * at: every control shows what is applied rather than what is merely selected.
  */
 export interface GitTabState {
   workspaceId: WorkspaceId
@@ -46,6 +45,10 @@ export interface GitTabState {
   search: string
   /** Applied author filter; blank means every author. */
   author: string
+  /** Applied `YYYY-MM-DD` lower bound on the commit date; blank means unbounded. */
+  since: string
+  /** Applied `YYYY-MM-DD` upper bound on the commit date; blank means unbounded. */
+  until: string
   /** Selectable author names, newest-read first page's list. */
   authors: readonly string[]
   /** Commits already loaded for the current filter; the next page's offset. */
@@ -54,6 +57,18 @@ export interface GitTabState {
   status: 'loading' | 'ready' | 'failed'
   loadingMore: boolean
   failure: RemoteFailure | undefined
+}
+
+/** The four filters one history read carries, as the reader applied them. */
+export interface GitHistoryFilter {
+  /** Case-insensitive subject substring; blank means every subject. */
+  readonly search: string
+  /** Author-name filter; blank means every author. */
+  readonly author: string
+  /** Inclusive `YYYY-MM-DD` lower bound; blank means unbounded. */
+  readonly since: string
+  /** Inclusive `YYYY-MM-DD` upper bound; blank means unbounded. */
+  readonly until: string
 }
 
 /** Every tab's history, keyed by tab id. */
@@ -98,7 +113,7 @@ function applyPage(draft: GitTabState, page: GitPage, append: boolean): void {
 /** The history store's write set; every action names the tab it writes. */
 type GitHistoryActions = {
   start: (draft: GitHistoryState, tabId: TabId, workspaceId: WorkspaceId) => void
-  loading: (draft: GitHistoryState, tabId: TabId, search: string, author: string) => void
+  loading: (draft: GitHistoryState, tabId: TabId, filter: GitHistoryFilter) => void
   loaded: (draft: GitHistoryState, tabId: TabId, page: GitPage) => void
   moreLoading: (draft: GitHistoryState, tabId: TabId) => void
   appended: (draft: GitHistoryState, tabId: TabId, page: GitPage) => void
@@ -128,6 +143,8 @@ export function createGitHistoryStore(): EngineStoreHandle<GitHistoryState, GitH
           commits: [],
           search: '',
           author: '',
+          since: '',
+          until: '',
           authors: [],
           skip: 0,
           more: false,
@@ -140,13 +157,14 @@ export function createGitHistoryStore(): EngineStoreHandle<GitHistoryState, GitH
        * Mark a first-page read (open, reload, or a new filter) as in flight.
        * @param d - draft state.
        * @param tabId - the tab being drawn.
-       * @param search - the subject filter the read carries.
-       * @param author - the author filter the read carries; blank means every author.
+       * @param filter - the subject, author, and date filters the read carries.
        */
-      loading: (d, tabId: TabId, search: string, author: string) => {
+      loading: (d, tabId: TabId, filter: GitHistoryFilter) => {
         const state = bucket(d, tabId)
-        state.search = search
-        state.author = author
+        state.search = filter.search
+        state.author = filter.author
+        state.since = filter.since
+        state.until = filter.until
         state.status = 'loading'
         state.failure = undefined
       },
