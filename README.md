@@ -89,7 +89,7 @@ pnpm pack
 <a id="兼容性"></a>
 ## 兼容性
 
-当前构建面向 DeepSeek Harness Desktop `0.2.1-rc.3` 的客户端服务和图标命名，并已在 JoyinCode 的兼容 Harness 环境中验收。AI 生成依赖宿主的 LLM 服务和默认模型配置；未配置模型时会提示原因，仍可手动填写备注。`pnpm run check` 检查面板注册、AI 接口接线及 Remote 类型标识；这些检查不能替代实际宿主启动和真实模型调用验证。这个仓库不保证命令行纯 headless profile 能显示客户端界面。
+当前构建面向 DeepSeek Harness Desktop `0.2.1-rc.3` 的客户端服务和图标命名，并已在兼容 DSH 环境中验收。AI 生成依赖宿主的 LLM 服务和默认模型配置；未配置模型时会提示原因，仍可手动填写备注。`pnpm run check` 检查面板注册、AI 接口接线及 Remote 类型标识；这些检查不能替代实际宿主启动和真实模型调用验证。这个仓库不保证命令行纯 headless profile 能显示客户端界面。
 
 <a id="开发与打包"></a>
 ## 开发与打包
@@ -120,6 +120,7 @@ pnpm run pack:release
 插件依赖宿主提供的 Workspace、subprocess、Remote 和右侧栏客户端服务。不同桌面宿主升级这些服务时，可能需要更新兼容适配并重新发布。
 
 AI 备注每次最多分析 60 个文件；较长差异会截断，二进制文件仅提供文件信息，不分析二进制内容。生成请求最长等待 90 秒，结果可能遗漏细节，应以实际差异为准；内容、费用及可用性取决于宿主配置的模型服务。
+
 
 <a id="dev-note"></a>
 ### Dev Note

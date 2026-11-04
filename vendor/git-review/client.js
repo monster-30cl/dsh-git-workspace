@@ -936,7 +936,7 @@ window.__ModuleLoader__.load({
 				priority: "builtin",
 				title: () => t("type.label"),
 				guide: [{
-					order: 20,
+					order: 25,
 					title: () => t("guide.title"),
 					description: () => t("guide.description"),
 					icon: GitReviewIcon

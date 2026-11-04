@@ -89,7 +89,7 @@ Only selecting the AI generation icon sends the selected file list and diffs to 
 <a id="compatibility"></a>
 ## Compatibility
 
-The current build targets the client services and icon exports in DeepSeek Harness Desktop `0.2.1-rc.3` and has also been accepted in JoyinCode's compatible Harness environment. AI generation requires the host LLM service and a configured default model. If unavailable, the dialog reports the reason and still allows manual messages. `pnpm run check` checks panel registration, AI interface wiring, and Remote type identifiers; it does not replace startup verification in the actual host or a real model call. This repository does not provide a client UI in a command-line-only headless profile.
+The current build targets the client services and icon exports in DeepSeek Harness Desktop `0.2.1-rc.3` and has also been accepted in a compatible DSH environment. AI generation requires the host LLM service and a configured default model. If unavailable, the dialog reports the reason and still allows manual messages. `pnpm run check` checks panel registration, AI interface wiring, and Remote type identifiers; it does not replace startup verification in the actual host or a real model call. This repository does not provide a client UI in a command-line-only headless profile.
 
 <a id="develop-and-package"></a>
 ## Develop and package
@@ -120,6 +120,7 @@ This bundle provides the desktop Git UI and Host operations. It registers no too
 The plugin depends on the host's Workspace, subprocess, Remote, and right-Sidebar client services. A desktop host upgrade can require a compatibility update and a new release.
 
 AI messages support up to 60 files per request. Long diffs are truncated; binary files contribute file information rather than binary contents. Requests have a 90-second timeout. Generated messages may omit details, so check them against the actual changes. Output, cost, and availability depend on the configured model provider.
+
 
 <a id="dev-note"></a>
 ### Dev Note
