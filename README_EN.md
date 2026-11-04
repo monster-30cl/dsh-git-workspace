@@ -73,7 +73,7 @@ Each `v*` tag produces a `.tgz` Release asset. Download it, enter its absolute p
 ### Branch operations
 
 - Select the branch name in the Session header to switch branches; the final menu row opens the full branch page.
-- The full branch page selects a Workspace, refreshes branches, creates a branch, and checks out remote branches.
+- The full branch page selects a Workspace, refreshes branches, creates a branch, and checks out remote branches. Refresh rereads local refs; Sync remotes (同步远端) runs `git fetch --all --prune` to update remote-tracking refs and prune deleted remote branches, without deleting local branches or merging code.
 
 -----
 

@@ -198,6 +198,14 @@ function BranchesPage({ sessionId, useWorkspaces, git }) {
   const selected = workspaceId ?? boundWorkspaceId(workspaces, sessionId)
   const { rows, error, busy, refresh, run } = useBranches(git, selected)
   const [draft, setDraft] = React.useState('')
+  const [syncing, setSyncing] = React.useState(false)
+
+  const syncRemote = async () => {
+    if (busy || syncing || selected === undefined) return
+    setSyncing(true)
+    try { await run(() => git.fetchBranches(selected)) }
+    finally { setSyncing(false) }
+  }
 
   const current = rows?.repository === true ? rows.current : null
   const switchTo = (branch) => {
@@ -268,6 +276,7 @@ function BranchesPage({ sessionId, useWorkspaces, git }) {
         'select',
         {
           value: selected ?? '',
+          disabled: busy || syncing,
           onChange: (event) => setWorkspaceId(event.target.value),
           style: fieldStyle,
         },
@@ -279,6 +288,7 @@ function BranchesPage({ sessionId, useWorkspaces, git }) {
         )),
       ),
       h(Button, { size: 'sm', variant: 'outline', disabled: busy || selected === undefined, onClick: () => void refresh() }, '刷新'),
+      h(Button, { size: 'sm', variant: 'outline', disabled: busy || syncing || selected === undefined, title: '同步远端分支并清理已删除的远端记录，不合并代码', 'aria-busy': syncing, 'data-git-fetch-branches': true, onClick: () => void syncRemote() }, syncing ? '同步中…' : '同步远端'),
     ),
     error !== null && h('div', { style: { marginTop: 10, opacity: 0.85 } }, error),
     rows === null && error === null && h('div', { style: { marginTop: 10, opacity: 0.7 } }, '加载中…'),
@@ -331,6 +341,7 @@ export function apply(ctx) {
   }
   const git = {
     list: (workspaceId) => namespace().list({ workspaceId }),
+    fetchBranches: (workspaceId) => namespace().fetchBranches({ workspaceId }),
     checkout: (workspaceId, branch) => namespace().checkout({ workspaceId, branch }),
     checkoutRemote: (workspaceId, branch) => namespace().checkoutRemote({ workspaceId, branch }),
     create: (workspaceId, branch) => namespace().create({ workspaceId, branch }),

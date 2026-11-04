@@ -637,6 +637,39 @@ export const TYPERT_REMOTE = createTypertRemoteInfo({
       },
       sourceLocation: {"file":"packages/api/git-workspace-controller/src/index.ts","line":180,"column":9},
     },
+    'gitWorkspace/fetchBranches': {
+      service: 'gitWorkspaceController',
+      description: 'Fetch all remotes, prune deleted remote branches, and return refreshed branch lists.',
+      invocation: { kind: 'direct' },
+      parameters: [
+        {
+          name: 'request',
+          description: 'target Workspace.',
+          source: 'json',
+          codec: {
+            mode: 'strict',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest',
+            create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_list_parameter_0$schema,
+            jsonSchema: {"type":"object","properties":{"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":true},
+          },
+          strictCodec: {
+            mode: 'strict',
+            typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest',
+            create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_list_parameter_0_strict$schema,
+            jsonSchema: {"type":"object","properties":{"workspaceId":{"type":"string"}},"required":["workspaceId"],"additionalProperties":false},
+          },
+        },
+      ],
+      cancellation: { parameter: 'signal' },
+      result: {
+        mode: 'strict',
+        typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchState',
+        create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_list_result$schema,
+        description: 'repository absence or the complete branch lists.',
+        jsonSchema: {"oneOf":[{"type":"object","properties":{"repository":{"type":"boolean","const":false}},"required":["repository"],"additionalProperties":true},{"type":"object","properties":{"repository":{"type":"boolean","const":true},"localBranches":{"type":"array","items":{"type":"string"}},"remoteBranches":{"type":"array","items":{"type":"string"},"description":"Remote-tracking branches, excluding symbolic remote HEAD aliases."},"current":{"type":"string"},"detached":{"type":"boolean"}},"required":["repository","localBranches","remoteBranches","detached"],"additionalProperties":true}]},
+      },
+      sourceLocation: {"file":"packages/api/git-workspace-controller/src/index.ts","line":85,"column":9},
+    },
     'gitWorkspace/list': {
       service: 'gitWorkspaceController',
       description: 'Read local, remote-tracking, and checked-out branches for one Workspace.',

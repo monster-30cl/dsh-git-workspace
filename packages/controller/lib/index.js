@@ -100,8 +100,8 @@ import { stripVTControlCharacters } from "node:util";
 import z from "@deepseek-ai/schemastery";
 import { Remote, RemoteError, TypertRemoteService } from "@deepseek-ai/dsh-typert-protocol";
 var AUTHOR_SCAN_COMMITS = 500;
-var _stashDrop_dec, _stashPop_dec, _stashFiles_dec, _rollback_dec, _stashCreate_dec, _pull_dec, _push_dec, _commit_dec, _trackFiles_dec, _stash_dec, _status_dec, _pendingPush_dec, _workingDiff_dec, _generateCommitMessage_dec, _commitDiff_dec, _commitFiles_dec, _log_dec, _delete_dec, _create_dec, _checkoutRemote_dec, _checkout_dec, _list_dec, _a, _init;
-var GitWorkspaceController = class extends (_a = TypertRemoteService, _list_dec = [Remote("list")], _checkout_dec = [Remote("checkout")], _checkoutRemote_dec = [Remote("checkoutRemote")], _create_dec = [Remote("create")], _delete_dec = [Remote("delete")], _log_dec = [Remote("log")], _commitFiles_dec = [Remote("commitFiles")], _commitDiff_dec = [Remote("commitDiff")], _generateCommitMessage_dec = [Remote("generateCommitMessage")], _workingDiff_dec = [Remote("workingDiff")], _pendingPush_dec = [Remote("pendingPush")], _status_dec = [Remote("status")], _stash_dec = [Remote("stash")], _trackFiles_dec = [Remote("trackFiles")], _commit_dec = [Remote("commit")], _push_dec = [Remote("push")], _pull_dec = [Remote("pull")], _stashCreate_dec = [Remote("stashCreate")], _rollback_dec = [Remote("rollback")], _stashFiles_dec = [Remote("stashFiles")], _stashPop_dec = [Remote("stashPop")], _stashDrop_dec = [Remote("stashDrop")], _a) {
+var _stashDrop_dec, _stashPop_dec, _stashFiles_dec, _rollback_dec, _stashCreate_dec, _pull_dec, _push_dec, _commit_dec, _trackFiles_dec, _stash_dec, _status_dec, _pendingPush_dec, _workingDiff_dec, _generateCommitMessage_dec, _commitDiff_dec, _commitFiles_dec, _log_dec, _delete_dec, _create_dec, _checkoutRemote_dec, _checkout_dec, _fetchBranches_dec, _list_dec, _a, _init;
+var GitWorkspaceController = class extends (_a = TypertRemoteService, _list_dec = [Remote("list")], _fetchBranches_dec = [Remote("fetchBranches")], _checkout_dec = [Remote("checkout")], _checkoutRemote_dec = [Remote("checkoutRemote")], _create_dec = [Remote("create")], _delete_dec = [Remote("delete")], _log_dec = [Remote("log")], _commitFiles_dec = [Remote("commitFiles")], _commitDiff_dec = [Remote("commitDiff")], _generateCommitMessage_dec = [Remote("generateCommitMessage")], _workingDiff_dec = [Remote("workingDiff")], _pendingPush_dec = [Remote("pendingPush")], _status_dec = [Remote("status")], _stash_dec = [Remote("stash")], _trackFiles_dec = [Remote("trackFiles")], _commit_dec = [Remote("commit")], _push_dec = [Remote("push")], _pull_dec = [Remote("pull")], _stashCreate_dec = [Remote("stashCreate")], _rollback_dec = [Remote("rollback")], _stashFiles_dec = [Remote("stashFiles")], _stashPop_dec = [Remote("stashPop")], _stashDrop_dec = [Remote("stashDrop")], _a) {
   /** @param ctx - Host context carrying Workspace and subprocess services. */
   constructor(ctx, config) {
     super(ctx, "gitWorkspaceController", { namespace: "gitWorkspace" });
@@ -132,6 +132,12 @@ var GitWorkspaceController = class extends (_a = TypertRemoteService, _list_dec 
       ...current === void 0 ? {} : { current },
       detached: current === void 0
     };
+  }
+  async fetchBranches(request, signal) {
+    const workspace = this.workspace(request.workspaceId);
+    const result = await this.git(workspace, ["fetch", "--all", "--prune", "--quiet"], signal, "fetch");
+    if (result.exitCode !== 0 || result.truncated) this.failed(workspace, "fetch", result);
+    return this.list(request, signal);
   }
   async checkout(request, signal) {
     const workspace = this.workspace(request.workspaceId);
@@ -627,6 +633,7 @@ var GitWorkspaceController = class extends (_a = TypertRemoteService, _list_dec 
 };
 _init = __decoratorStart(_a);
 __decorateElement(_init, 1, "list", _list_dec, GitWorkspaceController);
+__decorateElement(_init, 1, "fetchBranches", _fetchBranches_dec, GitWorkspaceController);
 __decorateElement(_init, 1, "checkout", _checkout_dec, GitWorkspaceController);
 __decorateElement(_init, 1, "checkoutRemote", _checkoutRemote_dec, GitWorkspaceController);
 __decorateElement(_init, 1, "create", _create_dec, GitWorkspaceController);

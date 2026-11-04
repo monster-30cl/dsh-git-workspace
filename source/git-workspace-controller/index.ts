@@ -115,6 +115,15 @@ export class GitWorkspaceController extends TypertRemoteService {
     }
   }
 
+  /** Fetch all remotes and prune obsolete remote-tracking references. */
+  @Remote('fetchBranches')
+  async fetchBranches(request: GitWorkspaceRequest, signal: AbortSignal): Promise<GitWorkspaceBranchState> {
+    const workspace = this.workspace(request.workspaceId)
+    const result = await this.git(workspace, ['fetch', '--all', '--prune', '--quiet'], signal, 'fetch')
+    if (result.exitCode !== 0 || result.truncated) this.failed(workspace, 'fetch', result)
+    return this.list(request, signal)
+  }
+
   /**
    * Check out one existing local branch in the Workspace directory.
    * @param request - target Workspace and exact branch name.
@@ -602,7 +611,7 @@ export class GitWorkspaceController extends TypertRemoteService {
     workspace: Workspace,
     args: readonly string[],
     signal: AbortSignal,
-    operation: 'list' | 'checkout' | 'checkout-remote' | 'create' | 'delete' | 'log' | 'commit-files' | 'commit-diff' | 'working-diff' | 'pending-push' | 'status' | 'stash' | 'stash-files' | 'stash-pop' | 'stash-drop' | 'add' | 'commit' | 'push' | 'pull' | 'stash-create' | 'rollback',
+    operation: 'list' | 'fetch' | 'checkout' | 'checkout-remote' | 'create' | 'delete' | 'log' | 'commit-files' | 'commit-diff' | 'working-diff' | 'pending-push' | 'status' | 'stash' | 'stash-files' | 'stash-pop' | 'stash-drop' | 'add' | 'commit' | 'push' | 'pull' | 'stash-create' | 'rollback',
     maxOutputBytes = this.config.maxOutputBytes,
   ): Promise<GitResult> {
     let executable: string
@@ -650,7 +659,7 @@ export class GitWorkspaceController extends TypertRemoteService {
 
   private failed(
     workspace: Workspace,
-    operation: 'list' | 'checkout' | 'checkout-remote' | 'create' | 'delete' | 'log' | 'commit-files' | 'commit-diff' | 'working-diff' | 'pending-push' | 'status' | 'stash' | 'stash-files' | 'stash-pop' | 'stash-drop' | 'add' | 'commit' | 'push' | 'pull' | 'stash-create' | 'rollback',
+    operation: 'list' | 'fetch' | 'checkout' | 'checkout-remote' | 'create' | 'delete' | 'log' | 'commit-files' | 'commit-diff' | 'working-diff' | 'pending-push' | 'status' | 'stash' | 'stash-files' | 'stash-pop' | 'stash-drop' | 'add' | 'commit' | 'push' | 'pull' | 'stash-create' | 'rollback',
     result: GitResult,
   ): never {
     const detail = result.truncated

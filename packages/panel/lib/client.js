@@ -25612,6 +25612,39 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       },
       sourceLocation: { "file": "packages/api/git-workspace-controller/src/index.ts", "line": 180, "column": 9 }
     },
+    "gitWorkspace/fetchBranches": {
+      service: "gitWorkspaceController",
+      description: "Fetch all remotes, prune deleted remote branches, and return refreshed branch lists.",
+      invocation: { kind: "direct" },
+      parameters: [
+        {
+          name: "request",
+          description: "target Workspace.",
+          source: "json",
+          codec: {
+            mode: "strict",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
+            create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_list_parameter_0$schema,
+            jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": true }
+          },
+          strictCodec: {
+            mode: "strict",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
+            create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_list_parameter_0_strict$schema,
+            jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": false }
+          }
+        }
+      ],
+      cancellation: { parameter: "signal" },
+      result: {
+        mode: "strict",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchState",
+        create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_list_result$schema,
+        description: "repository absence or the complete branch lists.",
+        jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "localBranches": { "type": "array", "items": { "type": "string" } }, "remoteBranches": { "type": "array", "items": { "type": "string" }, "description": "Remote-tracking branches, excluding symbolic remote HEAD aliases." }, "current": { "type": "string" }, "detached": { "type": "boolean" } }, "required": ["repository", "localBranches", "remoteBranches", "detached"], "additionalProperties": true }] }
+      },
+      sourceLocation: { "file": "packages/api/git-workspace-controller/src/index.ts", "line": 85, "column": 9 }
+    },
     "gitWorkspace/list": {
       service: "gitWorkspaceController",
       description: "Read local, remote-tracking, and checked-out branches for one Workspace.",
@@ -26184,6 +26217,16 @@ function BranchesPage({ sessionId, useWorkspaces, git }) {
   const selected = workspaceId ?? boundWorkspaceId(workspaces, sessionId);
   const { rows, error: error62, busy, refresh, run } = useBranches(git, selected);
   const [draft, setDraft] = import_react.default.useState("");
+  const [syncing, setSyncing] = import_react.default.useState(false);
+  const syncRemote = async () => {
+    if (busy || syncing || selected === void 0) return;
+    setSyncing(true);
+    try {
+      await run(() => git.fetchBranches(selected));
+    } finally {
+      setSyncing(false);
+    }
+  };
   const current = rows?.repository === true ? rows.current : null;
   const switchTo = (branch) => {
     if (!confirmed(`\u5207\u6362\u5171\u4EAB\u5DE5\u4F5C\u533A\u5230\u5206\u652F ${branch}\uFF1F`)) return;
@@ -26250,6 +26293,7 @@ function BranchesPage({ sessionId, useWorkspaces, git }) {
         "select",
         {
           value: selected ?? "",
+          disabled: busy || syncing,
           onChange: (event) => setWorkspaceId(event.target.value),
           style: fieldStyle
         },
@@ -26260,7 +26304,8 @@ function BranchesPage({ sessionId, useWorkspaces, git }) {
           workspace.title || workspace.path || workspace.workspaceId
         ))
       ),
-      h(import_dsh_client_ui_primitives.Button, { size: "sm", variant: "outline", disabled: busy || selected === void 0, onClick: () => void refresh() }, "\u5237\u65B0")
+      h(import_dsh_client_ui_primitives.Button, { size: "sm", variant: "outline", disabled: busy || selected === void 0, onClick: () => void refresh() }, "\u5237\u65B0"),
+      h(import_dsh_client_ui_primitives.Button, { size: "sm", variant: "outline", disabled: busy || syncing || selected === void 0, title: "\u540C\u6B65\u8FDC\u7AEF\u5206\u652F\u5E76\u6E05\u7406\u5DF2\u5220\u9664\u7684\u8FDC\u7AEF\u8BB0\u5F55\uFF0C\u4E0D\u5408\u5E76\u4EE3\u7801", "aria-busy": syncing, "data-git-fetch-branches": true, onClick: () => void syncRemote() }, syncing ? "\u540C\u6B65\u4E2D\u2026" : "\u540C\u6B65\u8FDC\u7AEF")
     ),
     error62 !== null && h("div", { style: { marginTop: 10, opacity: 0.85 } }, error62),
     rows === null && error62 === null && h("div", { style: { marginTop: 10, opacity: 0.7 } }, "\u52A0\u8F7D\u4E2D\u2026"),
@@ -26318,6 +26363,7 @@ function apply(ctx) {
   };
   const git = {
     list: (workspaceId) => namespace().list({ workspaceId }),
+    fetchBranches: (workspaceId) => namespace().fetchBranches({ workspaceId }),
     checkout: (workspaceId, branch) => namespace().checkout({ workspaceId, branch }),
     checkoutRemote: (workspaceId, branch) => namespace().checkoutRemote({ workspaceId, branch }),
     create: (workspaceId, branch) => namespace().create({ workspaceId, branch })

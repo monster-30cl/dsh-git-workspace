@@ -214,4 +214,9 @@ assert.equal(await aiFace.generateCommitMessage('workspace', aiSignal, ['selecte
 assert.deepEqual(aiRequest, { workspaceId: 'workspace', paths: ['selected.ts'] })
 reviewCtx.remote.gitWorkspace.generateCommitMessage = async () => ({ ok: false, error: { message: 'Model unavailable' } })
 await assert.rejects(aiFace.generateCommitMessage('workspace', aiSignal, ['selected.ts']), /Model unavailable/)
-console.log('PANEL CHECK OK (including AI message wiring)')
+let fetchRequest
+const fetched = { ok: true, value: { repository: true, localBranches: ['main'], remoteBranches: ['origin/main'] } }
+gitRemote.fetchBranches = async (request) => { fetchRequest = request; return fetched }
+assert.equal(await pageInjected.git.fetchBranches('selected-workspace'), fetched)
+assert.deepEqual(fetchRequest, { workspaceId: 'selected-workspace' })
+console.log('PANEL CHECK OK (including AI message and remote branch sync wiring)')
