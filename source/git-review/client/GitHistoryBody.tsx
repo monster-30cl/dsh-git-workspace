@@ -32,6 +32,7 @@ import { setGitChangesVisible, subscribeGitHistoryRefresh, useGitChangesVisible 
 import type {} from './locales.ts'
 import type { GitHistoryFilter, GitTabState, createGitHistoryStore } from './store.ts'
 import css from './GitHistoryBody.module.css'
+import { ComparisonDialog } from './ComparisonDialog'
 import { HistoryDatePicker } from './HistoryDatePicker'
 
 /** The body's composed props: the tab it draws, its store, its face, and its copy. */
@@ -891,7 +892,8 @@ export function CommitDetailModal({
     window.addEventListener('mouseup', stop)
   }
   return (
-    <Modal
+    <ComparisonDialog
+      fullscreen={fullscreen}
       open={commit !== undefined}
       className={clsx(css.detailDialog, fullscreen && css.detailDialogFullscreen)}
       title={commit?.subject ?? t('detail.title')}
@@ -954,7 +956,7 @@ export function CommitDetailModal({
           {failure !== undefined && <p className={css.error} role="alert">{failure}</p>}
         </section>
       </div>
-    </Modal>
+    </ComparisonDialog>
   )
 }
 
@@ -993,7 +995,8 @@ export function WorkingTreeDiffModal({ file, workspaceId, readWorkingDiff, zoomM
     onClose()
   }
   return (
-    <Modal
+    <ComparisonDialog
+      fullscreen={fullscreen}
       open={file !== undefined}
       className={clsx(css.detailDialog, fullscreen && css.detailDialogFullscreen)}
       title={file?.path ?? t('detail.title')}
@@ -1021,7 +1024,7 @@ export function WorkingTreeDiffModal({ file, workspaceId, readWorkingDiff, zoomM
           {failure !== undefined && <p className={css.error} role="alert">{failure}</p>}
         </section>
       </div>
-    </Modal>
+    </ComparisonDialog>
   )
 }
 

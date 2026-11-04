@@ -48,6 +48,12 @@ const messageUi = await build({
 })
 factory = factory.replace('(require) => {', '(require) => {\nconst CommitMessageDialog = ((require) => { const module = { exports: {} }; const exports = module.exports;\n' + messageUi.outputFiles[0].text + '\nreturn module.exports.CommitMessageDialog; })(require);\n')
 
+const comparisonUi = await build({
+  entryPoints: [fileURLToPath(new URL('source/git-review/client/ComparisonDialog.tsx', root))],
+  bundle: true, write: false, format: 'cjs', platform: 'browser', target: 'es2022', external: ['react', '@deepseek-ai/dsh-client-ui-primitives'],
+})
+factory = factory.replace('(require) => {', '(require) => {\nconst ComparisonDialog = ((require) => { const module = { exports: {} }; const exports = module.exports;\n' + comparisonUi.outputFiles[0].text + '\nreturn module.exports.ComparisonDialog; })(require);\n')
+
 // Desktop 0.2.1-rc.3 exposes entry configuration through ConfigForms.
 const settingsBinding = 'ctx.settingsScope.bind({ namespace: GIT_HISTORY_SETTINGS_NAMESPACE })'
 if (factory.split(settingsBinding).length !== 2 || factory.split('"settingsScope"').length !== 2) {
