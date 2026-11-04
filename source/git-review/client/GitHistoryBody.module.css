@@ -889,3 +889,28 @@
   color: var(--dsw-alias-state-error-primary);
   background: color-mix(in srgb, var(--dsw-alias-state-error-primary) 16%, transparent);
 }
+
+/*
+ * A changed row marks its own line number, not just its code: the gutter cell
+ * takes the same tint and a bar on its outer edge, so a removed or added line
+ * reads as one continuous marker across the number and the text.
+ */
+.added .lineNumber {
+  color: var(--dsw-alias-state-success-primary);
+  background: color-mix(
+    in srgb,
+    var(--dsw-alias-state-success-primary) 16%,
+    color-mix(in srgb, var(--dsw-alias-bg-base) 84%, var(--dsw-alias-border-l2))
+  );
+  box-shadow: inset 2px 0 0 var(--dsw-alias-state-success-primary);
+}
+
+.removed .lineNumber {
+  color: var(--dsw-alias-state-error-primary);
+  background: color-mix(
+    in srgb,
+    var(--dsw-alias-state-error-primary) 16%,
+    color-mix(in srgb, var(--dsw-alias-bg-base) 84%, var(--dsw-alias-border-l2))
+  );
+  box-shadow: inset -2px 0 0 var(--dsw-alias-state-error-primary);
+}

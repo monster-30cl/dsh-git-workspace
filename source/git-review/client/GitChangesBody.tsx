@@ -36,6 +36,24 @@ import css from './GitChangesBody.module.css'
 
 const MIN_REGION_HEIGHT = 96
 
+/**
+ * The height a drag to `pointerY` asks for. The region hugs the bottom of the
+ * panel, so the pointer's distance to that edge is the height; both regions keep
+ * at least their own minimum.
+ * @param panelRect - the split panel's box.
+ * @param pointerY - the pointer's viewport Y during the drag.
+ * @returns the clamped region height in pixels.
+ */
+export function regionHeightAt(panelRect: { readonly height: number, readonly bottom: number }, pointerY: number): number {
+  return Math.max(MIN_REGION_HEIGHT, Math.min(panelRect.height - MIN_REGION_HEIGHT, panelRect.bottom - pointerY))
+}
+
+/**
+ * The height the reader last dragged the region to. It is a layout preference
+ * rather than component state, so it survives remounting the tab.
+ */
+let rememberedHeight: number | undefined
+
 /** The region's composed props: the session it draws, its face, and its copy. */
 export type GitChangesBodyProps =
   & PropsRuntime<'sidebar.right.panel.changes'>
@@ -631,18 +649,21 @@ export function GitChangesBody({
     if (panel === null) return
     event.preventDefault()
     stopResizeRef.current?.()
+    const handle = event.currentTarget
     let nextY = event.clientY
+    let height = root.getBoundingClientRect().height
     let frame: number | undefined
     const previousUserSelect = document.body.style.userSelect
+    const previousCursor = document.body.style.cursor
     document.body.style.userSelect = 'none'
+    document.body.style.cursor = 'row-resize'
+    handle.dataset.active = 'true'
+    // The region hugs the bottom of the panel, so its height is the distance
+    // from the pointer down to that edge: dragging up grows the region.
     const applyHeight = (): void => {
       frame = undefined
-      const panelRect = panel.getBoundingClientRect()
-      const next = Math.max(
-        MIN_REGION_HEIGHT,
-        Math.min(panelRect.height - MIN_REGION_HEIGHT, nextY - panelRect.top),
-      )
-      root.style.height = `${next}px`
+      height = regionHeightAt(panel.getBoundingClientRect(), nextY)
+      root.style.height = `${height}px`
     }
     const move = (moveEvent: MouseEvent): void => {
       nextY = moveEvent.clientY
@@ -651,14 +672,22 @@ export function GitChangesBody({
     const stop = (): void => {
       if (frame !== undefined) cancelAnimationFrame(frame)
       applyHeight()
+      rememberedHeight = height
       window.removeEventListener('mousemove', move)
       window.removeEventListener('mouseup', stop)
       document.body.style.userSelect = previousUserSelect
+      document.body.style.cursor = previousCursor
+      delete handle.dataset.active
       stopResizeRef.current = undefined
     }
     stopResizeRef.current = stop
     window.addEventListener('mousemove', move)
     window.addEventListener('mouseup', stop)
+  }
+  /** Put the region back to its default half of the panel. */
+  const resetHeight = (): void => {
+    rememberedHeight = undefined
+    if (rootRef.current !== null) rootRef.current.style.height = ''
   }
   const close = (): void => { setGitChangesVisible(sessionId, false) }
 
@@ -669,7 +698,15 @@ export function GitChangesBody({
           <p className={css.note} data-git-changes-row="no-workspace">{t('noWorkspace')}</p>
         </div>
         <button type="button" className={clsx(css.tool, css.closeFloating)} aria-label={t('changes.close')} title={t('changes.close')} data-git-changes-close onClick={close}><IconCloseOutline16 /></button>
-        <div className={css.resizeHandle} role="separator" aria-label={t('changes.resize')} aria-orientation="horizontal" data-git-changes-resize onMouseDown={beginResize} />
+        <div
+          className={css.resizeHandle}
+          role="separator"
+          aria-label={t('changes.resize')}
+          aria-orientation="horizontal"
+          data-git-changes-resize
+          onMouseDown={beginResize}
+          onDoubleClick={resetHeight}
+        />
       </div>
     )
   }
@@ -716,7 +753,12 @@ export function GitChangesBody({
     })
   }
   return (
-    <div ref={rootRef} className={css.root} data-git-changes={workspaceId}>
+    <div
+      ref={rootRef}
+      className={css.root}
+      data-git-changes={workspaceId}
+      style={rememberedHeight === undefined ? undefined : { height: `${rememberedHeight}px` }}
+    >
       <div className={css.content}>
         <ReviewToolbar
           operation={operation}
@@ -898,7 +940,15 @@ export function GitChangesBody({
         onDone={() => { setRevision(current => current + 1) }}
         t={t}
       />
-      <div className={css.resizeHandle} role="separator" aria-label={t('changes.resize')} aria-orientation="horizontal" data-git-changes-resize onMouseDown={beginResize} />
+      <div
+        className={css.resizeHandle}
+        role="separator"
+        aria-label={t('changes.resize')}
+        aria-orientation="horizontal"
+        data-git-changes-resize
+        onMouseDown={beginResize}
+        onDoubleClick={resetHeight}
+      />
     </div>
   )
 }
