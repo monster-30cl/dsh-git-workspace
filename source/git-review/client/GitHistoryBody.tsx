@@ -487,6 +487,7 @@ const FullDiff = memo(function FullDiff({ comparison, path, synchronized, zoomMo
     const zoom = (event: WheelEvent): void => {
       if (!matchesDiffZoomModifier(event, zoomModifier) || event.deltaY === 0) return
       event.preventDefault()
+      event.stopPropagation()
       setFontSize((value) => {
         const next = Math.max(DIFF_FONT_MIN, Math.min(DIFF_FONT_MAX, value + (event.deltaY < 0 ? 1 : -1)))
         if (next === value) return value
@@ -534,6 +535,7 @@ const FullDiff = memo(function FullDiff({ comparison, path, synchronized, zoomMo
     if (other === null) return
     synchronizing.current = true
     other.scrollTop = event.currentTarget.scrollTop
+    other.scrollLeft = event.currentTarget.scrollLeft
     window.requestAnimationFrame(() => { synchronizing.current = false })
   }
   if (rows.length === 0) return <p className={css.diffHint} data-git-diff-empty>{t('detail.noTextChanges')}</p>

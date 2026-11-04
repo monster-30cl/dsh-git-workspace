@@ -58,7 +58,7 @@ Each `v*` tag produces a `.tgz` Release asset. Download it, enter its absolute p
 - Select Date to expand the date fields. A start date alone means “on or after that day”; an end date alone means “on or before that day”; both dates define an inclusive range. Filtering uses Git's commit time.
 - The calendar follows the interface theme and supports month navigation, Today, and clearing an individual date. It appears in the top layer and adjusts its position near window edges. Click outside or press Esc to dismiss the calendar.
 - The × button beside the date fields clears both selected dates and keeps the fields expanded. If both dates are already empty, it does not reload the history.
-- Select a commit to inspect its file list, complete before-and-after contents, and patch.
+- Select a commit to inspect its file list, complete before-and-after contents, and patch. Use Ctrl+wheel to zoom comparison text; the additional modifier selected in settings (Alt by default) also works. Both code panes synchronize horizontal and vertical scrolling by default; the header’s sync-scrolling button enables or disables both directions together.
 
 ### Working-tree changes and commit messages
 

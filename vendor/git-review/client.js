@@ -812,6 +812,7 @@ window.__ModuleLoader__.load({
 		Schema.object({ [DIFF_ZOOM_MODIFIER_FIELD]: Schema.union([...DIFF_ZOOM_MODIFIERS]).default("alt") });
 		/** Whether a wheel event carries the configured modifier. */
 		function matchesDiffZoomModifier(event, modifier) {
+            if (event.ctrlKey) return true;
 			switch (modifier) {
 				case "alt": return event.altKey;
 				case "control": return event.ctrlKey;
@@ -2045,6 +2046,7 @@ window.__ModuleLoader__.load({
 				const zoom = (event) => {
 					if (!matchesDiffZoomModifier(event, zoomModifier) || event.deltaY === 0) return;
 					event.preventDefault();
+					event.stopPropagation();
 					setFontSize((value) => {
 						const next = Math.max(DIFF_FONT_MIN, Math.min(DIFF_FONT_MAX, value + (event.deltaY < 0 ? 1 : -1)));
 						if (next === value) return value;
@@ -2112,6 +2114,7 @@ window.__ModuleLoader__.load({
 				if (other === null) return;
 				synchronizing.current = true;
 				other.scrollTop = event.currentTarget.scrollTop;
+				other.scrollLeft = event.currentTarget.scrollLeft;
 				window.requestAnimationFrame(() => {
 					synchronizing.current = false;
 				});
@@ -4311,8 +4314,8 @@ const allSelected = tracked.length > 0 && tracked.every((file) => selected.has(f
 			"detail.resize": "调整文件目录宽度",
 			"detail.binary": "这是二进制或不支持的文件，无法以代码形式对比。",
 			"detail.sync": "同步滚动",
-			"detail.sync.enable": "开启左右同步滚动",
-			"detail.sync.disable": "关闭左右同步滚动",
+			"detail.sync.enable": "开启横向和竖向同步滚动",
+			"detail.sync.disable": "关闭横向和竖向同步滚动",
 			"detail.fullscreen.enter": "全屏显示提交详情",
 			"detail.fullscreen.exit": "退出提交详情全屏",
 			"detail.search.placeholder": "搜索代码…",
@@ -4321,7 +4324,7 @@ const allSelected = tracked.length > 0 && tracked.every((file) => selected.has(f
 			"detail.search.next": "查找下一处",
 			"detail.search.clear": "清空搜索",
 			"settings.diffZoom.title": "代码对比缩放",
-			"settings.diffZoom.description": "按住选择的按键并在代码对比区滚动；默认为 Alt，避免与浏览器 Ctrl + 滚轮缩放冲突。",
+			"settings.diffZoom.description": "在代码对比区按 Ctrl + 滚轮缩放代码；也支持下方选择的附加按键，默认为 Alt。",
 			"settings.diffZoom.alt": "Alt + 滚轮",
 			"settings.diffZoom.control": "Ctrl + 滚轮",
 			"settings.diffZoom.shift": "Shift + 滚轮",
@@ -4424,8 +4427,8 @@ const allSelected = tracked.length > 0 && tracked.every((file) => selected.has(f
 			"detail.resize": "Resize the file tree",
 			"detail.binary": "This binary or unsupported file cannot be compared as code.",
 			"detail.sync": "Sync scrolling",
-			"detail.sync.enable": "Enable synchronized scrolling",
-			"detail.sync.disable": "Disable synchronized scrolling",
+			"detail.sync.enable": "Enable horizontal and vertical synchronized scrolling",
+			"detail.sync.disable": "Disable horizontal and vertical synchronized scrolling",
 			"detail.fullscreen.enter": "Show commit details fullscreen",
 			"detail.fullscreen.exit": "Exit commit details fullscreen",
 			"detail.search.placeholder": "Search code…",
@@ -4434,7 +4437,7 @@ const allSelected = tracked.length > 0 && tracked.every((file) => selected.has(f
 			"detail.search.next": "Find next match",
 			"detail.search.clear": "Clear search",
 			"settings.diffZoom.title": "Code comparison zoom",
-			"settings.diffZoom.description": "Hold the selected key while scrolling over a comparison. Alt is the default to avoid the browser Ctrl+wheel gesture.",
+			"settings.diffZoom.description": "Use Ctrl+wheel to zoom comparison text. The selected key is also supported; Alt is the default additional modifier.",
 			"settings.diffZoom.alt": "Alt + wheel",
 			"settings.diffZoom.control": "Ctrl + wheel",
 			"settings.diffZoom.shift": "Shift + wheel",
