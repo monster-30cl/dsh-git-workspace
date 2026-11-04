@@ -2,7 +2,7 @@ import type { Context } from '@deepseek-ai/cordis'
 import type { GitWorkspaceStatusState, GitWorkspaceCommitDiffState, GitWorkspaceStatusFile, GenerateCommitMessageRequest, GenerateCommitMessageResult } from './types'
 
 /** Read-only auxiliary request using the application's configured model. */
-export async function generateCommitMessage(ctx: Context, request: GenerateCommitMessageRequest, callerSignal: AbortSignal, readStatus: (signal: AbortSignal) => Promise<GitWorkspaceStatusState>, readDiff: (file: GitWorkspaceStatusFile, signal: AbortSignal) => Promise<GitWorkspaceCommitDiffState>): Promise<GenerateCommitMessageResult> {
+export async function generateCommitMessage(ctx: Context, request: GenerateCommitMessageRequest, callerSignal: AbortSignal, readStatus: (signal: AbortSignal) => Promise<GitWorkspaceStatusState>, readDiff: (file: GitWorkspaceStatusFile, signal: AbortSignal) => Promise<GitWorkspaceCommitDiffState & { readonly truncated?: boolean }>): Promise<GenerateCommitMessageResult> {
   const signal = AbortSignal.any([callerSignal, AbortSignal.timeout(90000)])
   signal.throwIfAborted()
   const llm = ctx.get('llm')
@@ -24,7 +24,7 @@ export async function generateCommitMessage(ctx: Context, request: GenerateCommi
     signal.throwIfAborted()
     const diff = await readDiff(file, signal)
     if (diff.patch || diff.binary || file.untracked) changed = true
-    parts.push(`\nFILE ${JSON.stringify(file.path)}\n${diff.binary ? '[binary file]' : diff.patch.slice(0, perFile)}${diff.patch.length > perFile ? '\n[diff truncated]' : ''}`)
+    parts.push(`\nFILE ${JSON.stringify(file.path)}\n${diff.binary ? '[binary file]' : diff.patch.slice(0, perFile)}${diff.truncated || diff.patch.length > perFile ? '\n[diff truncated]' : ''}`)
   }
   if (!changed) throw new Error('勾选文件没有可用于生成备注的改动。')
   const call = await llm.prepareCall({ provider: selection.provider, model: selection.model, maxTokens: 2048 }, signal)

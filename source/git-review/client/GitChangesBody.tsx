@@ -83,11 +83,12 @@ const BADGE_CLASS: Record<string, string | undefined> = {
 
 /** One file row: badge, name, and dimmed directory; pressing it opens the file. */
 function FileRow({
-  file, selected, disabled, onSelect, onOpen, onRollback, t,
+  file, selected, disabled, onSelect, onOpen, onRollback, onTrack, t,
 }: {
   file: GitWorkspaceStatusFile
   selected: boolean
   disabled: boolean
+  onTrack?: (file: GitWorkspaceStatusFile) => void
   onSelect: (selected: boolean) => void
   onOpen: (file: GitWorkspaceStatusFile) => void
   onRollback: (file: GitWorkspaceStatusFile) => void
@@ -97,14 +98,15 @@ function FileRow({
   const { name, dir } = pathSegments(file.path)
   return (
     <li className={css.item}>
-      <input
+      {!file.untracked && <input
         type="checkbox"
         className={css.fileCheckbox}
         checked={selected}
         aria-label={t('changes.selectFile', { path: file.path })}
         data-git-file-select={file.path}
         onChange={(event) => { onSelect(event.target.checked) }}
-      />
+        disabled={disabled}
+      />}
       <button
         type="button"
         className={css.fileRow}
@@ -116,6 +118,7 @@ function FileRow({
         <span className={css.fileName}>{name}</span>
         {dir !== '' && <span className={css.fileDir}>{dir}</span>}
       </button>
+      {file.untracked && <button type="button" className={css.rowAction} disabled={disabled} aria-label={t('changes.track')} title={t('changes.track')} data-git-track-file={file.path} onClick={() => { onTrack?.(file) }}><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true"><path d="M8 3v10M3 8h10" /></svg></button>}
       <button
         type="button"
         className={css.rowAction}
@@ -143,7 +146,7 @@ function StashFileRow({ file }: { file: GitWorkspaceStashFile }): ReactNode {
   )
 }
 
-type GitOperation = 'commit' | 'commit-push' | 'push' | 'pull' | 'stash' | 'stash-restore' | 'stash-delete' | 'rollback'
+type GitOperation = 'commit' | 'commit-push' | 'push' | 'pull' | 'stash' | 'stash-restore' | 'stash-delete' | 'rollback' | 'track'
 
 /** One in-flight repository mutation shared by every control in the region. */
 interface GitOperationState {
@@ -570,7 +573,7 @@ function GitActionControls({
 
 /** The code-review region and its independently collapsible Git sections. */
 export function GitChangesBody({
-  sessionId, useSessions, useWorkspaces, readChanges, generateCommitMessage, commitChanges, commitAndPushChanges, pushChanges, pullChanges, stashChanges,
+  sessionId, useSessions, useWorkspaces, readChanges, trackFiles, generateCommitMessage, commitChanges, commitAndPushChanges, pushChanges, pullChanges, stashChanges,
   rollbackChanges,
   readStashFiles, restoreStash, dropStash, readWorkingDiff, readCommitFiles, readCommitDiff, useDiffZoomModifier, t,
 }: GitChangesBodyProps): ReactNode {
@@ -584,6 +587,8 @@ export function GitChangesBody({
     if (owned !== undefined) return owned.workspaceId
     return workspaces.items.find(workspace => workspace.path === cwd)?.workspaceId
   })
+  const trackRequest = useRef<AbortController | undefined>(undefined)
+  useEffect(() => { trackRequest.current?.abort(); trackRequest.current = undefined; setOperation(undefined); return () => { trackRequest.current?.abort() } }, [workspaceId])
   const [read, setRead] = useState<GitChangesRead | undefined>(undefined)
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set())
   const [revision, setRevision] = useState(0)
@@ -605,7 +610,7 @@ export function GitChangesBody({
       // aborted, writes nothing.
       if (!alive || controller.signal.aborted) return
       setRead(next)
-      setSelected(new Set(next.files.filter(file => !isGitIgnorePath(file.path)).map(file => file.path)))
+      setSelected(new Set(next.files.filter(file => !file.untracked && !isGitIgnorePath(file.path)).map(file => file.path)))
     })
     return () => {
       alive = false
@@ -680,11 +685,28 @@ export function GitChangesBody({
   const pendingFailed = read?.pendingFailure === undefined ? undefined : failureLine(t, read.pendingFailure)
   const stashFailed = read?.stashFailure === undefined ? undefined : failureLine(t, read.stashFailure)
   const open = (file: GitWorkspaceStatusFile): void => { setSelectedWorkingFile(file) }
-  const allSelected = files.length > 0 && files.every(file => selected.has(file.path))
-  const operationPaths = files.flatMap(file => selected.has(file.path)
+  const trackFile = (file: GitWorkspaceStatusFile): void => {
+    if (operation !== undefined || trackRequest.current) return
+    const controller = new AbortController()
+    trackRequest.current = controller
+    setOperation({ kind: 'track' })
+    setActionError(undefined)
+    void trackFiles(workspaceId, controller.signal, [file.path]).then(() => {
+      if (!controller.signal.aborted) setRevision(value => value + 1)
+    }).catch(error => {
+      if (!controller.signal.aborted) setActionError(error instanceof Error ? error.message : String(error))
+    }).finally(() => {
+      if (trackRequest.current === controller) {
+        trackRequest.current = undefined
+        if (!controller.signal.aborted) setOperation(undefined)
+      }
+    })
+  }
+  const allSelected = tracked.length > 0 && tracked.every(file => selected.has(file.path))
+  const operationPaths = tracked.flatMap(file => selected.has(file.path)
     ? [file.path, ...(file.renamedFrom === undefined ? [] : [file.renamedFrom])]
     : [])
-  const selectedFiles = files.filter(file => selected.has(file.path))
+  const selectedFiles = tracked.filter(file => selected.has(file.path))
   const setFileSelected = (path: string, checked: boolean): void => {
     setSelected((current) => {
       const next = new Set(current)
@@ -761,17 +783,17 @@ export function GitChangesBody({
         <SectionHeader
           section="changes"
           title={t('changes.sectionTitle')}
-          count={read === undefined ? 0 : tracked.length + untracked.length}
+          count={read === undefined ? 0 : tracked.length}
           expanded={changesExpanded}
           onToggle={() => { setChangesExpanded(value => !value) }}
-          selection={files.length > 0 ? (
+          selection={tracked.length > 0 ? (
             <input
               type="checkbox"
               className={css.fileCheckbox}
               checked={allSelected}
               aria-label={t('changes.selectAll')}
               data-git-select-all
-              onChange={(event) => { setSelected(event.target.checked ? new Set(files.map(file => file.path)) : new Set()) }}
+              onChange={(event) => { setSelected(event.target.checked ? new Set(tracked.map(file => file.path)) : new Set()) }}
             />
           ) : undefined}
         />
@@ -799,6 +821,7 @@ export function GitChangesBody({
                 onSelect={(checked) => { setFileSelected(file.path, checked) }}
                 onOpen={open}
                 onRollback={(target) => { setRollbackFiles([target]) }}
+                  onTrack={trackFile}
                 t={t}
               />
             ))}</ul>

@@ -118,6 +118,7 @@ export interface GitChangesInjected extends DiffZoomPreferenceInjected {
   /** Read pending commits, uncommitted files, and stashes for one workspace. */
   readonly readChanges: ReadGitChanges
   readonly generateCommitMessage: (workspaceId: WorkspaceId, signal: AbortSignal, paths: readonly string[]) => Promise<string>
+  readonly trackFiles: (workspaceId: WorkspaceId, signal: AbortSignal, paths: readonly string[]) => Promise<void>
   readonly commitChanges: GitChangesMutation
   readonly commitAndPushChanges: GitChangesMutation
   readonly pushChanges: SyncGitChanges

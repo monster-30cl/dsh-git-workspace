@@ -285,12 +285,28 @@ export class GitWorkspaceController extends TypertRemoteService {
   /** Generate a commit message from selected changes without modifying Git. */
   @Remote('generateCommitMessage')
   async generateCommitMessage(request: GenerateCommitMessageRequest, signal: AbortSignal): Promise<GenerateCommitMessageResult> {
-    this.workspace(request.workspaceId as GitWorkspaceRequest['workspaceId'])
+    const workspace = this.workspace(request.workspaceId as GitWorkspaceRequest['workspaceId'])
     selectedPaths(request.paths, request.workspaceId as GitWorkspaceRequest['workspaceId'], 'commit')
     try {
       return await generateCommitMessage(this.ctx, request, signal,
         callSignal => this.status({ workspaceId: request.workspaceId as GitWorkspaceRequest['workspaceId'] }, callSignal),
-        (file, callSignal) => this.workingDiff({ workspaceId: request.workspaceId as GitWorkspaceRequest['workspaceId'], path: file.path, previousPath: file.renamedFrom, untracked: file.untracked }, callSignal))
+        async (file, callSignal) => {
+          const head = await this.git(workspace, ['rev-parse', '--verify', 'HEAD'], callSignal, 'working-diff')
+          const fromEmpty = file.untracked || head.exitCode !== 0
+          const options = ['--no-ext-diff', '--no-textconv', '--no-color', '--unified=3']
+          const args = fromEmpty
+            ? ['diff', '--no-index', ...options, '--', '/dev/null', file.path]
+            : ['diff', ...options, 'HEAD', '--', ...[file.renamedFrom, file.path].filter((path): path is string => path !== undefined).map(path => `:(literal)${path}`)]
+          // Generation needs a bounded excerpt, not the complete review contents.
+          // A clipped successful diff is useful input, not a failed operation.
+          const diff = await this.git(workspace, args, callSignal, 'working-diff', 16384)
+          if (diff.exitCode !== 0 && !(fromEmpty && diff.exitCode === 1)) this.failed(workspace, 'working-diff', diff)
+          return {
+            repository: true, before: '', after: '', patch: diff.stdout,
+            binary: /(?:Binary files .* differ|GIT binary patch)/u.test(diff.stdout),
+            truncated: diff.truncated,
+          }
+        })
     } catch (error) {
       throw new RemoteError('git/operation-failed', error instanceof Error ? error.message : 'AI generation failed.', { workspaceId: request.workspaceId, operation: 'generate-commit-message' })
     }
@@ -405,6 +421,20 @@ export class GitWorkspaceController extends TypertRemoteService {
     return { repository: true, entries: parseStashRows(result.stdout) }
   }
 
+  /** Explicitly add selected untracked files to the index. */
+  @Remote('trackFiles')
+  async trackFiles(request: GenerateCommitMessageRequest, signal: AbortSignal): Promise<GitWorkspaceMutationState> {
+    const workspace = this.workspace(request.workspaceId)
+    const paths = selectedPaths(request.paths, workspace.id, 'commit')
+    const status = await this.status(request, signal)
+    if (!status.repository || paths.some(path => !status.files.some(file => file.path === path && file.untracked))) {
+      throw new RemoteError('git/operation-failed', '文件状态已变化，请刷新后重试。', { workspaceId: workspace.id, operation: 'track-files' })
+    }
+    const result = await this.git(workspace, ['add', '--', ...paths.map(path => `:(literal)${path}`)], signal, 'add')
+    if (result.exitCode !== 0 || result.truncated) this.failed(workspace, 'add', result)
+    return { repository: true }
+  }
+
   /** Commit selected tracked and untracked Workspace changes, then optionally push. */
   @Remote('commit')
   async commit(request: GitWorkspaceCommitRequest, signal: AbortSignal): Promise<GitWorkspaceMutationState> {
@@ -415,9 +445,25 @@ export class GitWorkspaceController extends TypertRemoteService {
         workspaceId: workspace.id, operation: 'commit',
       })
     }
-    const paths = selectedPathspecs(request.paths, workspace.id, 'commit')
-    const add = await this.git(workspace, ['add', '-A', '--', ...paths], signal, 'add')
-    if (add.exitCode !== 0 || add.truncated) this.failed(workspace, 'add', add)
+    const requested = selectedPaths(request.paths, workspace.id, 'commit')
+    // Resolve each path against Git's index before any add or commit; directories
+    // and pathspec patterns cannot pull unrelated untracked files into a commit.
+    const indexPaths: string[] = []
+    for (const path of requested) {
+      const indexed = await this.git(workspace, ['ls-files', '--error-unmatch', '-z', '--', `:(literal)${path}`], signal, 'commit')
+      const inIndex = indexed.exitCode === 0 && !indexed.truncated && indexed.stdout.split('\0').includes(path)
+      if (inIndex) indexPaths.push(path)
+      const baseline = inIndex ? undefined : await this.git(workspace, ['ls-tree', '-r', '--name-only', '-z', 'HEAD', '--', path], signal, 'commit')
+      const inHead = baseline !== undefined && baseline.exitCode === 0 && !baseline.truncated && baseline.stdout.split('\0').includes(path)
+      if (!inIndex && !inHead) {
+        throw new RemoteError('git/operation-failed', '未进行版本管理的文件不能直接提交，请先点击“加入版本管理”。', { workspaceId: workspace.id, operation: 'commit' })
+      }
+    }
+    const paths = selectedPathspecs(requested, workspace.id, 'commit')
+    if (indexPaths.length > 0) {
+      const add = await this.git(workspace, ['add', '-A', '--', ...indexPaths.map(path => `:(literal)${path}`)], signal, 'add')
+      if (add.exitCode !== 0 || add.truncated) this.failed(workspace, 'add', add)
+    }
     const commit = await this.git(workspace, ['commit', '--only', '-m', message, '--', ...paths], signal, 'commit')
     if (commit.exitCode !== 0 || commit.truncated) this.failed(workspace, 'commit', commit)
     if (request.push === true) {
@@ -475,10 +521,34 @@ export class GitWorkspaceController extends TypertRemoteService {
       })
     }
     if (tracked.length > 0) {
-      const restore = await this.git(
-        workspace, ['restore', '--source=HEAD', '--staged', '--worktree', '--', ...tracked], signal, 'rollback',
-      )
-      if (restore.exitCode !== 0 || restore.truncated) this.failed(workspace, 'rollback', restore)
+      const restorePaths: string[] = []
+      const newPaths: string[] = []
+      const head = await this.git(workspace, ['rev-parse', '--verify', 'HEAD'], signal, 'rollback')
+      if (head.truncated) this.failed(workspace, 'rollback', head)
+      for (const path of [...new Set(request.trackedPaths)]) {
+        const baseline = head.exitCode === 0
+          ? await this.git(workspace, ['ls-tree', '-r', '--name-only', '-z', 'HEAD', '--', path], signal, 'rollback')
+          : undefined
+        if (baseline && (baseline.exitCode !== 0 || baseline.truncated)) this.failed(workspace, 'rollback', baseline)
+        if (baseline?.stdout.split('\0').includes(path)) {
+          restorePaths.push(`:(literal)${path}`)
+        } else {
+          const indexed = await this.git(workspace, ['ls-files', '--error-unmatch', '-z', '--', `:(literal)${path}`], signal, 'rollback')
+          if (indexed.exitCode !== 0 || indexed.truncated || !indexed.stdout.split('\0').includes(path)) {
+            throw new RemoteError('git/operation-failed', '文件状态已变化，请刷新后重试。', { workspaceId: workspace.id, operation: 'rollback' })
+          }
+          newPaths.push(`:(literal)${path}`)
+        }
+      }
+      if (restorePaths.length > 0) {
+        const restore = await this.git(workspace, ['restore', '--source=HEAD', '--staged', '--worktree', '--', ...restorePaths], signal, 'rollback')
+        if (restore.exitCode !== 0 || restore.truncated) this.failed(workspace, 'rollback', restore)
+      }
+      if (newPaths.length > 0) {
+        // Remove only index entries; preserve even edits made after git add.
+        const unstage = await this.git(workspace, ['rm', '--cached', '-f', '--', ...newPaths], signal, 'rollback')
+        if (unstage.exitCode !== 0 || unstage.truncated) this.failed(workspace, 'rollback', unstage)
+      }
     }
     if (untracked.length > 0) {
       const clean = await this.git(workspace, ['clean', '-f', '--', ...untracked], signal, 'rollback')

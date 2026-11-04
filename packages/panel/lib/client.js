@@ -3429,63 +3429,65 @@ return module.exports.HistoryDatePicker; })(require);
 			"?": GitChangesBody_module_css_default.badgeAdded
 		};
 		/** One file row: badge, name, and dimmed directory; pressing it opens the file. */
-		function FileRow({ file, selected, disabled, onSelect, onOpen, onRollback, t }) {
-			const badge = statusBadgeOf(file);
-			const { name, dir } = pathSegments(file.path);
-			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("li", {
-				className: GitChangesBody_module_css_default.item,
-				children: [
-					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
-						type: "checkbox",
-						className: GitChangesBody_module_css_default.fileCheckbox,
-						checked: selected,
-						"aria-label": t("changes.selectFile", { path: file.path }),
-						"data-git-file-select": file.path,
-						onChange: (event) => {
-							onSelect(event.target.checked);
-						}
-					}),
-					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
-						type: "button",
-						className: GitChangesBody_module_css_default.fileRow,
-						title: file.renamedFrom === void 0 ? file.path : `${file.renamedFrom} → ${file.path}`,
-						"data-git-file": file.path,
-						onClick: () => {
-							onOpen(file);
-						},
-						children: [
-							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
-								className: clsx(GitChangesBody_module_css_default.badge, BADGE_CLASS[badge]),
-								"data-git-status": badge,
-								children: badge
-							}),
-							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
-								className: GitChangesBody_module_css_default.fileName,
-								children: name
-							}),
-							dir !== "" && /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
-								className: GitChangesBody_module_css_default.fileDir,
-								children: dir
-							})
-						]
-					}),
-					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
-						type: "button",
-						className: GitChangesBody_module_css_default.rowAction,
-						disabled,
-						"aria-label": t("rollback.single", { path: file.path }),
-						title: t("rollback.single", { path: file.path }),
-						"data-git-rollback-file": file.path,
-						onClick: () => {
-							onRollback(file);
-						},
-						children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(RollbackIcon, {})
-					})
-				]
-			});
-		}
-		/** One file stored inside an expanded stash collection. */
-		function StashFileRow({ file }) {
+		function FileRow({
+  file,
+  selected,
+  disabled,
+  onSelect,
+  onOpen,
+  onRollback,
+  onTrack,
+  t
+}) {
+  const badge = statusBadgeOf(file);
+  const { name, dir } = pathSegments(file.path);
+  return /* @__PURE__ */ react.createElement("li", { className: GitChangesBody_module_css_default.item }, !file.untracked && /* @__PURE__ */ react.createElement(
+    "input",
+    {
+      type: "checkbox",
+      className: GitChangesBody_module_css_default.fileCheckbox,
+      checked: selected,
+      "aria-label": t("changes.selectFile", { path: file.path }),
+      "data-git-file-select": file.path,
+      onChange: (event) => {
+        onSelect(event.target.checked);
+      },
+      disabled
+    }
+  ), /* @__PURE__ */ react.createElement(
+    "button",
+    {
+      type: "button",
+      className: GitChangesBody_module_css_default.fileRow,
+      title: file.renamedFrom === void 0 ? file.path : `${file.renamedFrom} \u2192 ${file.path}`,
+      "data-git-file": file.path,
+      onClick: () => {
+        onOpen(file);
+      }
+    },
+    /* @__PURE__ */ react.createElement("span", { className: clsx(GitChangesBody_module_css_default.badge, BADGE_CLASS[badge]), "data-git-status": badge }, badge),
+    /* @__PURE__ */ react.createElement("span", { className: GitChangesBody_module_css_default.fileName }, name),
+    dir !== "" && /* @__PURE__ */ react.createElement("span", { className: GitChangesBody_module_css_default.fileDir }, dir)
+  ), file.untracked && /* @__PURE__ */ react.createElement("button", { type: "button", className: GitChangesBody_module_css_default.rowAction, disabled, "aria-label": t("changes.track"), title: t("changes.track"), "data-git-track-file": file.path, onClick: () => {
+    onTrack?.(file);
+  } }, /* @__PURE__ */ react.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", "aria-hidden": "true" }, /* @__PURE__ */ react.createElement("path", { d: "M8 3v10M3 8h10" }))), /* @__PURE__ */ react.createElement(
+    "button",
+    {
+      type: "button",
+      className: GitChangesBody_module_css_default.rowAction,
+      disabled,
+      "aria-label": t("rollback.single", { path: file.path }),
+      title: t("rollback.single", { path: file.path }),
+      "data-git-rollback-file": file.path,
+      onClick: () => {
+        onRollback(file);
+      }
+    },
+    /* @__PURE__ */ react.createElement(RollbackIcon, null)
+  ));
+}
+
+function StashFileRow({ file }) {
 			const { name, dir } = pathSegments(file.path);
 			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("li", {
 				className: GitChangesBody_module_css_default.stashFile,
@@ -4066,7 +4068,7 @@ return module.exports.HistoryDatePicker; })(require);
 			] });
 		}
 		/** The code-review region and its independently collapsible Git sections. */
-		function GitChangesBody({ sessionId, useSessions, useWorkspaces, readChanges, commitChanges, commitAndPushChanges, pushChanges, pullChanges, stashChanges, rollbackChanges, readStashFiles, restoreStash, dropStash, readWorkingDiff, readCommitFiles, readCommitDiff, useDiffZoomModifier, t , generateCommitMessage }) {
+		function GitChangesBody({ sessionId, useSessions, useWorkspaces, readChanges, commitChanges, commitAndPushChanges, pushChanges, pullChanges, stashChanges, rollbackChanges, readStashFiles, restoreStash, dropStash, readWorkingDiff, readCommitFiles, readCommitDiff, useDiffZoomModifier, t , generateCommitMessage , trackFiles }) {
 			const zoomModifier = useDiffZoomModifier((value) => value);
 			const visible = useGitChangesVisible(sessionId);
 			const rootRef = (0, react.useRef)(null);
@@ -4077,6 +4079,8 @@ return module.exports.HistoryDatePicker; })(require);
 				if (owned !== void 0) return owned.workspaceId;
 				return workspaces.items.find((workspace) => workspace.path === cwd)?.workspaceId;
 			});
+			const trackRequest = (0, react.useRef)(void 0);
+(0, react.useEffect)(() => { trackRequest.current?.abort(); trackRequest.current = undefined; setOperation(undefined); return () => { trackRequest.current?.abort(); }; }, [workspaceId]);
 			const [read, setRead] = (0, react.useState)(void 0);
 			const [selected, setSelected] = (0, react.useState)(/* @__PURE__ */ new Set());
 			const [revision, setRevision] = (0, react.useState)(0);
@@ -4096,7 +4100,7 @@ return module.exports.HistoryDatePicker; })(require);
 				readChanges(workspaceId, controller.signal).then((next) => {
 					if (!alive || controller.signal.aborted) return;
 					setRead(next);
-					setSelected(new Set(next.files.filter((file) => !isGitIgnorePath(file.path)).map((file) => file.path)));
+					setSelected(new Set(next.files.filter((file) => !file.untracked && !isGitIgnorePath(file.path)).map((file) => file.path)));
 				});
 				return () => {
 					alive = false;
@@ -4195,9 +4199,27 @@ return module.exports.HistoryDatePicker; })(require);
 			const open = (file) => {
 				setSelectedWorkingFile(file);
 			};
-			const allSelected = files.length > 0 && files.every((file) => selected.has(file.path));
-			const operationPaths = files.flatMap((file) => selected.has(file.path) ? [file.path, ...file.renamedFrom === void 0 ? [] : [file.renamedFrom]] : []);
-			const selectedFiles = files.filter((file) => selected.has(file.path));
+			const trackFile = (file) => {
+  if (operation !== void 0 || trackRequest.current) return;
+  const controller = new AbortController();
+  trackRequest.current = controller;
+  setOperation({ kind: "track" });
+  setActionError(void 0);
+  void trackFiles(workspaceId, controller.signal, [file.path]).then(() => {
+    if (!controller.signal.aborted) setRevision((value) => value + 1);
+  }).catch((error) => {
+    if (!controller.signal.aborted) setActionError(error instanceof Error ? error.message : String(error));
+  }).finally(() => {
+    if (trackRequest.current === controller) {
+      trackRequest.current = void 0;
+      if (!controller.signal.aborted) setOperation(void 0);
+    }
+  });
+};
+
+const allSelected = tracked.length > 0 && tracked.every((file) => selected.has(file.path));
+			const operationPaths = tracked.flatMap((file) => selected.has(file.path) ? [file.path, ...file.renamedFrom === void 0 ? [] : [file.renamedFrom]] : []);
+			const selectedFiles = tracked.filter((file) => selected.has(file.path));
 			const setFileSelected = (path, checked) => {
 				setSelected((current) => {
 					const next = new Set(current);
@@ -4306,19 +4328,19 @@ return module.exports.HistoryDatePicker; })(require);
 							/* @__PURE__ */ (0, react_jsx_runtime.jsx)(SectionHeader, {
 								section: "changes",
 								title: t("changes.sectionTitle"),
-								count: read === void 0 ? 0 : tracked.length + untracked.length,
+								count: read === void 0 ? 0 : tracked.length,
 								expanded: changesExpanded,
 								onToggle: () => {
 									setChangesExpanded((value) => !value);
 								},
-								selection: files.length > 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+								selection: tracked.length > 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
 									type: "checkbox",
 									className: GitChangesBody_module_css_default.fileCheckbox,
 									checked: allSelected,
 									"aria-label": t("changes.selectAll"),
 									"data-git-select-all": true,
 									onChange: (event) => {
-										setSelected(event.target.checked ? new Set(files.map((file) => file.path)) : /* @__PURE__ */ new Set());
+										setSelected(event.target.checked ? new Set(tracked.map((file) => file.path)) : /* @__PURE__ */ new Set());
 									}
 								}) : void 0
 							}),
@@ -4355,7 +4377,7 @@ return module.exports.HistoryDatePicker; })(require);
 										className: GitChangesBody_module_css_default.level,
 										children: tracked.map((file) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)(FileRow, {
 											file,
-											selected: selected.has(file.path),
+											selected: selected.has(file.path), onTrack: trackFile,
 											disabled: operation !== void 0,
 											onSelect: (checked) => {
 												setFileSelected(file.path, checked);
@@ -4373,7 +4395,7 @@ return module.exports.HistoryDatePicker; })(require);
 										className: GitChangesBody_module_css_default.level,
 										children: untracked.map((file) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)(FileRow, {
 											file,
-											selected: selected.has(file.path),
+											selected: selected.has(file.path), onTrack: trackFile,
 											disabled: operation !== void 0,
 											onSelect: (checked) => {
 												setFileSelected(file.path, checked);
@@ -4595,7 +4617,8 @@ return module.exports.HistoryDatePicker; })(require);
 			"operations.stash": "正在搁置…",
 			"operations.stash-restore": "正在恢复搁置…",
 			"operations.stash-delete": "正在删除搁置…",
-			"operations.rollback": "正在回滚…",
+			"operations.track": "正在加入版本管理…", "changes.track": "加入版本管理",
+"operations.rollback": "正在回滚…",
 			"changes.untrackedTitle": "未进行版本管理的文件",
 			"changes.empty": "没有未提交的更改。",
 			"changes.selectAll": "选择全部更改",
@@ -4605,7 +4628,7 @@ return module.exports.HistoryDatePicker; })(require);
 			"rollback.single": "回滚 {path}",
 			"rollback.titleSingle": "回滚文件",
 			"rollback.titleBatch": "批量回滚",
-			"rollback.warning": "将放弃所选的 {count} 项工作区更改，恢复后无法撤销。",
+			"rollback.warning": "将回滚所选的 {count} 项：已有文件恢复到上次提交；尚未提交的新文件仅取消版本管理并保留内容。已有文件的修改将丢失。",
 			"rollback.untrackedWarning": "所选内容包含未跟踪文件；这些文件将被永久删除。",
 			"rollback.confirm": "确认回滚",
 			"stash.title": "搁置",
@@ -4707,7 +4730,8 @@ return module.exports.HistoryDatePicker; })(require);
 			"operations.stash": "Stashing…",
 			"operations.stash-restore": "Restoring stash…",
 			"operations.stash-delete": "Deleting stash…",
-			"operations.rollback": "Rolling back…",
+			"operations.track": "Adding to version control…", "changes.track": "Add to version control",
+"operations.rollback": "Rolling back…",
 			"changes.untrackedTitle": "Untracked Files",
 			"changes.empty": "No uncommitted changes.",
 			"changes.selectAll": "Select all changes",
@@ -4717,7 +4741,7 @@ return module.exports.HistoryDatePicker; })(require);
 			"rollback.single": "Rollback {path}",
 			"rollback.titleSingle": "Rollback file",
 			"rollback.titleBatch": "Rollback selected files",
-			"rollback.warning": "Discard {count} selected workspace change(s). This cannot be undone.",
+			"rollback.warning": "Roll back {count} selected change(s): restore existing files to the last commit; return new, uncommitted files to untracked status while preserving their contents. Edits to existing files will be lost.",
 			"rollback.untrackedWarning": "The selection contains untracked files. Those files will be permanently deleted.",
 			"rollback.confirm": "Rollback",
 			"stash.title": "Shelves",
@@ -4905,6 +4929,10 @@ return module.exports.HistoryDatePicker; })(require);
 			const zoomPreference = new DiffZoomPreferenceController(ctx.configForms.get(GIT_HISTORY_SETTINGS_NAMESPACE));
 			const zoomHooks = { diffZoomModifier: zoomPreference.diffZoomModifier };
 			const changesFace = {
+trackFiles: async (workspaceId, signal, paths) => {
+      const result = await ctx.remote.gitWorkspace.trackFiles({ workspaceId, paths }, signal)
+      if (!result.ok) throw new Error(result.error.message)
+    },
 generateCommitMessage: async (workspaceId, signal, paths) => {
       const result = await ctx.remote.gitWorkspace.generateCommitMessage({ workspaceId, paths }, signal)
       if (!result.ok) throw new Error(result.error.message)
@@ -25316,6 +25344,14 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       parameters: [{ name: "request", source: "json", codec: { mode: "strict", typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageRequest", create: commitMessageRequestSchema, jsonSchema: { type: "object", properties: { workspaceId: { type: "string" }, paths: { type: "array", items: { type: "string" } } }, required: ["workspaceId", "paths"], additionalProperties: true } }, strictCodec: { mode: "strict", typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageRequest", create: commitMessageStrictSchema, jsonSchema: { type: "object", properties: { workspaceId: { type: "string" }, paths: { type: "array", items: { type: "string" } } }, required: ["workspaceId", "paths"], additionalProperties: false } } }],
       cancellation: { parameter: "signal" },
       result: { mode: "strict", typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageResult", create: commitMessageResultSchema, jsonSchema: { type: "object", properties: { message: { type: "string" } }, required: ["message"], additionalProperties: true } }
+    },
+    "gitWorkspace/trackFiles": {
+      service: "gitWorkspaceController",
+      description: "Explicitly add selected untracked files to version control.",
+      invocation: { kind: "direct" },
+      parameters: [{ name: "request", source: "json", codec: { mode: "strict", typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageRequest", create: commitMessageRequestSchema, jsonSchema: { type: "object", properties: { workspaceId: { type: "string" }, paths: { type: "array", items: { type: "string" } } }, required: ["workspaceId", "paths"], additionalProperties: true } }, strictCodec: { mode: "strict", typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageRequest", create: commitMessageStrictSchema, jsonSchema: { type: "object", properties: { workspaceId: { type: "string" }, paths: { type: "array", items: { type: "string" } } }, required: ["workspaceId", "paths"], additionalProperties: false } } }],
+      cancellation: { parameter: "signal" },
+      result: { mode: "strict", typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState", create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commit_result$schema, jsonSchema: { type: "object", properties: { repository: { type: "boolean", const: true } }, required: ["repository"], additionalProperties: true } }
     },
     "gitWorkspace/checkout": {
       service: "gitWorkspaceController",

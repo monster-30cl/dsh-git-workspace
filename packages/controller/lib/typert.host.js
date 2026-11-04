@@ -400,6 +400,12 @@ const $remote = createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: { mode: 'strict', typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageResult', create: commitMessageResultSchema, jsonSchema: { type: 'object', properties: { message: { type: 'string' } }, required: ['message'], additionalProperties: true } },
     },
+    'gitWorkspace/trackFiles': {
+      service: 'gitWorkspaceController', description: 'Explicitly add selected untracked files to version control.', invocation: { kind: 'direct' },
+      parameters: [{ name: 'request', source: 'json', codec: { mode: 'strict', typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageRequest', create: commitMessageRequestSchema, jsonSchema: { type: 'object', properties: { workspaceId: { type: 'string' }, paths: { type: 'array', items: { type: 'string' } } }, required: ['workspaceId', 'paths'], additionalProperties: true } }, strictCodec: { mode: 'strict', typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageRequest', create: commitMessageStrictSchema, jsonSchema: { type: 'object', properties: { workspaceId: { type: 'string' }, paths: { type: 'array', items: { type: 'string' } } }, required: ['workspaceId', 'paths'], additionalProperties: false } } }],
+      cancellation: { parameter: 'signal' },
+      result: { mode: 'strict', typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState', create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commit_result$schema, jsonSchema: { type: 'object', properties: { repository: { type: 'boolean', const: true } }, required: ['repository'], additionalProperties: true } },
+    },
     'gitWorkspace/checkout': {
       service: 'gitWorkspaceController',
       description: 'Check out one existing local branch in the Workspace directory.',

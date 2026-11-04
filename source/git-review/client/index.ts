@@ -74,6 +74,10 @@ export function apply(ctx: ClientContext): void {
   const commitReaders = createCommitReaders(ctx.remote)
   const changesFace: Omit<GitChangesInjected, 'hooks'> = {
     readChanges,
+    trackFiles: async (workspaceId, signal, paths) => {
+      const result = await ctx.remote.gitWorkspace.trackFiles({ workspaceId, paths }, signal)
+      if (!result.ok) throw new Error(result.error.message)
+    },
     generateCommitMessage: async (workspaceId, signal, paths) => {
       const result = await ctx.remote.gitWorkspace.generateCommitMessage({ workspaceId, paths }, signal)
       if (!result.ok) throw new Error(result.error.message)

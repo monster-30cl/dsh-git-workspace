@@ -72,7 +72,7 @@ async function generateCommitMessage(ctx, request, callerSignal, readStatus, rea
     if (diff.patch || diff.binary || file.untracked) changed = true;
     parts.push(`
 FILE ${JSON.stringify(file.path)}
-${diff.binary ? "[binary file]" : diff.patch.slice(0, perFile)}${diff.patch.length > perFile ? "\n[diff truncated]" : ""}`);
+${diff.binary ? "[binary file]" : diff.patch.slice(0, perFile)}${diff.truncated || diff.patch.length > perFile ? "\n[diff truncated]" : ""}`);
   }
   if (!changed) throw new Error("\u52FE\u9009\u6587\u4EF6\u6CA1\u6709\u53EF\u7528\u4E8E\u751F\u6210\u5907\u6CE8\u7684\u6539\u52A8\u3002");
   const call = await llm.prepareCall({ provider: selection.provider, model: selection.model, maxTokens: 2048 }, signal);
@@ -100,8 +100,8 @@ import { stripVTControlCharacters } from "node:util";
 import z from "@deepseek-ai/schemastery";
 import { Remote, RemoteError, TypertRemoteService } from "@deepseek-ai/dsh-typert-protocol";
 var AUTHOR_SCAN_COMMITS = 500;
-var _stashDrop_dec, _stashPop_dec, _stashFiles_dec, _rollback_dec, _stashCreate_dec, _pull_dec, _push_dec, _commit_dec, _stash_dec, _status_dec, _pendingPush_dec, _workingDiff_dec, _generateCommitMessage_dec, _commitDiff_dec, _commitFiles_dec, _log_dec, _delete_dec, _create_dec, _checkoutRemote_dec, _checkout_dec, _list_dec, _a, _init;
-var GitWorkspaceController = class extends (_a = TypertRemoteService, _list_dec = [Remote("list")], _checkout_dec = [Remote("checkout")], _checkoutRemote_dec = [Remote("checkoutRemote")], _create_dec = [Remote("create")], _delete_dec = [Remote("delete")], _log_dec = [Remote("log")], _commitFiles_dec = [Remote("commitFiles")], _commitDiff_dec = [Remote("commitDiff")], _generateCommitMessage_dec = [Remote("generateCommitMessage")], _workingDiff_dec = [Remote("workingDiff")], _pendingPush_dec = [Remote("pendingPush")], _status_dec = [Remote("status")], _stash_dec = [Remote("stash")], _commit_dec = [Remote("commit")], _push_dec = [Remote("push")], _pull_dec = [Remote("pull")], _stashCreate_dec = [Remote("stashCreate")], _rollback_dec = [Remote("rollback")], _stashFiles_dec = [Remote("stashFiles")], _stashPop_dec = [Remote("stashPop")], _stashDrop_dec = [Remote("stashDrop")], _a) {
+var _stashDrop_dec, _stashPop_dec, _stashFiles_dec, _rollback_dec, _stashCreate_dec, _pull_dec, _push_dec, _commit_dec, _trackFiles_dec, _stash_dec, _status_dec, _pendingPush_dec, _workingDiff_dec, _generateCommitMessage_dec, _commitDiff_dec, _commitFiles_dec, _log_dec, _delete_dec, _create_dec, _checkoutRemote_dec, _checkout_dec, _list_dec, _a, _init;
+var GitWorkspaceController = class extends (_a = TypertRemoteService, _list_dec = [Remote("list")], _checkout_dec = [Remote("checkout")], _checkoutRemote_dec = [Remote("checkoutRemote")], _create_dec = [Remote("create")], _delete_dec = [Remote("delete")], _log_dec = [Remote("log")], _commitFiles_dec = [Remote("commitFiles")], _commitDiff_dec = [Remote("commitDiff")], _generateCommitMessage_dec = [Remote("generateCommitMessage")], _workingDiff_dec = [Remote("workingDiff")], _pendingPush_dec = [Remote("pendingPush")], _status_dec = [Remote("status")], _stash_dec = [Remote("stash")], _trackFiles_dec = [Remote("trackFiles")], _commit_dec = [Remote("commit")], _push_dec = [Remote("push")], _pull_dec = [Remote("pull")], _stashCreate_dec = [Remote("stashCreate")], _rollback_dec = [Remote("rollback")], _stashFiles_dec = [Remote("stashFiles")], _stashPop_dec = [Remote("stashPop")], _stashDrop_dec = [Remote("stashDrop")], _a) {
   /** @param ctx - Host context carrying Workspace and subprocess services. */
   constructor(ctx, config) {
     super(ctx, "gitWorkspaceController", { namespace: "gitWorkspace" });
@@ -267,7 +267,7 @@ var GitWorkspaceController = class extends (_a = TypertRemoteService, _list_dec 
     };
   }
   async generateCommitMessage(request, signal) {
-    this.workspace(request.workspaceId);
+    const workspace = this.workspace(request.workspaceId);
     selectedPaths(request.paths, request.workspaceId, "commit");
     try {
       return await generateCommitMessage(
@@ -275,7 +275,22 @@ var GitWorkspaceController = class extends (_a = TypertRemoteService, _list_dec 
         request,
         signal,
         (callSignal) => this.status({ workspaceId: request.workspaceId }, callSignal),
-        (file, callSignal) => this.workingDiff({ workspaceId: request.workspaceId, path: file.path, previousPath: file.renamedFrom, untracked: file.untracked }, callSignal)
+        async (file, callSignal) => {
+          const head = await this.git(workspace, ["rev-parse", "--verify", "HEAD"], callSignal, "working-diff");
+          const fromEmpty = file.untracked || head.exitCode !== 0;
+          const options = ["--no-ext-diff", "--no-textconv", "--no-color", "--unified=3"];
+          const args = fromEmpty ? ["diff", "--no-index", ...options, "--", "/dev/null", file.path] : ["diff", ...options, "HEAD", "--", ...[file.renamedFrom, file.path].filter((path) => path !== void 0).map((path) => `:(literal)${path}`)];
+          const diff = await this.git(workspace, args, callSignal, "working-diff", 16384);
+          if (diff.exitCode !== 0 && !(fromEmpty && diff.exitCode === 1)) this.failed(workspace, "working-diff", diff);
+          return {
+            repository: true,
+            before: "",
+            after: "",
+            patch: diff.stdout,
+            binary: /(?:Binary files .* differ|GIT binary patch)/u.test(diff.stdout),
+            truncated: diff.truncated
+          };
+        }
       );
     } catch (error) {
       throw new RemoteError("git/operation-failed", error instanceof Error ? error.message : "AI generation failed.", { workspaceId: request.workspaceId, operation: "generate-commit-message" });
@@ -383,6 +398,17 @@ var GitWorkspaceController = class extends (_a = TypertRemoteService, _list_dec 
     if (result.exitCode !== 0 || result.truncated) this.failed(workspace, "stash", result);
     return { repository: true, entries: parseStashRows(result.stdout) };
   }
+  async trackFiles(request, signal) {
+    const workspace = this.workspace(request.workspaceId);
+    const paths = selectedPaths(request.paths, workspace.id, "commit");
+    const status = await this.status(request, signal);
+    if (!status.repository || paths.some((path) => !status.files.some((file) => file.path === path && file.untracked))) {
+      throw new RemoteError("git/operation-failed", "\u6587\u4EF6\u72B6\u6001\u5DF2\u53D8\u5316\uFF0C\u8BF7\u5237\u65B0\u540E\u91CD\u8BD5\u3002", { workspaceId: workspace.id, operation: "track-files" });
+    }
+    const result = await this.git(workspace, ["add", "--", ...paths.map((path) => `:(literal)${path}`)], signal, "add");
+    if (result.exitCode !== 0 || result.truncated) this.failed(workspace, "add", result);
+    return { repository: true };
+  }
   async commit(request, signal) {
     const workspace = this.workspace(request.workspaceId);
     const message = request.message.trim();
@@ -392,9 +418,23 @@ var GitWorkspaceController = class extends (_a = TypertRemoteService, _list_dec 
         operation: "commit"
       });
     }
-    const paths = selectedPathspecs(request.paths, workspace.id, "commit");
-    const add = await this.git(workspace, ["add", "-A", "--", ...paths], signal, "add");
-    if (add.exitCode !== 0 || add.truncated) this.failed(workspace, "add", add);
+    const requested = selectedPaths(request.paths, workspace.id, "commit");
+    const indexPaths = [];
+    for (const path of requested) {
+      const indexed = await this.git(workspace, ["ls-files", "--error-unmatch", "-z", "--", `:(literal)${path}`], signal, "commit");
+      const inIndex = indexed.exitCode === 0 && !indexed.truncated && indexed.stdout.split("\0").includes(path);
+      if (inIndex) indexPaths.push(path);
+      const baseline = inIndex ? void 0 : await this.git(workspace, ["ls-tree", "-r", "--name-only", "-z", "HEAD", "--", path], signal, "commit");
+      const inHead = baseline !== void 0 && baseline.exitCode === 0 && !baseline.truncated && baseline.stdout.split("\0").includes(path);
+      if (!inIndex && !inHead) {
+        throw new RemoteError("git/operation-failed", "\u672A\u8FDB\u884C\u7248\u672C\u7BA1\u7406\u7684\u6587\u4EF6\u4E0D\u80FD\u76F4\u63A5\u63D0\u4EA4\uFF0C\u8BF7\u5148\u70B9\u51FB\u201C\u52A0\u5165\u7248\u672C\u7BA1\u7406\u201D\u3002", { workspaceId: workspace.id, operation: "commit" });
+      }
+    }
+    const paths = selectedPathspecs(requested, workspace.id, "commit");
+    if (indexPaths.length > 0) {
+      const add = await this.git(workspace, ["add", "-A", "--", ...indexPaths.map((path) => `:(literal)${path}`)], signal, "add");
+      if (add.exitCode !== 0 || add.truncated) this.failed(workspace, "add", add);
+    }
     const commit = await this.git(workspace, ["commit", "--only", "-m", message, "--", ...paths], signal, "commit");
     if (commit.exitCode !== 0 || commit.truncated) this.failed(workspace, "commit", commit);
     if (request.push === true) {
@@ -445,13 +485,31 @@ var GitWorkspaceController = class extends (_a = TypertRemoteService, _list_dec 
       });
     }
     if (tracked.length > 0) {
-      const restore = await this.git(
-        workspace,
-        ["restore", "--source=HEAD", "--staged", "--worktree", "--", ...tracked],
-        signal,
-        "rollback"
-      );
-      if (restore.exitCode !== 0 || restore.truncated) this.failed(workspace, "rollback", restore);
+      const restorePaths = [];
+      const newPaths = [];
+      const head = await this.git(workspace, ["rev-parse", "--verify", "HEAD"], signal, "rollback");
+      if (head.truncated) this.failed(workspace, "rollback", head);
+      for (const path of [...new Set(request.trackedPaths)]) {
+        const baseline = head.exitCode === 0 ? await this.git(workspace, ["ls-tree", "-r", "--name-only", "-z", "HEAD", "--", path], signal, "rollback") : void 0;
+        if (baseline && (baseline.exitCode !== 0 || baseline.truncated)) this.failed(workspace, "rollback", baseline);
+        if (baseline?.stdout.split("\0").includes(path)) {
+          restorePaths.push(`:(literal)${path}`);
+        } else {
+          const indexed = await this.git(workspace, ["ls-files", "--error-unmatch", "-z", "--", `:(literal)${path}`], signal, "rollback");
+          if (indexed.exitCode !== 0 || indexed.truncated || !indexed.stdout.split("\0").includes(path)) {
+            throw new RemoteError("git/operation-failed", "\u6587\u4EF6\u72B6\u6001\u5DF2\u53D8\u5316\uFF0C\u8BF7\u5237\u65B0\u540E\u91CD\u8BD5\u3002", { workspaceId: workspace.id, operation: "rollback" });
+          }
+          newPaths.push(`:(literal)${path}`);
+        }
+      }
+      if (restorePaths.length > 0) {
+        const restore = await this.git(workspace, ["restore", "--source=HEAD", "--staged", "--worktree", "--", ...restorePaths], signal, "rollback");
+        if (restore.exitCode !== 0 || restore.truncated) this.failed(workspace, "rollback", restore);
+      }
+      if (newPaths.length > 0) {
+        const unstage = await this.git(workspace, ["rm", "--cached", "-f", "--", ...newPaths], signal, "rollback");
+        if (unstage.exitCode !== 0 || unstage.truncated) this.failed(workspace, "rollback", unstage);
+      }
     }
     if (untracked.length > 0) {
       const clean = await this.git(workspace, ["clean", "-f", "--", ...untracked], signal, "rollback");
@@ -581,6 +639,7 @@ __decorateElement(_init, 1, "workingDiff", _workingDiff_dec, GitWorkspaceControl
 __decorateElement(_init, 1, "pendingPush", _pendingPush_dec, GitWorkspaceController);
 __decorateElement(_init, 1, "status", _status_dec, GitWorkspaceController);
 __decorateElement(_init, 1, "stash", _stash_dec, GitWorkspaceController);
+__decorateElement(_init, 1, "trackFiles", _trackFiles_dec, GitWorkspaceController);
 __decorateElement(_init, 1, "commit", _commit_dec, GitWorkspaceController);
 __decorateElement(_init, 1, "push", _push_dec, GitWorkspaceController);
 __decorateElement(_init, 1, "pull", _pull_dec, GitWorkspaceController);

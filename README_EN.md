@@ -63,7 +63,8 @@ Each `v*` tag produces a `.tgz` Release asset. Download it, enter its absolute p
 ### Working-tree changes and commit messages
 
 - The Code changes region supports commit, commit and push, pull, push, stash, and rollback. File checkboxes determine the selected operation's scope.
-- The untracked-files list is collapsed by default, with its file count still visible. Select its heading or arrow to expand or collapse it; this preserves the file selections.
+- The untracked-files list is collapsed by default and shows its file count. Untracked files cannot be selected for a commit. Select the + action (Add to version control) on a file to stage it and move it to Changes, where it becomes eligible for commit. Select all, batch operations, and AI messages use only selected files in Changes.
+- Rolling back a newly added, uncommitted file removes it from the index and preserves its contents, returning it to the untracked list. Existing files are still restored to the last commit.
 - Enter a message when committing, committing and pushing, or stashing. When a message from the previous successful operation is available, use the fill button to reuse it.
 - In the commit or commit-and-push message dialog, select the sparkle icon beside the title to generate a message for the selected changes. Its tooltip reads “AI 生成提交备注” (AI-generated commit message). A loading icon appears during generation; the result fills the input and remains editable before you confirm the commit.
 - Generation uses the host's configured default model to write a Chinese message from the selected file list and diffs. Generating a message does not commit, push, or change the Git index.
