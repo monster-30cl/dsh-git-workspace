@@ -34,6 +34,7 @@ import type { GitHistoryFilter, GitTabState, createGitHistoryStore } from './sto
 import css from './GitHistoryBody.module.css'
 import { ComparisonDialog } from './ComparisonDialog'
 import { HistoryDatePicker } from './HistoryDatePicker'
+import { AuthorFilter } from './AuthorFilter'
 
 /** The body's composed props: the tab it draws, its store, its face, and its copy. */
 export type GitHistoryBodyProps =
@@ -1159,17 +1160,7 @@ export function GitHistoryBody({
           </button>
         </div>
         <form className={css.search} onSubmit={submit}>
-          <select
-            className={css.authorSelect}
-            value={state.author}
-            aria-label={t('search.author.label')}
-            title={t('search.author.label')}
-            data-git-author
-            onChange={(event) => { chooseAuthor(event.currentTarget.value) }}
-          >
-            <option value="">{t('search.author.all')}</option>
-            {state.authors.map(author => <option key={author} value={author}>{author}</option>)}
-          </select>
+          <AuthorFilter authors={state.authors} value={state.author} allLabel={t('search.author.all')} label={t('search.author.label')} onChange={chooseAuthor} />
           <button
             type="button"
             className={clsx(css.searchTool, dateFiltered && css.dateToolActive)}

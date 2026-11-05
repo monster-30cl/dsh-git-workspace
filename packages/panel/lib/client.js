@@ -1,5 +1,72 @@
 window.__ModuleLoader__.load({id:"@monster-30cl/dsh-git-workspace-panel",factory:(require)=>{
 const GitReview=((require) => {
+const AuthorFilter = ((require) => { const module = { exports: {} }; const exports = module.exports;
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// source/git-review/client/AuthorFilter.tsx
+var AuthorFilter_exports = {};
+__export(AuthorFilter_exports, {
+  AuthorFilter: () => AuthorFilter
+});
+module.exports = __toCommonJS(AuthorFilter_exports);
+var import_react = __toESM(require("react"), 1);
+var import_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-primitives");
+function AuthorFilter({ authors, value, allLabel, label, onChange }) {
+  const [open, setOpen] = (0, import_react.useState)(false);
+  const title = value || allLabel;
+  return /* @__PURE__ */ import_react.default.createElement("span", { className: "dsh-git-author-filter" }, /* @__PURE__ */ import_react.default.createElement("style", null, `.dsh-git-author-filter{display:inline-flex;flex:0 1 auto;min-width:0;max-width:46%}.dsh-git-author-anchor{min-width:0;max-width:100%}.dsh-git-author-trigger{display:inline-flex;align-items:center;gap:7px;min-width:0;max-width:100%;height:32px;padding:0 11px;color:var(--dsw-alias-label-primary);font:inherit;background:color-mix(in srgb,var(--dsw-alias-bg-layer-1) 64%,transparent);border:.5px solid color-mix(in srgb,var(--dsw-alias-border-l4) 72%,transparent);border-radius:16px;cursor:pointer}.dsh-git-author-trigger:hover,.dsh-git-author-trigger[aria-expanded=true]{background:var(--dsw-alias-interactive-bg-hover)}.dsh-git-author-trigger:focus-visible{outline:2px solid var(--dsw-alias-link);outline-offset:2px}.dsh-git-author-trigger span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dsh-git-author-trigger svg{flex:none;color:var(--dsw-alias-label-secondary)}.dsh-git-author-menu{min-width:180px;max-width:min(320px,calc(100vw - 24px));max-height:min(320px,calc(100dvh - 80px));border-radius:12px;padding:5px}.dsh-git-author-trigger[aria-expanded=true] .dsh-git-author-chevron{transform:rotate(180deg)}.dsh-git-author-chevron{transition:transform .15s}`), /* @__PURE__ */ import_react.default.createElement(
+    import_dsh_client_ui_primitives.Menu,
+    {
+      open,
+      portal: true,
+      autoFocus: true,
+      align: "start",
+      className: "dsh-git-author-anchor",
+      listClassName: "dsh-git-author-menu",
+      selectedId: value,
+      items: [{ id: "", label: allLabel }, ...authors.length ? [{ type: "separator" }] : [], ...authors.map((author) => ({ id: author, label: author }))],
+      onSelect: (author) => {
+        setOpen(false);
+        onChange(author);
+      },
+      onClose: () => {
+        setOpen(false);
+      },
+      anchor: /* @__PURE__ */ import_react.default.createElement("button", { type: "button", className: "dsh-git-author-trigger", "data-git-author": true, "aria-label": `${label}: ${title}`, title, "aria-haspopup": "menu", "aria-expanded": open, onClick: () => {
+        setOpen((value2) => !value2);
+      } }, /* @__PURE__ */ import_react.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.2", "aria-hidden": "true" }, /* @__PURE__ */ import_react.default.createElement("circle", { cx: "8", cy: "5", r: "2.5" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "M3 14v-1.5a5 5 0 0 1 10 0V14" })), /* @__PURE__ */ import_react.default.createElement("span", null, title), /* @__PURE__ */ import_react.default.createElement("svg", { className: "dsh-git-author-chevron", width: "12", height: "12", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.5", "aria-hidden": "true" }, /* @__PURE__ */ import_react.default.createElement("path", { d: "m4 6 4 4 4-4" })))
+    }
+  ));
+}
+
+return module.exports.AuthorFilter; })(require);
+
 const ComparisonDialog = ((require) => { const module = { exports: {} }; const exports = module.exports;
 var __create = Object.create;
 var __defProp = Object.defineProperty;
@@ -3127,23 +3194,7 @@ return module.exports.HistoryDatePicker; })(require);
 						}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("form", {
 							className: GitHistoryBody_module_css_default.search,
 							onSubmit: submit,
-							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("select", {
-								className: GitHistoryBody_module_css_default.authorSelect,
-								value: state.author,
-								"aria-label": t("search.author.label"),
-								title: t("search.author.label"),
-								"data-git-author": true,
-								onChange: (event) => {
-									chooseAuthor(event.currentTarget.value);
-								},
-								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
-									value: "",
-									children: t("search.author.all")
-								}), state.authors.map((author) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
-									value: author,
-									children: author
-								}, author))]
-							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(AuthorFilter, { authors: state.authors, value: state.author, allLabel: t("search.author.all"), label: t("search.author.label"), onChange: chooseAuthor }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
 								type: "button",
 								className: clsx(GitHistoryBody_module_css_default.searchTool, dateFiltered && GitHistoryBody_module_css_default.dateToolActive),
 								"aria-label": dateTitle,

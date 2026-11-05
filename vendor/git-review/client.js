@@ -2871,23 +2871,7 @@ window.__ModuleLoader__.load({
 						}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("form", {
 							className: GitHistoryBody_module_css_default.search,
 							onSubmit: submit,
-							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("select", {
-								className: GitHistoryBody_module_css_default.authorSelect,
-								value: state.author,
-								"aria-label": t("search.author.label"),
-								title: t("search.author.label"),
-								"data-git-author": true,
-								onChange: (event) => {
-									chooseAuthor(event.currentTarget.value);
-								},
-								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
-									value: "",
-									children: t("search.author.all")
-								}), state.authors.map((author) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
-									value: author,
-									children: author
-								}, author))]
-							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(AuthorFilter, { authors: state.authors, value: state.author, allLabel: t("search.author.all"), label: t("search.author.label"), onChange: chooseAuthor }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
 								type: "button",
 								className: clsx(GitHistoryBody_module_css_default.searchTool, dateFiltered && GitHistoryBody_module_css_default.dateToolActive),
 								"aria-label": dateTitle,
