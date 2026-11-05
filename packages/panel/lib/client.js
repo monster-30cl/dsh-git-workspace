@@ -3915,6 +3915,7 @@ function StashFileRow({ file }) {
 					setOperation(void 0);
 					if (failure !== void 0) {
 						setError(actionFailureLine(t, failure));
+                    if (selectedMode === "commit-push") onDone("commit");
 						return;
 					}
 					const kind = selectedMode === "stash" ? "stash" : "commit";
@@ -4282,6 +4283,7 @@ const allSelected = tracked.length > 0 && tracked.every((file) => selected.has(f
 									error: actionError,
 									setError: setActionError,
 									onDone: (completed) => {
+                  if (completed === "commit" || completed === "commit-push" || completed === "push" || completed === "pull") notifyGitHistoryRefresh(sessionId);
 										if (completed === "push") {
 											setRead((current) => current === void 0 ? current : {
 												...current,
@@ -4291,7 +4293,6 @@ const allSelected = tracked.length > 0 && tracked.every((file) => selected.has(f
 											});
 											return;
 										}
-										if (completed === "pull") notifyGitHistoryRefresh(sessionId);
 										setRevision((current) => current + 1);
 									},
 									t

@@ -496,6 +496,7 @@ function GitActionControls({
       setOperation(undefined)
       if (failure !== undefined) {
         setError(actionFailureLine(t, failure))
+        if (selectedMode === 'commit-push') onDone('commit')
         return
       }
       const kind = selectedMode === 'stash' ? 'stash' : 'commit'
@@ -778,6 +779,9 @@ export function GitChangesBody({
               error={actionError}
               setError={setActionError}
               onDone={(completed) => {
+                if (completed === 'commit' || completed === 'commit-push' || completed === 'push' || completed === 'pull') {
+                  notifyGitHistoryRefresh(sessionId)
+                }
                 if (completed === 'push') {
                   setRead(current => current === undefined ? current : {
                     ...current,
@@ -787,7 +791,6 @@ export function GitChangesBody({
                   })
                   return
                 }
-                if (completed === 'pull') notifyGitHistoryRefresh(sessionId)
                 setRevision(current => current + 1)
               }}
               t={t}
