@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict'
 /**
  * Load the built panel bundle against a stub client context and report which
  * slots it contributes. Verification harness only; not shipped.
@@ -8,6 +9,27 @@ import { readFileSync } from 'node:fs'
 
 const panelPath = process.argv[2]
 const require = createRequire(new URL('../package.json', import.meta.url))
+const controllerPackage = JSON.parse(readFileSync(new URL('../packages/controller/package.json', import.meta.url), 'utf8'))
+
+for (const file of ['typert.host.js', 'typert.remote-client.js']) {
+  const source = readFileSync(new URL(`../packages/controller/lib/${file}`, import.meta.url), 'utf8')
+  if (!source.includes(`package: '${controllerPackage.name}'`)) {
+    throw new Error(`${file} does not identify its owning package as ${controllerPackage.name}`)
+  }
+  if (source.includes('@deepseek-ai/dsh-api-git-workspace-controller')) {
+    throw new Error(`${file} still contains the upstream controller package identity`)
+  }
+}
+
+// Importability alone does not satisfy the host loader's manifest contract.
+const { TYPERT } = await import(new URL('../packages/controller/lib/typert.host.js', import.meta.url))
+for (const invocation of TYPERT.invocations) {
+  for (const codec of [invocation.result, ...invocation.parameters.flatMap(parameter => [parameter.codec, parameter.strictCodec])].filter(Boolean)) {
+    assert.equal(typeof codec.typeSymbol, 'string', invocation.id + ': missing codec typeSymbol')
+    assert(codec.typeSymbol.trim().length > 0, invocation.id + ': empty codec typeSymbol')
+    assert.equal(typeof codec.create, 'function', invocation.id + ': missing schema factory')
+  }
+}
 
 let registration
 globalThis.window = { __ModuleLoader__: { load: (value) => { registration = value } } }
@@ -109,7 +131,10 @@ const reviewCtx = {
   },
 }
 
+const shortcutCommands = []
 const ctx = {
+  locale: { bind: () => key => key, register: () => () => {} },
+  shortcuts: { register: command => { shortcutCommands.push(command); return () => {} } },
   inject: (services, callback) => {
     injectedServices.push(...services)
     callback({ plugin: (plugin) => { plugin.apply(reviewCtx) } })
@@ -127,6 +152,8 @@ const ctx = {
 }
 
 exports.apply(ctx)
+if (!exports.inject.includes('shortcuts') || !exports.inject.includes('locale')) throw new Error('shortcut dependencies missing')
+if (shortcutCommands.map(command => command.id).sort().join(',') !== 'git.workspace.branches.open,git.workspace.review.open') throw new Error('Git page shortcuts missing')
 
 const report = {
   inject: exports.inject,
@@ -177,4 +204,24 @@ chipInjected.openPanel()
 if (openedTabs[0] !== 'gitBranches') throw new Error('chip does not open the branches page')
 
 console.log(JSON.stringify({ ...report, chipInjected: Object.keys(chipInjected), pageInjected: Object.keys(pageInjected) }, null, 2))
-console.log('PANEL CHECK OK')
+// Verify the generated release bundle forwards only the selected files and
+// returns the generated text without running a Git mutation.
+const aiFace = reviewBody[0].entry.inject('verification-session', {})
+assert.equal(typeof aiFace.generateCommitMessage, 'function')
+const aiSignal = new AbortController().signal
+let aiRequest
+reviewCtx.remote.gitWorkspace.generateCommitMessage = async (request, signal) => {
+  aiRequest = request
+  assert.equal(signal, aiSignal)
+  return { ok: true, value: { message: 'feat: add selected change' } }
+}
+assert.equal(await aiFace.generateCommitMessage('workspace', aiSignal, ['selected.ts']), 'feat: add selected change')
+assert.deepEqual(aiRequest, { workspaceId: 'workspace', paths: ['selected.ts'] })
+reviewCtx.remote.gitWorkspace.generateCommitMessage = async () => ({ ok: false, error: { message: 'Model unavailable' } })
+await assert.rejects(aiFace.generateCommitMessage('workspace', aiSignal, ['selected.ts']), /Model unavailable/)
+let fetchRequest
+const fetched = { ok: true, value: { repository: true, localBranches: ['main'], remoteBranches: ['origin/main'] } }
+gitRemote.fetchBranches = async (request) => { fetchRequest = request; return fetched }
+assert.equal(await pageInjected.git.fetchBranches('selected-workspace'), fetched)
+assert.deepEqual(fetchRequest, { workspaceId: 'selected-workspace' })
+console.log('PANEL CHECK OK (including AI message and remote branch sync wiring)')

@@ -1,5 +1,6 @@
 /** Workspace-scoped Git branch discovery and checkout over Typert Remote. */
 
+import { generateCommitMessage } from './commit-message'
 import type { Context } from '@deepseek-ai/cordis'
 import { stripVTControlCharacters } from 'node:util'
 import z from '@deepseek-ai/schemastery'
@@ -7,6 +8,8 @@ import type { SubprocessHandle } from '@deepseek-ai/dsh-subprocess'
 import { Remote, RemoteError, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
 import type { Workspace } from '@deepseek-ai/dsh-workspace'
 import type {
+  GenerateCommitMessageRequest,
+  GenerateCommitMessageResult,
   GitWorkspaceBranchRequest,
   GitWorkspaceBranchState,
   GitWorkspaceCommit,
@@ -40,6 +43,9 @@ declare module '@deepseek-ai/cordis' {
     gitWorkspaceController: GitWorkspaceController
   }
 }
+
+/** Recent commits scanned to build the author dropdown's options. */
+const AUTHOR_SCAN_COMMITS = 500
 
 /** Process collection policy for Git commands. */
 export interface Config {
@@ -107,6 +113,15 @@ export class GitWorkspaceController extends TypertRemoteService {
       ...(current === undefined ? {} : { current }),
       detached: current === undefined,
     }
+  }
+
+  /** Fetch all remotes and prune obsolete remote-tracking references. */
+  @Remote('fetchBranches')
+  async fetchBranches(request: GitWorkspaceRequest, signal: AbortSignal): Promise<GitWorkspaceBranchState> {
+    const workspace = this.workspace(request.workspaceId)
+    const result = await this.git(workspace, ['fetch', '--all', '--prune', '--quiet'], signal, 'fetch')
+    if (result.exitCode !== 0 || result.truncated) this.failed(workspace, 'fetch', result)
+    return this.list(request, signal)
   }
 
   /**
@@ -178,7 +193,7 @@ export class GitWorkspaceController extends TypertRemoteService {
 
   /**
    * Read one bounded page of commit history for one Workspace.
-   * @param request - target Workspace, page bounds, and optional subject filter.
+   * @param request - target Workspace, page bounds, and optional subject, author, and date filters.
    * @param signal - carrier cancellation.
    * @returns repository absence or the page with the checked-out branch.
    */
@@ -193,8 +208,20 @@ export class GitWorkspaceController extends TypertRemoteService {
     const limit = Math.min(Math.max(1, Math.trunc(request.limit ?? 50)), this.config.maxLogCommits)
     const args = ['log', '--pretty=format:%H%x1f%h%x1f%an%x1f%ae%x1f%aI%x1f%s%x1e', '-n', String(limit + 1)]
     if (skip > 0) args.push('--skip', String(skip))
-    const search = request.search?.trim()
-    if (search !== undefined && search !== '') args.push('-i', '-F', `--grep=${search}`)
+    const search = request.search?.trim() ?? ''
+    const author = request.author?.trim() ?? ''
+    // Both pattern options are case-insensitive and literal: the reader types a
+    // message fragment or picks a name, never a regular expression.
+    if (search !== '' || author !== '') args.push('-i', '-F')
+    if (search !== '') args.push(`--grep=${search}`)
+    if (author !== '') args.push(`--author=${author}`)
+    // Git compares these bounds with the commit's own timestamp, while the
+    // reader picks whole calendar days: a lower bound starts that day and an
+    // upper bound ends it, so both bounds include the days they name.
+    const since = calendarDate(request.since)
+    const until = calendarDate(request.until)
+    if (since !== undefined) args.push(`--since=${since}T00:00:00`)
+    if (until !== undefined) args.push(`--until=${until}T23:59:59`)
     const result = await this.git(workspace, args, signal, 'log')
     if (result.exitCode !== 0 && !hasNoCommitsYet(result.stderr)) this.failed(workspace, 'log', result)
     if (result.truncated) this.failed(workspace, 'log', result)
@@ -202,11 +229,15 @@ export class GitWorkspaceController extends TypertRemoteService {
       ? result.stdout.split('\x1e').filter(row => row !== '').map(parseCommitRow)
       : []
     const current = branch.stdout.trim()
+    // The dropdown's options travel with the first page so opening the history
+    // cost one read, not two; a later page leaves the list with the window.
+    const authors = skip === 0 ? await this.authors(workspace, signal) : undefined
     return {
       repository: true,
       commits: rows.slice(0, limit),
       more: rows.length > limit,
       ...(current === '' ? {} : { branch: current }),
+      ...(authors === undefined ? {} : { authors }),
     }
   }
 
@@ -257,6 +288,36 @@ export class GitWorkspaceController extends TypertRemoteService {
       before: before.exitCode === 0 ? before.stdout : '',
       after: after.exitCode === 0 ? after.stdout : '',
       patch: result.stdout,
+    }
+  }
+
+  /** Generate a commit message from selected changes without modifying Git. */
+  @Remote('generateCommitMessage')
+  async generateCommitMessage(request: GenerateCommitMessageRequest, signal: AbortSignal): Promise<GenerateCommitMessageResult> {
+    const workspace = this.workspace(request.workspaceId as GitWorkspaceRequest['workspaceId'])
+    selectedPaths(request.paths, request.workspaceId as GitWorkspaceRequest['workspaceId'], 'commit')
+    try {
+      return await generateCommitMessage(this.ctx, request, signal,
+        callSignal => this.status({ workspaceId: request.workspaceId as GitWorkspaceRequest['workspaceId'] }, callSignal),
+        async (file, callSignal) => {
+          const head = await this.git(workspace, ['rev-parse', '--verify', 'HEAD'], callSignal, 'working-diff')
+          const fromEmpty = file.untracked || head.exitCode !== 0
+          const options = ['--no-ext-diff', '--no-textconv', '--no-color', '--unified=3']
+          const args = fromEmpty
+            ? ['diff', '--no-index', ...options, '--', '/dev/null', file.path]
+            : ['diff', ...options, 'HEAD', '--', ...[file.renamedFrom, file.path].filter((path): path is string => path !== undefined).map(path => `:(literal)${path}`)]
+          // Generation needs a bounded excerpt, not the complete review contents.
+          // A clipped successful diff is useful input, not a failed operation.
+          const diff = await this.git(workspace, args, callSignal, 'working-diff', 16384)
+          if (diff.exitCode !== 0 && !(fromEmpty && diff.exitCode === 1)) this.failed(workspace, 'working-diff', diff)
+          return {
+            repository: true, before: '', after: '', patch: diff.stdout,
+            binary: /(?:Binary files .* differ|GIT binary patch)/u.test(diff.stdout),
+            truncated: diff.truncated,
+          }
+        })
+    } catch (error) {
+      throw new RemoteError('git/operation-failed', error instanceof Error ? error.message : 'AI generation failed.', { workspaceId: request.workspaceId, operation: 'generate-commit-message' })
     }
   }
 
@@ -369,6 +430,20 @@ export class GitWorkspaceController extends TypertRemoteService {
     return { repository: true, entries: parseStashRows(result.stdout) }
   }
 
+  /** Explicitly add selected untracked files to the index. */
+  @Remote('trackFiles')
+  async trackFiles(request: GenerateCommitMessageRequest, signal: AbortSignal): Promise<GitWorkspaceMutationState> {
+    const workspace = this.workspace(request.workspaceId)
+    const paths = selectedPaths(request.paths, workspace.id, 'commit')
+    const status = await this.status(request, signal)
+    if (!status.repository || paths.some(path => !status.files.some(file => file.path === path && file.untracked))) {
+      throw new RemoteError('git/operation-failed', '文件状态已变化，请刷新后重试。', { workspaceId: workspace.id, operation: 'track-files' })
+    }
+    const result = await this.git(workspace, ['add', '--', ...paths.map(path => `:(literal)${path}`)], signal, 'add')
+    if (result.exitCode !== 0 || result.truncated) this.failed(workspace, 'add', result)
+    return { repository: true }
+  }
+
   /** Commit selected tracked and untracked Workspace changes, then optionally push. */
   @Remote('commit')
   async commit(request: GitWorkspaceCommitRequest, signal: AbortSignal): Promise<GitWorkspaceMutationState> {
@@ -379,9 +454,25 @@ export class GitWorkspaceController extends TypertRemoteService {
         workspaceId: workspace.id, operation: 'commit',
       })
     }
-    const paths = selectedPathspecs(request.paths, workspace.id, 'commit')
-    const add = await this.git(workspace, ['add', '-A', '--', ...paths], signal, 'add')
-    if (add.exitCode !== 0 || add.truncated) this.failed(workspace, 'add', add)
+    const requested = selectedPaths(request.paths, workspace.id, 'commit')
+    // Resolve each path against Git's index before any add or commit; directories
+    // and pathspec patterns cannot pull unrelated untracked files into a commit.
+    const indexPaths: string[] = []
+    for (const path of requested) {
+      const indexed = await this.git(workspace, ['ls-files', '--error-unmatch', '-z', '--', `:(literal)${path}`], signal, 'commit')
+      const inIndex = indexed.exitCode === 0 && !indexed.truncated && indexed.stdout.split('\0').includes(path)
+      if (inIndex) indexPaths.push(path)
+      const baseline = inIndex ? undefined : await this.git(workspace, ['ls-tree', '-r', '--name-only', '-z', 'HEAD', '--', path], signal, 'commit')
+      const inHead = baseline !== undefined && baseline.exitCode === 0 && !baseline.truncated && baseline.stdout.split('\0').includes(path)
+      if (!inIndex && !inHead) {
+        throw new RemoteError('git/operation-failed', '未进行版本管理的文件不能直接提交，请先点击“加入版本管理”。', { workspaceId: workspace.id, operation: 'commit' })
+      }
+    }
+    const paths = selectedPathspecs(requested, workspace.id, 'commit')
+    if (indexPaths.length > 0) {
+      const add = await this.git(workspace, ['add', '-A', '--', ...indexPaths.map(path => `:(literal)${path}`)], signal, 'add')
+      if (add.exitCode !== 0 || add.truncated) this.failed(workspace, 'add', add)
+    }
     const commit = await this.git(workspace, ['commit', '--only', '-m', message, '--', ...paths], signal, 'commit')
     if (commit.exitCode !== 0 || commit.truncated) this.failed(workspace, 'commit', commit)
     if (request.push === true) {
@@ -439,10 +530,34 @@ export class GitWorkspaceController extends TypertRemoteService {
       })
     }
     if (tracked.length > 0) {
-      const restore = await this.git(
-        workspace, ['restore', '--source=HEAD', '--staged', '--worktree', '--', ...tracked], signal, 'rollback',
-      )
-      if (restore.exitCode !== 0 || restore.truncated) this.failed(workspace, 'rollback', restore)
+      const restorePaths: string[] = []
+      const newPaths: string[] = []
+      const head = await this.git(workspace, ['rev-parse', '--verify', 'HEAD'], signal, 'rollback')
+      if (head.truncated) this.failed(workspace, 'rollback', head)
+      for (const path of [...new Set(request.trackedPaths)]) {
+        const baseline = head.exitCode === 0
+          ? await this.git(workspace, ['ls-tree', '-r', '--name-only', '-z', 'HEAD', '--', path], signal, 'rollback')
+          : undefined
+        if (baseline && (baseline.exitCode !== 0 || baseline.truncated)) this.failed(workspace, 'rollback', baseline)
+        if (baseline?.stdout.split('\0').includes(path)) {
+          restorePaths.push(`:(literal)${path}`)
+        } else {
+          const indexed = await this.git(workspace, ['ls-files', '--error-unmatch', '-z', '--', `:(literal)${path}`], signal, 'rollback')
+          if (indexed.exitCode !== 0 || indexed.truncated || !indexed.stdout.split('\0').includes(path)) {
+            throw new RemoteError('git/operation-failed', '文件状态已变化，请刷新后重试。', { workspaceId: workspace.id, operation: 'rollback' })
+          }
+          newPaths.push(`:(literal)${path}`)
+        }
+      }
+      if (restorePaths.length > 0) {
+        const restore = await this.git(workspace, ['restore', '--source=HEAD', '--staged', '--worktree', '--', ...restorePaths], signal, 'rollback')
+        if (restore.exitCode !== 0 || restore.truncated) this.failed(workspace, 'rollback', restore)
+      }
+      if (newPaths.length > 0) {
+        // Remove only index entries; preserve even edits made after git add.
+        const unstage = await this.git(workspace, ['rm', '--cached', '-f', '--', ...newPaths], signal, 'rollback')
+        if (unstage.exitCode !== 0 || unstage.truncated) this.failed(workspace, 'rollback', unstage)
+      }
     }
     if (untracked.length > 0) {
       const clean = await this.git(workspace, ['clean', '-f', '--', ...untracked], signal, 'rollback')
@@ -496,7 +611,7 @@ export class GitWorkspaceController extends TypertRemoteService {
     workspace: Workspace,
     args: readonly string[],
     signal: AbortSignal,
-    operation: 'list' | 'checkout' | 'checkout-remote' | 'create' | 'delete' | 'log' | 'commit-files' | 'commit-diff' | 'working-diff' | 'pending-push' | 'status' | 'stash' | 'stash-files' | 'stash-pop' | 'stash-drop' | 'add' | 'commit' | 'push' | 'pull' | 'stash-create' | 'rollback',
+    operation: 'list' | 'fetch' | 'checkout' | 'checkout-remote' | 'create' | 'delete' | 'log' | 'commit-files' | 'commit-diff' | 'working-diff' | 'pending-push' | 'status' | 'stash' | 'stash-files' | 'stash-pop' | 'stash-drop' | 'add' | 'commit' | 'push' | 'pull' | 'stash-create' | 'rollback',
     maxOutputBytes = this.config.maxOutputBytes,
   ): Promise<GitResult> {
     let executable: string
@@ -544,7 +659,7 @@ export class GitWorkspaceController extends TypertRemoteService {
 
   private failed(
     workspace: Workspace,
-    operation: 'list' | 'checkout' | 'checkout-remote' | 'create' | 'delete' | 'log' | 'commit-files' | 'commit-diff' | 'working-diff' | 'pending-push' | 'status' | 'stash' | 'stash-files' | 'stash-pop' | 'stash-drop' | 'add' | 'commit' | 'push' | 'pull' | 'stash-create' | 'rollback',
+    operation: 'list' | 'fetch' | 'checkout' | 'checkout-remote' | 'create' | 'delete' | 'log' | 'commit-files' | 'commit-diff' | 'working-diff' | 'pending-push' | 'status' | 'stash' | 'stash-files' | 'stash-pop' | 'stash-drop' | 'add' | 'commit' | 'push' | 'pull' | 'stash-create' | 'rollback',
     result: GitResult,
   ): never {
     const detail = result.truncated
@@ -556,10 +671,50 @@ export class GitWorkspaceController extends TypertRemoteService {
       { workspaceId: workspace.id, operation },
     )
   }
+
+  /**
+   * List the distinct author names among the checked-out branch's recent commits.
+   *
+   * The names feed the client's author dropdown. A refused or clipped scan leaves
+   * the list absent rather than failing the page that carries it: the history the
+   * reader asked for is complete either way, and the dropdown simply stays bare.
+   * @param workspace - the Workspace whose history is listed.
+   * @param signal - carrier cancellation.
+   * @returns the sorted names, or undefined when Git could not list them.
+   */
+  private async authors(workspace: Workspace, signal: AbortSignal): Promise<readonly string[] | undefined> {
+    const result = await this.git(
+      workspace, ['log', '-n', String(AUTHOR_SCAN_COMMITS), '--pretty=format:%an'], signal, 'log',
+    )
+    if (result.exitCode !== 0 || result.truncated) return undefined
+    const names = new Set<string>()
+    for (const line of result.stdout.split(/\r?\n/u)) {
+      const name = line.trim()
+      if (name !== '') names.add(name)
+    }
+    return [...names].sort((left, right) => (left < right ? -1 : left > right ? 1 : 0))
+  }
 }
 
 function wouldOverwriteLocalChanges(stderr: string): boolean {
   return /local changes[\s\S]*would be overwritten by (?:checkout|switch)/iu.test(stderr)
+}
+
+/**
+ * Read one `YYYY-MM-DD` calendar date, or undefined when the text names none.
+ *
+ * The value reaches a Git argument, so only a complete, real calendar date is
+ * accepted: anything else leaves that bound unset instead of failing the read.
+ * @param value - the date the Client sent, if any.
+ * @returns the date as Git spells it, or undefined.
+ */
+function calendarDate(value: string | undefined): string | undefined {
+  const candidate = value?.trim() ?? ''
+  if (!/^\d{4}-\d{2}-\d{2}$/u.test(candidate)) return undefined
+  const [year = 0, month = 0, day = 0] = candidate.split('-').map(Number)
+  const parsed = new Date(Date.UTC(year, month - 1, day))
+  const real = parsed.getUTCFullYear() === year && parsed.getUTCMonth() === month - 1 && parsed.getUTCDate() === day
+  return real ? candidate : undefined
 }
 
 /** An empty repository is a complete history, not a failed read. */

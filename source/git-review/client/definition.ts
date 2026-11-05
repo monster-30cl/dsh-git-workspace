@@ -28,7 +28,7 @@ export function gitHistoryDefinition(t: TranslateNS<'sidebarGitHistory'>): Sideb
     priority: 'builtin',
     title: () => t('type.label'),
     guide: [{
-      order: 20,
+      order: 25,
       title: () => t('guide.title'),
       description: () => t('guide.description'),
       icon: GitReviewIcon,

@@ -54,6 +54,12 @@ export interface GitWorkspaceLogRequest extends GitWorkspaceRequest {
   readonly limit?: number
   /** Case-insensitive subject substring filter; blank means no filter. */
   readonly search?: string
+  /** Case-insensitive, literal author-name filter; blank means every author. */
+  readonly author?: string
+  /** Inclusive `YYYY-MM-DD` lower bound on the commit date; blank means unbounded. */
+  readonly since?: string
+  /** Inclusive `YYYY-MM-DD` upper bound on the commit date; blank means unbounded. */
+  readonly until?: string
 }
 
 /** Request that identifies one commit returned by this controller. */
@@ -120,6 +126,8 @@ export type GitWorkspaceLogState =
     readonly more: boolean
     /** Checked-out branch name; absent in detached HEAD. */
     readonly branch?: string
+    /** Distinct author names in the read branch; sent with the first page only. */
+    readonly authors?: readonly string[]
   }
 
 /** Commits on the current branch that are not present on its configured upstream. */
@@ -216,4 +224,14 @@ declare module '@deepseek-ai/dsh-typert-protocol' {
       readonly branch: string
     }
   }
+}
+
+/** Read-only request to generate a message for the selected changes. */
+export interface GenerateCommitMessageRequest extends GitWorkspaceRequest {
+  readonly paths: readonly string[]
+}
+
+/** Editable message returned by the configured AI model. */
+export interface GenerateCommitMessageResult {
+  readonly message: string
 }

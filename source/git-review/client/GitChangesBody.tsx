@@ -20,7 +20,7 @@ import {
 } from '@deepseek-ai/dsh-client-ui-primitives'
 import type {
   GitWorkspaceCommit, GitWorkspaceStashEntry, GitWorkspaceStashFile, GitWorkspaceStatusFile,
-} from '@deepseek-ai/dsh-api-git-workspace-controller/types'
+} from '@monster-30cl/dsh-git-workspace-controller/types'
 import type { WorkspaceId } from '@deepseek-ai/dsh-workspace/types'
 import type { RemoteFailure } from '@deepseek-ai/dsh-api-remotes/client'
 import type {
@@ -31,9 +31,28 @@ import { notifyGitHistoryRefresh, setGitChangesVisible, useGitChangesVisible } f
 import { CommitDetailModal, failureLine, formatCommitDate, WorkingTreeDiffModal } from './GitHistoryBody.tsx'
 import { readLastGitMessage, writeLastGitMessage } from './last-messages.ts'
 import type {} from './locales.ts'
+import { CommitMessageDialog } from './CommitMessageDialog'
 import css from './GitChangesBody.module.css'
 
 const MIN_REGION_HEIGHT = 96
+
+/**
+ * The height a drag to `pointerY` asks for. The region hugs the bottom of the
+ * panel, so the pointer's distance to that edge is the height; both regions keep
+ * at least their own minimum.
+ * @param panelRect - the split panel's box.
+ * @param pointerY - the pointer's viewport Y during the drag.
+ * @returns the clamped region height in pixels.
+ */
+export function regionHeightAt(panelRect: { readonly height: number, readonly bottom: number }, pointerY: number): number {
+  return Math.max(MIN_REGION_HEIGHT, Math.min(panelRect.height - MIN_REGION_HEIGHT, panelRect.bottom - pointerY))
+}
+
+/**
+ * The height the reader last dragged the region to. It is a layout preference
+ * rather than component state, so it survives remounting the tab.
+ */
+let rememberedHeight: number | undefined
 
 /** The region's composed props: the session it draws, its face, and its copy. */
 export type GitChangesBodyProps =
@@ -82,11 +101,12 @@ const BADGE_CLASS: Record<string, string | undefined> = {
 
 /** One file row: badge, name, and dimmed directory; pressing it opens the file. */
 function FileRow({
-  file, selected, disabled, onSelect, onOpen, onRollback, t,
+  file, selected, disabled, onSelect, onOpen, onRollback, onTrack, t,
 }: {
   file: GitWorkspaceStatusFile
   selected: boolean
   disabled: boolean
+  onTrack?: (file: GitWorkspaceStatusFile) => void
   onSelect: (selected: boolean) => void
   onOpen: (file: GitWorkspaceStatusFile) => void
   onRollback: (file: GitWorkspaceStatusFile) => void
@@ -96,14 +116,15 @@ function FileRow({
   const { name, dir } = pathSegments(file.path)
   return (
     <li className={css.item}>
-      <input
+      {!file.untracked && <input
         type="checkbox"
         className={css.fileCheckbox}
         checked={selected}
         aria-label={t('changes.selectFile', { path: file.path })}
         data-git-file-select={file.path}
         onChange={(event) => { onSelect(event.target.checked) }}
-      />
+        disabled={disabled}
+      />}
       <button
         type="button"
         className={css.fileRow}
@@ -115,6 +136,7 @@ function FileRow({
         <span className={css.fileName}>{name}</span>
         {dir !== '' && <span className={css.fileDir}>{dir}</span>}
       </button>
+      {file.untracked && <button type="button" className={css.rowAction} disabled={disabled} aria-label={t('changes.track')} title={t('changes.track')} data-git-track-file={file.path} onClick={() => { onTrack?.(file) }}><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true"><path d="M8 3v10M3 8h10" /></svg></button>}
       <button
         type="button"
         className={css.rowAction}
@@ -142,7 +164,7 @@ function StashFileRow({ file }: { file: GitWorkspaceStashFile }): ReactNode {
   )
 }
 
-type GitOperation = 'commit' | 'commit-push' | 'push' | 'pull' | 'stash' | 'stash-restore' | 'stash-delete' | 'rollback'
+type GitOperation = 'commit' | 'commit-push' | 'push' | 'pull' | 'stash' | 'stash-restore' | 'stash-delete' | 'rollback' | 'track'
 
 /** One in-flight repository mutation shared by every control in the region. */
 interface GitOperationState {
@@ -424,10 +446,11 @@ function actionFailureLine(t: TranslateNS<'sidebarGitHistory'>, failure: RemoteF
 
 /** Mutation controls shown in the working-changes header. */
 function GitActionControls({
-  workspaceId, paths, commit, commitAndPush, push, pull, stash, onRollback, operation, setOperation, error, setError, onDone, t,
+  workspaceId, paths, generateCommitMessage, commit, commitAndPush, push, pull, stash, onRollback, operation, setOperation, error, setError, onDone, t,
 }: {
   workspaceId: WorkspaceId
   paths: readonly string[]
+  generateCommitMessage: GitChangesInjected['generateCommitMessage']
   commit: GitChangesMutation
   commitAndPush: GitChangesMutation
   push: SyncGitChanges
@@ -473,6 +496,7 @@ function GitActionControls({
       setOperation(undefined)
       if (failure !== undefined) {
         setError(actionFailureLine(t, failure))
+        if (selectedMode === 'commit-push') onDone('commit')
         return
       }
       const kind = selectedMode === 'stash' ? 'stash' : 'commit'
@@ -536,8 +560,9 @@ function GitActionControls({
       />
       <button type="button" className={css.actionButton} disabled={operation !== undefined || paths.length === 0} data-git-stash-create onClick={() => { openMessageDialog('stash') }}><StashIcon />{t('actions.stash')}</button>
       <button type="button" className={clsx(css.actionButton, css.rollbackButton)} disabled={operation !== undefined || paths.length === 0} data-git-rollback-selected onClick={onRollback}><RollbackIcon />{t('rollback.batch')}</button>
-      <Modal
+      <CommitMessageDialog
         open={mode !== undefined}
+        ai={mode !== undefined && mode !== 'stash' ? { workspaceId, paths, message, generate: generateCommitMessage, onMessage: setMessage, onError: setError } : undefined}
         className={clsx(css.actionDialog)}
         onClose={() => { setMode(undefined) }}
         title={mode === 'stash' ? t('actions.stash') : mode === 'commit-push' ? t('actions.commitPush') : t('actions.commit')}
@@ -560,14 +585,14 @@ function GitActionControls({
           </div>
         )}
         {error !== undefined && <p className={css.error} role="alert">{error}</p>}
-      </Modal>
+      </CommitMessageDialog>
     </>
   )
 }
 
 /** The code-review region and its independently collapsible Git sections. */
 export function GitChangesBody({
-  sessionId, useSessions, useWorkspaces, readChanges, commitChanges, commitAndPushChanges, pushChanges, pullChanges, stashChanges,
+  sessionId, useSessions, useWorkspaces, readChanges, trackFiles, generateCommitMessage, commitChanges, commitAndPushChanges, pushChanges, pullChanges, stashChanges,
   rollbackChanges,
   readStashFiles, restoreStash, dropStash, readWorkingDiff, readCommitFiles, readCommitDiff, useDiffZoomModifier, t,
 }: GitChangesBodyProps): ReactNode {
@@ -581,11 +606,14 @@ export function GitChangesBody({
     if (owned !== undefined) return owned.workspaceId
     return workspaces.items.find(workspace => workspace.path === cwd)?.workspaceId
   })
+  const trackRequest = useRef<AbortController | undefined>(undefined)
+  useEffect(() => { trackRequest.current?.abort(); trackRequest.current = undefined; setOperation(undefined); return () => { trackRequest.current?.abort() } }, [workspaceId])
   const [read, setRead] = useState<GitChangesRead | undefined>(undefined)
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set())
   const [revision, setRevision] = useState(0)
   const [pendingExpanded, setPendingExpanded] = useState(true)
   const [changesExpanded, setChangesExpanded] = useState(true)
+  const [untrackedExpanded, setUntrackedExpanded] = useState(false)
   const [stashExpanded, setStashExpanded] = useState(true)
   const [selectedCommit, setSelectedCommit] = useState<GitWorkspaceCommit | undefined>(undefined)
   const [selectedWorkingFile, setSelectedWorkingFile] = useState<GitWorkspaceStatusFile | undefined>(undefined)
@@ -601,7 +629,7 @@ export function GitChangesBody({
       // aborted, writes nothing.
       if (!alive || controller.signal.aborted) return
       setRead(next)
-      setSelected(new Set(next.files.filter(file => !isGitIgnorePath(file.path)).map(file => file.path)))
+      setSelected(new Set(next.files.filter(file => !file.untracked && !isGitIgnorePath(file.path)).map(file => file.path)))
     })
     return () => {
       alive = false
@@ -622,18 +650,21 @@ export function GitChangesBody({
     if (panel === null) return
     event.preventDefault()
     stopResizeRef.current?.()
+    const handle = event.currentTarget
     let nextY = event.clientY
+    let height = root.getBoundingClientRect().height
     let frame: number | undefined
     const previousUserSelect = document.body.style.userSelect
+    const previousCursor = document.body.style.cursor
     document.body.style.userSelect = 'none'
+    document.body.style.cursor = 'row-resize'
+    handle.dataset.active = 'true'
+    // The region hugs the bottom of the panel, so its height is the distance
+    // from the pointer down to that edge: dragging up grows the region.
     const applyHeight = (): void => {
       frame = undefined
-      const panelRect = panel.getBoundingClientRect()
-      const next = Math.max(
-        MIN_REGION_HEIGHT,
-        Math.min(panelRect.height - MIN_REGION_HEIGHT, nextY - panelRect.top),
-      )
-      root.style.height = `${next}px`
+      height = regionHeightAt(panel.getBoundingClientRect(), nextY)
+      root.style.height = `${height}px`
     }
     const move = (moveEvent: MouseEvent): void => {
       nextY = moveEvent.clientY
@@ -642,14 +673,22 @@ export function GitChangesBody({
     const stop = (): void => {
       if (frame !== undefined) cancelAnimationFrame(frame)
       applyHeight()
+      rememberedHeight = height
       window.removeEventListener('mousemove', move)
       window.removeEventListener('mouseup', stop)
       document.body.style.userSelect = previousUserSelect
+      document.body.style.cursor = previousCursor
+      delete handle.dataset.active
       stopResizeRef.current = undefined
     }
     stopResizeRef.current = stop
     window.addEventListener('mousemove', move)
     window.addEventListener('mouseup', stop)
+  }
+  /** Put the region back to its default half of the panel. */
+  const resetHeight = (): void => {
+    rememberedHeight = undefined
+    if (rootRef.current !== null) rootRef.current.style.height = ''
   }
   const close = (): void => { setGitChangesVisible(sessionId, false) }
 
@@ -660,7 +699,15 @@ export function GitChangesBody({
           <p className={css.note} data-git-changes-row="no-workspace">{t('noWorkspace')}</p>
         </div>
         <button type="button" className={clsx(css.tool, css.closeFloating)} aria-label={t('changes.close')} title={t('changes.close')} data-git-changes-close onClick={close}><IconCloseOutline16 /></button>
-        <div className={css.resizeHandle} role="separator" aria-label={t('changes.resize')} aria-orientation="horizontal" data-git-changes-resize onMouseDown={beginResize} />
+        <div
+          className={css.resizeHandle}
+          role="separator"
+          aria-label={t('changes.resize')}
+          aria-orientation="horizontal"
+          data-git-changes-resize
+          onMouseDown={beginResize}
+          onDoubleClick={resetHeight}
+        />
       </div>
     )
   }
@@ -676,11 +723,28 @@ export function GitChangesBody({
   const pendingFailed = read?.pendingFailure === undefined ? undefined : failureLine(t, read.pendingFailure)
   const stashFailed = read?.stashFailure === undefined ? undefined : failureLine(t, read.stashFailure)
   const open = (file: GitWorkspaceStatusFile): void => { setSelectedWorkingFile(file) }
-  const allSelected = files.length > 0 && files.every(file => selected.has(file.path))
-  const operationPaths = files.flatMap(file => selected.has(file.path)
+  const trackFile = (file: GitWorkspaceStatusFile): void => {
+    if (operation !== undefined || trackRequest.current) return
+    const controller = new AbortController()
+    trackRequest.current = controller
+    setOperation({ kind: 'track' })
+    setActionError(undefined)
+    void trackFiles(workspaceId, controller.signal, [file.path]).then(() => {
+      if (!controller.signal.aborted) setRevision(value => value + 1)
+    }).catch(error => {
+      if (!controller.signal.aborted) setActionError(error instanceof Error ? error.message : String(error))
+    }).finally(() => {
+      if (trackRequest.current === controller) {
+        trackRequest.current = undefined
+        if (!controller.signal.aborted) setOperation(undefined)
+      }
+    })
+  }
+  const allSelected = tracked.length > 0 && tracked.every(file => selected.has(file.path))
+  const operationPaths = tracked.flatMap(file => selected.has(file.path)
     ? [file.path, ...(file.renamedFrom === undefined ? [] : [file.renamedFrom])]
     : [])
-  const selectedFiles = files.filter(file => selected.has(file.path))
+  const selectedFiles = tracked.filter(file => selected.has(file.path))
   const setFileSelected = (path: string, checked: boolean): void => {
     setSelected((current) => {
       const next = new Set(current)
@@ -690,7 +754,12 @@ export function GitChangesBody({
     })
   }
   return (
-    <div ref={rootRef} className={css.root} data-git-changes={workspaceId}>
+    <div
+      ref={rootRef}
+      className={css.root}
+      data-git-changes={workspaceId}
+      style={rememberedHeight === undefined ? undefined : { height: `${rememberedHeight}px` }}
+    >
       <div className={css.content}>
         <ReviewToolbar
           operation={operation}
@@ -698,6 +767,7 @@ export function GitChangesBody({
             <GitActionControls
               workspaceId={workspaceId}
               paths={operationPaths}
+              generateCommitMessage={generateCommitMessage}
               commit={commitChanges}
               commitAndPush={commitAndPushChanges}
               push={pushChanges}
@@ -709,6 +779,9 @@ export function GitChangesBody({
               error={actionError}
               setError={setActionError}
               onDone={(completed) => {
+                if (completed === 'commit' || completed === 'commit-push' || completed === 'push' || completed === 'pull') {
+                  notifyGitHistoryRefresh(sessionId)
+                }
                 if (completed === 'push') {
                   setRead(current => current === undefined ? current : {
                     ...current,
@@ -718,7 +791,6 @@ export function GitChangesBody({
                   })
                   return
                 }
-                if (completed === 'pull') notifyGitHistoryRefresh(sessionId)
                 setRevision(current => current + 1)
               }}
               t={t}
@@ -756,17 +828,17 @@ export function GitChangesBody({
         <SectionHeader
           section="changes"
           title={t('changes.sectionTitle')}
-          count={read === undefined ? 0 : tracked.length + untracked.length}
+          count={read === undefined ? 0 : tracked.length}
           expanded={changesExpanded}
           onToggle={() => { setChangesExpanded(value => !value) }}
-          selection={files.length > 0 ? (
+          selection={tracked.length > 0 ? (
             <input
               type="checkbox"
               className={css.fileCheckbox}
               checked={allSelected}
               aria-label={t('changes.selectAll')}
               data-git-select-all
-              onChange={(event) => { setSelected(event.target.checked ? new Set(files.map(file => file.path)) : new Set()) }}
+              onChange={(event) => { setSelected(event.target.checked ? new Set(tracked.map(file => file.path)) : new Set()) }}
             />
           ) : undefined}
         />
@@ -794,14 +866,18 @@ export function GitChangesBody({
                 onSelect={(checked) => { setFileSelected(file.path, checked) }}
                 onOpen={open}
                 onRollback={(target) => { setRollbackFiles([target]) }}
+                  onTrack={trackFile}
                 t={t}
               />
             ))}</ul>
           )}
           {repository && untracked.length > 0 && (
             <>
-              <div className={css.subsectionHeader} data-git-changes-header="untracked"><span>{t('changes.untrackedTitle')}</span><span className={css.count}>{untracked.length}</span></div>
-              <ul className={css.level}>{untracked.map(file => (
+              <button type="button" className={css.subsectionHeader} data-git-changes-header="untracked" aria-expanded={untrackedExpanded} onClick={() => { setUntrackedExpanded(value => !value) }}>
+                <IconChevronDownOutline14 className={clsx(css.sectionChevron, untrackedExpanded && css.sectionChevronExpanded)} />
+                <span>{t('changes.untrackedTitle')}</span><span className={css.count}>{untracked.length}</span>
+              </button>
+              {untrackedExpanded && <ul className={css.level}>{untracked.map(file => (
                 <FileRow
                   key={file.path}
                   file={file}
@@ -812,7 +888,7 @@ export function GitChangesBody({
                   onRollback={(target) => { setRollbackFiles([target]) }}
                   t={t}
                 />
-              ))}</ul>
+              ))}</ul>}
             </>
           )}
         </div>}
@@ -867,7 +943,15 @@ export function GitChangesBody({
         onDone={() => { setRevision(current => current + 1) }}
         t={t}
       />
-      <div className={css.resizeHandle} role="separator" aria-label={t('changes.resize')} aria-orientation="horizontal" data-git-changes-resize onMouseDown={beginResize} />
+      <div
+        className={css.resizeHandle}
+        role="separator"
+        aria-label={t('changes.resize')}
+        aria-orientation="horizontal"
+        data-git-changes-resize
+        onMouseDown={beginResize}
+        onDoubleClick={resetHeight}
+      />
     </div>
   )
 }

@@ -812,6 +812,7 @@ window.__ModuleLoader__.load({
 		Schema.object({ [DIFF_ZOOM_MODIFIER_FIELD]: Schema.union([...DIFF_ZOOM_MODIFIERS]).default("alt") });
 		/** Whether a wheel event carries the configured modifier. */
 		function matchesDiffZoomModifier(event, modifier) {
+            if (event.ctrlKey) return true;
 			switch (modifier) {
 				case "alt": return event.altKey;
 				case "control": return event.ctrlKey;
@@ -935,7 +936,7 @@ window.__ModuleLoader__.load({
 				priority: "builtin",
 				title: () => t("type.label"),
 				guide: [{
-					order: 20,
+					order: 25,
 					title: () => t("guide.title"),
 					description: () => t("guide.description"),
 					icon: GitReviewIcon
@@ -946,13 +947,17 @@ window.__ModuleLoader__.load({
 		//#region dsh-css:source/git-review/client/DiffZoomShortcutRow.module.css.mjs
 		const css$3 = ".NYjLYG_row{border-bottom:.5px solid var(--dsw-alias-border-l2);align-items:center;gap:8px;padding:16px 0;display:flex}.NYjLYG_rowText{flex-direction:column;flex:1;gap:4px;min-width:0;padding-right:48px;display:flex}.NYjLYG_title{color:var(--dsw-alias-label-primary);font-size:14px;font-weight:400;line-height:22px}.NYjLYG_desc{color:var(--dsw-alias-label-tertiary);font-size:12px;font-weight:400;line-height:18px}.NYjLYG_selector{height:36px;color:var(--dsw-alias-label-primary);font:inherit;white-space:nowrap;cursor:pointer;background:var(--dsw-alias-bg-module-platform);border:none;border-radius:18px;align-items:center;gap:12px;padding:0 14px;font-size:14px;line-height:22px;display:inline-flex}.NYjLYG_selector:hover{background:var(--dsw-alias-interactive-bg-hover)}.NYjLYG_chevron{flex:none}";
 		const tagId$3 = "@deepseek-ai/dsh-client-ui-sidebar-git-history/DiffZoomShortcutRow.module.css";
-		if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$3) + "]") === null) {
-			const tag = document.createElement("style");
-			tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
-			tag.dataset.pluginCss = tagId$3;
-			tag.textContent = css$3;
-			document.head.appendChild(tag);
-		}
+		if (typeof document !== "undefined") {
+			const sheet = css$3;
+			const existing = document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$3) + "]");
+			if (existing === null) {
+				const tag = document.createElement("style");
+				tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
+				tag.dataset.pluginCss = tagId$3;
+				tag.textContent = sheet;
+				document.head.appendChild(tag);
+			} else if (existing.textContent !== sheet) existing.textContent = sheet;
+			}
 		var DiffZoomShortcutRow_module_css_default = {
 			"chevron": "NYjLYG_chevron",
 			"desc": "NYjLYG_desc",
@@ -1090,9 +1095,17 @@ window.__ModuleLoader__.load({
 				commits: state.commits,
 				more: state.more,
 				...state.branch === void 0 ? {} : { branch: state.branch },
+				...state.authors === void 0 ? {} : { authors: state.authors },
 				repository: true
 			};
 		}
+		/** The filter a first read carries: nothing typed, every author, no date bounds. */
+		const NO_FILTER = {
+			search: "",
+			author: "",
+			since: "",
+			until: ""
+		};
 		/**
 		* Bind the history's face to one commit read.
 		* @param log - the bound `gitWorkspace.log` call.
@@ -1107,15 +1120,15 @@ window.__ModuleLoader__.load({
 					generations.set(tabId, generation);
 					return generation;
 				};
-				const read = (tabId, workspaceId, search, skip, signal) => {
+				const read = (tabId, workspaceId, filter, skip, signal) => {
 					if (signal.aborted) return;
 					const generation = nextGeneration(tabId);
-					if (skip === 0) actions.loading(tabId, search);
+					if (skip === 0) actions.loading(tabId, filter);
 					else actions.moreLoading(tabId);
 					log(workspaceId, {
 						skip,
 						limit: 50,
-						search
+						...filter
 					}, signal).then((result) => {
 						if (generations.get(tabId) !== generation) return;
 						if (result.ok) if (skip === 0) actions.loaded(tabId, pageOf(result.value));
@@ -1131,13 +1144,13 @@ window.__ModuleLoader__.load({
 							generations.delete(tabId);
 							actions.forget(tabId);
 						}, { once: true });
-						read(tabId, workspaceId, "", 0, signal);
+						read(tabId, workspaceId, NO_FILTER, 0, signal);
 					},
-					reload(tabId, workspaceId, search, signal) {
-						read(tabId, workspaceId, search, 0, signal);
+					reload(tabId, workspaceId, filter, signal) {
+						read(tabId, workspaceId, filter, 0, signal);
 					},
-					loadMore(tabId, workspaceId, search, skip, signal) {
-						read(tabId, workspaceId, search, skip, signal);
+					loadMore(tabId, workspaceId, filter, skip, signal) {
+						read(tabId, workspaceId, filter, skip, signal);
 					}
 				};
 			};
@@ -1220,24 +1233,36 @@ window.__ModuleLoader__.load({
 		}
 		//#endregion
 		//#region dsh-css:source/git-review/client/GitHistoryBody.module.css.mjs
-		const css$2 = "._7gOSaa_root{height:100%;min-height:0;color:var(--dsw-alias-label-primary);font-size:var(--dsh-content-font-size-secondary,13px);flex-direction:column;flex:auto;padding:4px 0 0;line-height:1.5;display:flex;overflow:hidden}._7gOSaa_chrome{z-index:2;background:color-mix(in srgb, var(--dsw-alias-bg-base) 68%, transparent);backdrop-filter:blur(18px)saturate(130%);flex:none;position:relative}body[data-dsh-background-media] ._7gOSaa_chrome{background:color-mix(in srgb, var(--dsw-alias-bg-base) 46%, transparent)}._7gOSaa_body{flex-direction:column;flex:auto;min-height:0;padding-bottom:8px;display:flex;overflow:auto}._7gOSaa_header{color:var(--dsw-alias-label-secondary);flex:none;align-items:center;gap:6px;padding:4px 10px;font-weight:500;display:flex}._7gOSaa_icon{color:var(--dsw-alias-label-secondary);flex:none}._7gOSaa_name{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}._7gOSaa_changesTool{color:var(--dsw-alias-label-secondary);font:inherit;border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;background:0 0;border-radius:6px;flex:none;padding:3px 8px}._7gOSaa_changesTool:hover,._7gOSaa_changesTool[aria-pressed=true]{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_tool{width:24px;height:24px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;justify-content:center;align-items:center;margin-left:auto;padding:0;display:inline-flex}._7gOSaa_tool:hover{background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_search{flex:none;align-items:center;gap:6px;padding:2px 10px 6px;display:flex}._7gOSaa_input{flex:auto;min-width:0}._7gOSaa_searchTool{height:32px;color:var(--dsw-alias-label-primary);font:inherit;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 64%, transparent);border:.5px solid color-mix(in srgb, var(--dsw-alias-border-l4) 72%, transparent);backdrop-filter:blur(16px)saturate(125%);cursor:pointer;border-radius:16px;flex:none;padding:0 14px}._7gOSaa_searchTool:hover{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover) 72%, transparent)}._7gOSaa_level{margin:0;padding:0;list-style:none}._7gOSaa_item{margin:0;padding:0 4px}._7gOSaa_commitButton{width:100%;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;padding:3px 6px;display:block}._7gOSaa_commitButton:hover{background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_row{align-items:baseline;gap:6px;min-width:0;display:flex}._7gOSaa_hash{color:var(--dsw-alias-link);font-family:var(--ds-font-family-code);flex:none;font-size:12px}._7gOSaa_subject{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}._7gOSaa_meta{min-width:0;color:var(--dsw-alias-label-tertiary);align-items:baseline;gap:8px;font-size:12px;display:flex}._7gOSaa_author{white-space:nowrap;text-overflow:ellipsis;overflow:hidden}._7gOSaa_date{flex:none}._7gOSaa_note{color:var(--dsw-alias-label-tertiary);margin:0;padding:3px 10px;font-size:12px}._7gOSaa_error{color:var(--dsw-alias-state-error-primary);margin:0;padding:3px 10px;font-size:12px}._7gOSaa_more{color:var(--dsw-alias-label-secondary);font:inherit;border:1px solid var(--dsw-alias-border-l2);cursor:pointer;background:0 0;border-radius:6px;align-self:center;margin:6px 0 0;padding:3px 12px}._7gOSaa_more:hover{background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_moreBusy{cursor:default;opacity:.6}._7gOSaa_status{flex-direction:column;padding:12px 10px;display:flex}._7gOSaa_statusLine{color:var(--dsw-alias-label-secondary);font-size:var(--dsh-content-font-size-secondary,13px);margin:0;line-height:1.6}._7gOSaa_detailDialog{background:var(--dsw-alias-bg-layer-2);width:min(1120px,100vw - 48px);height:min(760px,100vh - 48px);padding-bottom:18px}._7gOSaa_detailDialogFullscreen{border-radius:0;width:100vw;height:100vh;position:fixed;inset:0}body[data-dsh-background-media] ._7gOSaa_detailDialog{background:color-mix(in srgb, var(--dsw-alias-bg-layer-2) 72%, transparent);backdrop-filter:blur(16px)saturate(125%)}._7gOSaa_detailMeta{min-height:30px;color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);justify-content:space-between;align-items:center;padding:0 24px;font-size:12px;display:flex}._7gOSaa_detailMetaFullscreen{justify-content:flex-end}._7gOSaa_detailTools{flex:none;align-items:center;gap:4px;display:flex}._7gOSaa_detailLayout{border-top:.5px solid var(--dsw-alias-border-l2);height:min(620px,100vh - 180px);margin-top:12px;display:grid}._7gOSaa_detailLayoutFullscreen{height:calc(100vh - 126px);margin-top:4px}._7gOSaa_detailLayoutFullscreen ._7gOSaa_fileList,._7gOSaa_detailLayoutFullscreen ._7gOSaa_filePaneResize{display:none}._7gOSaa_detailLayoutFullscreen ._7gOSaa_diff{contain:layout paint style}._7gOSaa_workingDiffLayout{grid-template-columns:minmax(0,1fr)}._7gOSaa_fileList{min-width:0;padding:8px;overflow:auto}._7gOSaa_fileList,._7gOSaa_diffPane{scrollbar-color:color-mix(in srgb, var(--dsw-alias-label-secondary) 62%, transparent) color-mix(in srgb, var(--dsw-alias-bg-layer-1) 78%, transparent);scrollbar-width:auto}._7gOSaa_fileList::-webkit-scrollbar,._7gOSaa_diffPane::-webkit-scrollbar{width:12px;height:12px}._7gOSaa_fileList::-webkit-scrollbar-track,._7gOSaa_diffPane::-webkit-scrollbar-track{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 82%, transparent);border:1px solid color-mix(in srgb, var(--dsw-alias-border-l2) 78%, transparent);border-radius:8px}._7gOSaa_fileList::-webkit-scrollbar-thumb,._7gOSaa_diffPane::-webkit-scrollbar-thumb{background:color-mix(in srgb, var(--dsw-alias-label-secondary) 66%, transparent);background-clip:content-box;border:3px solid #0000;border-radius:8px;min-width:32px;min-height:32px}._7gOSaa_fileList::-webkit-scrollbar-thumb:hover,._7gOSaa_diffPane::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb, var(--dsw-alias-label-primary) 82%, transparent);background-clip:content-box}._7gOSaa_fileList::-webkit-scrollbar-corner,._7gOSaa_diffPane::-webkit-scrollbar-corner{background:0 0}body[data-dsh-background-media] ._7gOSaa_fileList,body[data-dsh-background-media] ._7gOSaa_diffPane{scrollbar-color:color-mix(in srgb, var(--dsw-alias-label-primary) 72%, transparent) color-mix(in srgb, var(--dsw-alias-bg-layer-1) 46%, transparent)}._7gOSaa_treeLevel{min-width:max-content;margin:0;padding:0;list-style:none}._7gOSaa_treeRow{width:100%;min-width:max-content;color:var(--dsw-alias-label-secondary);font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;align-items:center;gap:7px;padding:6px 8px;display:flex}._7gOSaa_treeRow:hover,._7gOSaa_detailFileSelected{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_treeFile{padding-right:16px}._7gOSaa_fileName{min-width:0}._7gOSaa_fileTypeIcon{width:18px;height:18px;color:var(--dsw-alias-label-secondary);font:600 6px/1 var(--ds-font-family-code);flex:0 0 18px;justify-content:center;align-items:center;display:inline-flex;position:relative}._7gOSaa_fileTypeIcon svg{width:18px;height:18px;position:absolute;inset:0}._7gOSaa_fileTypeMark{letter-spacing:-.35px;white-space:nowrap;max-width:13px;position:relative;top:2px;overflow:hidden}._7gOSaa_fileType_java ._7gOSaa_fileTypeMark:after{content:\"J\"}._7gOSaa_fileType_xml ._7gOSaa_fileTypeMark:after{content:\"<>\"}._7gOSaa_fileType_text ._7gOSaa_fileTypeMark:after{content:\"TXT\"}._7gOSaa_fileType_python ._7gOSaa_fileTypeMark:after{content:\"PY\"}._7gOSaa_fileType_typescript ._7gOSaa_fileTypeMark:after{content:\"TS\"}._7gOSaa_fileType_javascript ._7gOSaa_fileTypeMark:after{content:\"JS\"}._7gOSaa_fileType_json ._7gOSaa_fileTypeMark:after{content:\"{}\"}._7gOSaa_fileType_markdown ._7gOSaa_fileTypeMark:after{content:\"MD\"}._7gOSaa_fileType_style ._7gOSaa_fileTypeMark:after{content:\"#\"}._7gOSaa_fileType_html ._7gOSaa_fileTypeMark:after{content:\"</>\"}._7gOSaa_fileType_shell ._7gOSaa_fileTypeMark:after{content:\"$_\"}._7gOSaa_fileType_generic ._7gOSaa_fileTypeMark:after{content:\"—\"}._7gOSaa_fileType_java{color:#c96b3b}._7gOSaa_fileType_xml,._7gOSaa_fileType_html{color:#d57b2d}._7gOSaa_fileType_text,._7gOSaa_fileType_markdown{color:#66737f}._7gOSaa_fileType_python{color:#3572a5}._7gOSaa_fileType_typescript{color:#3178c6}._7gOSaa_fileType_javascript{color:#a78300}._7gOSaa_fileType_json{color:#7b7f28}._7gOSaa_fileType_style{color:#8a55b5}._7gOSaa_fileType_shell{color:#438b57}._7gOSaa_treeChevron{flex:none;transition:transform .12s}._7gOSaa_treeChevronExpanded{transform:rotate(90deg)}._7gOSaa_filePaneResize{cursor:col-resize;touch-action:none;position:relative}._7gOSaa_filePaneResize:after{content:\"\";background:var(--dsw-alias-border-l2);width:1px;position:absolute;top:0;bottom:0;left:2px}._7gOSaa_filePaneResize:hover:after{background:var(--dsw-alias-label-tertiary);width:2px}._7gOSaa_fileStatus{color:var(--dsw-alias-label-tertiary);font-size:11px;font-family:var(--ds-font-family-code);flex:none;margin-left:auto;padding-left:8px}._7gOSaa_diff{background:var(--dsw-alias-bg-base);flex-direction:column;min-width:0;display:flex;overflow:hidden}._7gOSaa_diffHint{color:var(--dsw-alias-label-tertiary);margin:0;padding:12px 16px}._7gOSaa_diffTable{width:100%;min-height:0;color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);flex:auto;grid-template-columns:minmax(0,1fr) minmax(0,1fr);font-size:12px;line-height:20px;display:grid;position:relative}._7gOSaa_syntax_comment{color:var(--dsw-alias-label-tertiary);font-style:italic}._7gOSaa_syntax_string{color:#2f8a57}._7gOSaa_syntax_number{color:#b56a2b}._7gOSaa_syntax_keyword{color:#8750b4;font-weight:500}._7gOSaa_syntax_tag{color:#167f8c}._7gOSaa_syntax_attribute{color:#a65b2e}._7gOSaa_searchMatch{color:inherit;background:#f2c94cad;border-radius:2px;padding:0 1px}._7gOSaa_searchActiveRow ._7gOSaa_searchMatch{background:#ff9f2fd1;box-shadow:0 0 0 1px #9b5b006b}._7gOSaa_zoomIndicator{z-index:4;min-width:48px;color:var(--dsw-alias-label-primary);font:12px/1 var(--ds-font-family-code);text-align:center;pointer-events:none;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 92%, transparent);border:1px solid var(--dsw-alias-border-l2);opacity:0;border-radius:7px;padding:5px 9px;transition:opacity .16s,transform .16s;position:absolute;bottom:16px;right:16px;transform:translateY(4px);box-shadow:0 4px 14px #00000029}._7gOSaa_zoomIndicatorVisible{opacity:1;transform:translateY(0)}body[data-dsh-background-media] ._7gOSaa_zoomIndicator{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 68%, transparent);backdrop-filter:blur(16px)saturate(125%)}._7gOSaa_diffHeader{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border-bottom:.5px solid var(--dsw-alias-border-l2);flex:none;grid-template-columns:minmax(0,1fr) minmax(0,1fr);font-size:12px;display:grid}._7gOSaa_diffHeaderSide{grid-template-columns:minmax(80px,1fr) minmax(150px,220px);align-items:center;min-width:0;padding:5px 8px 5px 12px;display:grid}._7gOSaa_diffHeaderSide:first-child{border-right:.5px solid var(--dsw-alias-border-l2)}._7gOSaa_diffHeaderSide>span{text-align:center;min-width:0}._7gOSaa_diffSearch{background:var(--dsw-alias-bg-base);border:1px solid var(--dsw-alias-border-l2);border-radius:7px;justify-self:end;align-items:center;width:100%;min-width:0;height:28px;display:flex;overflow:hidden}._7gOSaa_diffSearch:focus-within{border-color:var(--dsw-alias-label-secondary);box-shadow:0 0 0 2px color-mix(in srgb, var(--dsw-alias-label-secondary) 14%, transparent)}._7gOSaa_diffSearch input{min-width:0;height:100%;color:var(--dsw-alias-label-primary);font:12px/1 var(--ds-font-family);background:0 0;border:0;outline:0;padding:0 7px}._7gOSaa_diffSearch input::placeholder{color:var(--dsw-alias-label-tertiary)}._7gOSaa_diffSearch output{color:var(--dsw-alias-label-tertiary);font:10px/1 var(--ds-font-family-code);flex:none}._7gOSaa_diffSearch button{width:28px;height:26px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:0;flex:0 0 28px;justify-content:center;align-items:center;padding:0;display:inline-flex}._7gOSaa_diffSearch button:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_diffSearch ._7gOSaa_diffSearchClear{width:24px;color:var(--dsw-alias-label-tertiary);flex-basis:24px}._7gOSaa_diffSearch ._7gOSaa_diffSearchSubmit{border-left:1px solid color-mix(in srgb, var(--dsw-alias-border-l2) 72%, transparent);margin-left:0}body[data-dsh-background-media] ._7gOSaa_diffSearch{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 52%, transparent);backdrop-filter:blur(12px)saturate(125%)}body[data-dsh-background-media] ._7gOSaa_diffHeader{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 60%, transparent);backdrop-filter:blur(16px)saturate(125%)}._7gOSaa_iconTool{width:28px;height:28px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:1px solid #0000;border-radius:6px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}._7gOSaa_iconTool:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_iconTool[aria-pressed=true]{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-active);border-color:color-mix(in srgb, var(--dsw-alias-label-primary) 48%, transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--dsw-alias-label-primary) 12%, transparent)}._7gOSaa_iconTool[aria-pressed=false]{color:var(--dsw-alias-label-tertiary)}body[data-dsh-background-media] ._7gOSaa_iconTool{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 60%, transparent);backdrop-filter:blur(16px)saturate(125%)}body[data-dsh-background-media] ._7gOSaa_iconTool[aria-pressed=true]{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-active) 76%, transparent)}body[data-dsh-background-media] ._7gOSaa_diff{background:0 0}._7gOSaa_binaryNotice{color:var(--dsw-alias-label-secondary);margin:0;padding:18px}._7gOSaa_diffPane{border-right:.5px solid var(--dsw-alias-border-l2);min-width:0;overflow:auto}._7gOSaa_diffPane:last-child{border-right:0}._7gOSaa_diffCanvas{min-height:100%}._7gOSaa_diffCell{white-space:pre;grid-template-columns:48px minmax(max-content,1fr);min-width:max-content;min-height:20px;display:grid}._7gOSaa_diffPane[data-git-diff-pane=old] ._7gOSaa_diffCell{grid-template-columns:minmax(max-content,1fr) 48px}._7gOSaa_diffCell code{font:inherit;padding:0 12px}._7gOSaa_lineNumber{z-index:1;color:var(--dsw-alias-label-tertiary);text-align:end;user-select:none;background:color-mix(in srgb, var(--dsw-alias-bg-base) 84%, var(--dsw-alias-border-l2));border-right:.5px solid var(--dsw-alias-border-l2);padding:0 8px;position:sticky;left:0}._7gOSaa_diffPane[data-git-diff-pane=old] ._7gOSaa_lineNumber{border-right:0;border-left:.5px solid var(--dsw-alias-border-l2);left:auto;right:0}._7gOSaa_added{color:var(--dsw-alias-state-success-primary);background:color-mix(in srgb, var(--dsw-alias-state-success-primary) 16%, transparent)}._7gOSaa_removed{color:var(--dsw-alias-state-error-primary);background:color-mix(in srgb, var(--dsw-alias-state-error-primary) 16%, transparent)}";
+		const css$2 = "._7gOSaa_root{height:100%;min-height:0;color:var(--dsw-alias-label-primary);font-size:var(--dsh-content-font-size-secondary,13px);flex-direction:column;flex:auto;padding:4px 0 0;line-height:1.5;display:flex;overflow:hidden}._7gOSaa_chrome{z-index:2;background:color-mix(in srgb, var(--dsw-alias-bg-base) 68%, transparent);backdrop-filter:blur(18px)saturate(130%);flex:none;position:relative}body[data-dsh-background-media] ._7gOSaa_chrome{background:color-mix(in srgb, var(--dsw-alias-bg-base) 46%, transparent)}._7gOSaa_body{flex-direction:column;flex:auto;min-height:0;padding-bottom:8px;display:flex;overflow:auto}._7gOSaa_header{color:var(--dsw-alias-label-secondary);flex:none;align-items:center;gap:6px;padding:4px 10px;font-weight:500;display:flex}._7gOSaa_icon{color:var(--dsw-alias-label-secondary);flex:none}._7gOSaa_name{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}._7gOSaa_changesTool{color:var(--dsw-alias-label-secondary);font:inherit;border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;background:0 0;border-radius:6px;flex:none;padding:3px 8px}._7gOSaa_changesTool:hover,._7gOSaa_changesTool[aria-pressed=true]{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_tool{width:24px;height:24px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;justify-content:center;align-items:center;margin-left:auto;padding:0;display:inline-flex}._7gOSaa_tool:hover{background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_search{flex:none;align-items:center;gap:6px;padding:2px 10px 6px;display:flex}._7gOSaa_input{flex:auto;min-width:0}._7gOSaa_searchTool{height:32px;color:var(--dsw-alias-label-primary);font:inherit;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 64%, transparent);border:.5px solid color-mix(in srgb, var(--dsw-alias-border-l4) 72%, transparent);backdrop-filter:blur(16px)saturate(125%);cursor:pointer;border-radius:16px;flex:none;padding:0 14px}._7gOSaa_searchTool:hover{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover) 72%, transparent)}._7gOSaa_level{margin:0;padding:0;list-style:none}._7gOSaa_item{margin:0;padding:0 4px}._7gOSaa_commitButton{width:100%;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;padding:3px 6px;display:block}._7gOSaa_commitButton:hover{background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_row{align-items:baseline;gap:6px;min-width:0;display:flex}._7gOSaa_hash{color:var(--dsw-alias-link);font-family:var(--ds-font-family-code);flex:none;font-size:12px}._7gOSaa_subject{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}._7gOSaa_meta{min-width:0;color:var(--dsw-alias-label-tertiary);align-items:baseline;gap:8px;font-size:12px;display:flex}._7gOSaa_author{white-space:nowrap;text-overflow:ellipsis;overflow:hidden}._7gOSaa_date{flex:none}._7gOSaa_note{color:var(--dsw-alias-label-tertiary);margin:0;padding:3px 10px;font-size:12px}._7gOSaa_error{color:var(--dsw-alias-state-error-primary);margin:0;padding:3px 10px;font-size:12px}._7gOSaa_more{color:var(--dsw-alias-label-secondary);font:inherit;border:1px solid var(--dsw-alias-border-l2);cursor:pointer;background:0 0;border-radius:6px;align-self:center;margin:6px 0 0;padding:3px 12px}._7gOSaa_more:hover{background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_moreBusy{cursor:default;opacity:.6}._7gOSaa_status{flex-direction:column;padding:12px 10px;display:flex}._7gOSaa_statusLine{color:var(--dsw-alias-label-secondary);font-size:var(--dsh-content-font-size-secondary,13px);margin:0;line-height:1.6}._7gOSaa_detailDialog{background:var(--dsw-alias-bg-layer-2);width:min(1120px,100vw - 48px);height:min(760px,100vh - 48px);padding-bottom:18px}._7gOSaa_detailDialogFullscreen{position:relative;inset:auto;width:100%;height:100%;max-height:100%;border-radius:10px}body[data-dsh-background-media] ._7gOSaa_detailDialog{background:color-mix(in srgb, var(--dsw-alias-bg-layer-2) 72%, transparent);backdrop-filter:blur(16px)saturate(125%)}._7gOSaa_detailMeta{min-height:30px;color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);justify-content:space-between;align-items:center;padding:0 24px;font-size:12px;display:flex}._7gOSaa_detailMetaFullscreen{justify-content:flex-end}._7gOSaa_detailTools{flex:none;align-items:center;gap:4px;display:flex}._7gOSaa_detailLayout{border-top:.5px solid var(--dsw-alias-border-l2);height:min(620px,100vh - 180px);margin-top:12px;display:grid}._7gOSaa_detailLayoutFullscreen{height:calc(100vh - 126px);margin-top:4px}._7gOSaa_detailLayoutFullscreen ._7gOSaa_fileList,._7gOSaa_detailLayoutFullscreen ._7gOSaa_filePaneResize{display:none}._7gOSaa_detailLayoutFullscreen ._7gOSaa_diff{contain:layout paint style}._7gOSaa_workingDiffLayout{grid-template-columns:minmax(0,1fr)}._7gOSaa_fileList{min-width:0;padding:8px;overflow:auto}._7gOSaa_fileList,._7gOSaa_diffPane{scrollbar-color:color-mix(in srgb, var(--dsw-alias-label-secondary) 62%, transparent) color-mix(in srgb, var(--dsw-alias-bg-layer-1) 78%, transparent);scrollbar-width:auto}._7gOSaa_fileList::-webkit-scrollbar,._7gOSaa_diffPane::-webkit-scrollbar{width:12px;height:12px}._7gOSaa_fileList::-webkit-scrollbar-track,._7gOSaa_diffPane::-webkit-scrollbar-track{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 82%, transparent);border:1px solid color-mix(in srgb, var(--dsw-alias-border-l2) 78%, transparent);border-radius:8px}._7gOSaa_fileList::-webkit-scrollbar-thumb,._7gOSaa_diffPane::-webkit-scrollbar-thumb{background:color-mix(in srgb, var(--dsw-alias-label-secondary) 66%, transparent);background-clip:content-box;border:3px solid #0000;border-radius:8px;min-width:32px;min-height:32px}._7gOSaa_fileList::-webkit-scrollbar-thumb:hover,._7gOSaa_diffPane::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb, var(--dsw-alias-label-primary) 82%, transparent);background-clip:content-box}._7gOSaa_fileList::-webkit-scrollbar-corner,._7gOSaa_diffPane::-webkit-scrollbar-corner{background:0 0}body[data-dsh-background-media] ._7gOSaa_fileList,body[data-dsh-background-media] ._7gOSaa_diffPane{scrollbar-color:color-mix(in srgb, var(--dsw-alias-label-primary) 72%, transparent) color-mix(in srgb, var(--dsw-alias-bg-layer-1) 46%, transparent)}._7gOSaa_treeLevel{min-width:max-content;margin:0;padding:0;list-style:none}._7gOSaa_treeRow{width:100%;min-width:max-content;color:var(--dsw-alias-label-secondary);font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;align-items:center;gap:7px;padding:6px 8px;display:flex}._7gOSaa_treeRow:hover,._7gOSaa_detailFileSelected{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_treeFile{padding-right:16px}._7gOSaa_fileName{min-width:0}._7gOSaa_fileTypeIcon{width:18px;height:18px;color:var(--dsw-alias-label-secondary);font:600 6px/1 var(--ds-font-family-code);flex:0 0 18px;justify-content:center;align-items:center;display:inline-flex;position:relative}._7gOSaa_fileTypeIcon svg{width:18px;height:18px;position:absolute;inset:0}._7gOSaa_fileTypeMark{letter-spacing:-.35px;white-space:nowrap;max-width:13px;position:relative;top:2px;overflow:hidden}._7gOSaa_fileType_java ._7gOSaa_fileTypeMark:after{content:\"J\"}._7gOSaa_fileType_xml ._7gOSaa_fileTypeMark:after{content:\"<>\"}._7gOSaa_fileType_text ._7gOSaa_fileTypeMark:after{content:\"TXT\"}._7gOSaa_fileType_python ._7gOSaa_fileTypeMark:after{content:\"PY\"}._7gOSaa_fileType_typescript ._7gOSaa_fileTypeMark:after{content:\"TS\"}._7gOSaa_fileType_javascript ._7gOSaa_fileTypeMark:after{content:\"JS\"}._7gOSaa_fileType_json ._7gOSaa_fileTypeMark:after{content:\"{}\"}._7gOSaa_fileType_markdown ._7gOSaa_fileTypeMark:after{content:\"MD\"}._7gOSaa_fileType_style ._7gOSaa_fileTypeMark:after{content:\"#\"}._7gOSaa_fileType_html ._7gOSaa_fileTypeMark:after{content:\"</>\"}._7gOSaa_fileType_shell ._7gOSaa_fileTypeMark:after{content:\"$_\"}._7gOSaa_fileType_generic ._7gOSaa_fileTypeMark:after{content:\"—\"}._7gOSaa_fileType_java{color:#c96b3b}._7gOSaa_fileType_xml,._7gOSaa_fileType_html{color:#d57b2d}._7gOSaa_fileType_text,._7gOSaa_fileType_markdown{color:#66737f}._7gOSaa_fileType_python{color:#3572a5}._7gOSaa_fileType_typescript{color:#3178c6}._7gOSaa_fileType_javascript{color:#a78300}._7gOSaa_fileType_json{color:#7b7f28}._7gOSaa_fileType_style{color:#8a55b5}._7gOSaa_fileType_shell{color:#438b57}._7gOSaa_treeChevron{flex:none;transition:transform .12s}._7gOSaa_treeChevronExpanded{transform:rotate(90deg)}._7gOSaa_filePaneResize{cursor:col-resize;touch-action:none;position:relative}._7gOSaa_filePaneResize:after{content:\"\";background:var(--dsw-alias-border-l2);width:1px;position:absolute;top:0;bottom:0;left:2px}._7gOSaa_filePaneResize:hover:after{background:var(--dsw-alias-label-tertiary);width:2px}._7gOSaa_fileStatus{color:var(--dsw-alias-label-tertiary);font-size:11px;font-family:var(--ds-font-family-code);flex:none;margin-left:auto;padding-left:8px}._7gOSaa_diff{background:var(--dsw-alias-bg-base);flex-direction:column;min-width:0;display:flex;overflow:hidden}._7gOSaa_diffHint{color:var(--dsw-alias-label-tertiary);margin:0;padding:12px 16px}._7gOSaa_diffTable{width:100%;min-height:0;color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);flex:auto;grid-template-columns:minmax(0,1fr) minmax(0,1fr);font-size:12px;line-height:20px;display:grid;position:relative}._7gOSaa_syntax_comment{color:var(--dsw-alias-label-tertiary);font-style:italic}._7gOSaa_syntax_string{color:#2f8a57}._7gOSaa_syntax_number{color:#b56a2b}._7gOSaa_syntax_keyword{color:#8750b4;font-weight:500}._7gOSaa_syntax_tag{color:#167f8c}._7gOSaa_syntax_attribute{color:#a65b2e}._7gOSaa_searchMatch{color:inherit;background:#f2c94cad;border-radius:2px;padding:0 1px}._7gOSaa_searchActiveRow ._7gOSaa_searchMatch{background:#ff9f2fd1;box-shadow:0 0 0 1px #9b5b006b}._7gOSaa_zoomIndicator{z-index:4;min-width:48px;color:var(--dsw-alias-label-primary);font:12px/1 var(--ds-font-family-code);text-align:center;pointer-events:none;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 92%, transparent);border:1px solid var(--dsw-alias-border-l2);opacity:0;border-radius:7px;padding:5px 9px;transition:opacity .16s,transform .16s;position:absolute;bottom:16px;right:16px;transform:translateY(4px);box-shadow:0 4px 14px #00000029}._7gOSaa_zoomIndicatorVisible{opacity:1;transform:translateY(0)}body[data-dsh-background-media] ._7gOSaa_zoomIndicator{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 68%, transparent);backdrop-filter:blur(16px)saturate(125%)}._7gOSaa_diffHeader{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border-bottom:.5px solid var(--dsw-alias-border-l2);flex:none;grid-template-columns:minmax(0,1fr) minmax(0,1fr);font-size:12px;display:grid}._7gOSaa_diffHeaderSide{grid-template-columns:minmax(80px,1fr) minmax(150px,220px);align-items:center;min-width:0;padding:5px 8px 5px 12px;display:grid}._7gOSaa_diffHeaderSide:first-child{border-right:.5px solid var(--dsw-alias-border-l2)}._7gOSaa_diffHeaderSide>span{text-align:center;min-width:0}._7gOSaa_diffSearch{background:var(--dsw-alias-bg-base);border:1px solid var(--dsw-alias-border-l2);border-radius:7px;justify-self:end;align-items:center;width:100%;min-width:0;height:28px;display:flex;overflow:hidden}._7gOSaa_diffSearch:focus-within{border-color:var(--dsw-alias-label-secondary);box-shadow:0 0 0 2px color-mix(in srgb, var(--dsw-alias-label-secondary) 14%, transparent)}._7gOSaa_diffSearch input{min-width:0;height:100%;color:var(--dsw-alias-label-primary);font:12px/1 var(--ds-font-family);background:0 0;border:0;outline:0;padding:0 7px}._7gOSaa_diffSearch input::placeholder{color:var(--dsw-alias-label-tertiary)}._7gOSaa_diffSearch output{color:var(--dsw-alias-label-tertiary);font:10px/1 var(--ds-font-family-code);flex:none}._7gOSaa_diffSearch button{width:28px;height:26px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:0;flex:0 0 28px;justify-content:center;align-items:center;padding:0;display:inline-flex}._7gOSaa_diffSearch button:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_diffSearch ._7gOSaa_diffSearchClear{width:24px;color:var(--dsw-alias-label-tertiary);flex-basis:24px}._7gOSaa_diffSearch ._7gOSaa_diffSearchSubmit{border-left:1px solid color-mix(in srgb, var(--dsw-alias-border-l2) 72%, transparent);margin-left:0}body[data-dsh-background-media] ._7gOSaa_diffSearch{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 52%, transparent);backdrop-filter:blur(12px)saturate(125%)}body[data-dsh-background-media] ._7gOSaa_diffHeader{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 60%, transparent);backdrop-filter:blur(16px)saturate(125%)}._7gOSaa_iconTool{width:28px;height:28px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:1px solid #0000;border-radius:6px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}._7gOSaa_iconTool:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_iconTool[aria-pressed=true]{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-active);border-color:color-mix(in srgb, var(--dsw-alias-label-primary) 48%, transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--dsw-alias-label-primary) 12%, transparent)}._7gOSaa_iconTool[aria-pressed=false]{color:var(--dsw-alias-label-tertiary)}body[data-dsh-background-media] ._7gOSaa_iconTool{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 60%, transparent);backdrop-filter:blur(16px)saturate(125%)}body[data-dsh-background-media] ._7gOSaa_iconTool[aria-pressed=true]{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-active) 76%, transparent)}body[data-dsh-background-media] ._7gOSaa_diff{background:0 0}._7gOSaa_binaryNotice{color:var(--dsw-alias-label-secondary);margin:0;padding:18px}._7gOSaa_diffPane{border-right:.5px solid var(--dsw-alias-border-l2);min-width:0;overflow:auto}._7gOSaa_diffPane:last-child{border-right:0}._7gOSaa_diffCanvas{min-height:100%}._7gOSaa_diffCell{white-space:pre;grid-template-columns:48px minmax(max-content,1fr);min-width:max-content;min-height:20px;display:grid}._7gOSaa_diffPane[data-git-diff-pane=old] ._7gOSaa_diffCell{grid-template-columns:minmax(max-content,1fr) 48px}._7gOSaa_diffCell code{font:inherit;padding:0 12px}._7gOSaa_lineNumber{z-index:1;color:var(--dsw-alias-label-tertiary);text-align:end;user-select:none;background:color-mix(in srgb, var(--dsw-alias-bg-base) 84%, var(--dsw-alias-border-l2));border-right:.5px solid var(--dsw-alias-border-l2);padding:0 8px;position:sticky;left:0}._7gOSaa_diffPane[data-git-diff-pane=old] ._7gOSaa_lineNumber{border-right:0;border-left:.5px solid var(--dsw-alias-border-l2);left:auto;right:0}._7gOSaa_added{color:var(--dsw-alias-state-success-primary);background:color-mix(in srgb, var(--dsw-alias-state-success-primary) 16%, transparent)}._7gOSaa_removed{color:var(--dsw-alias-state-error-primary);background:color-mix(in srgb, var(--dsw-alias-state-error-primary) 16%, transparent)}._7gOSaa_added ._7gOSaa_lineNumber{color:var(--dsw-alias-state-success-primary);background:color-mix(in srgb, var(--dsw-alias-state-success-primary) 16%, color-mix(in srgb, var(--dsw-alias-bg-base) 84%, var(--dsw-alias-border-l2)));box-shadow:inset 2px 0 0 var(--dsw-alias-state-success-primary)}._7gOSaa_removed ._7gOSaa_lineNumber{color:var(--dsw-alias-state-error-primary);background:color-mix(in srgb, var(--dsw-alias-state-error-primary) 16%, color-mix(in srgb, var(--dsw-alias-bg-base) 84%, var(--dsw-alias-border-l2)));box-shadow:inset -2px 0 0 var(--dsw-alias-state-error-primary)}";
 		const tagId$2 = "@deepseek-ai/dsh-client-ui-sidebar-git-history/GitHistoryBody.module.css";
-		if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$2) + "]") === null) {
-			const tag = document.createElement("style");
-			tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
-			tag.dataset.pluginCss = tagId$2;
-			tag.textContent = css$2;
-			document.head.appendChild(tag);
-		}
+		/** The author dropdown beside the subject search: one applied filter each. */
+		const cssAuthorSelect$2 = "._7gOSaa_authorSelect{flex:0 1 auto;min-width:0;max-width:46%;height:32px;padding:0 8px;color:var(--dsw-alias-label-primary);font:inherit;text-overflow:ellipsis;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 64%, transparent);border:.5px solid color-mix(in srgb, var(--dsw-alias-border-l4) 72%, transparent);border-radius:16px;backdrop-filter:blur(16px)saturate(125%);cursor:pointer}._7gOSaa_authorSelect:hover{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover) 72%, transparent)}._7gOSaa_authorSelect:focus-visible{outline:2px solid var(--dsw-alias-border-l4);outline-offset:1px}._7gOSaa_authorSelect option{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-1)}._7gOSaa_dateToolActive{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-active);border-color:color-mix(in srgb, var(--dsw-alias-label-primary) 48%, transparent)}._7gOSaa_dateRow{display:flex;flex:0 0 auto;align-items:center;gap:6px;padding:0 10px 6px}._7gOSaa_dateInput{flex:1 1 auto;min-width:0;height:32px;padding:0 10px;color:var(--dsw-alias-label-primary);font:inherit;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 64%, transparent);border:.5px solid color-mix(in srgb, var(--dsw-alias-border-l4) 72%, transparent);border-radius:16px}._7gOSaa_dateInput:focus-visible{outline:2px solid var(--dsw-alias-border-l4);outline-offset:1px}._7gOSaa_dateDash{flex:0 0 auto;color:var(--dsw-alias-label-tertiary)}._7gOSaa_dateClear{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;width:24px;height:24px;padding:0;color:var(--dsw-alias-label-tertiary);background:0 0;border:0;border-radius:6px;cursor:pointer}._7gOSaa_dateClear:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}";
+		if (typeof document !== "undefined") {
+			const sheet = css$2 + cssAuthorSelect$2;
+			const existing = document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$2) + "]");
+			if (existing === null) {
+				const tag = document.createElement("style");
+				tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
+				tag.dataset.pluginCss = tagId$2;
+				tag.textContent = sheet;
+				document.head.appendChild(tag);
+			} else if (existing.textContent !== sheet) existing.textContent = sheet;
+			}
 		var GitHistoryBody_module_css_default = {
 			"added": "_7gOSaa_added",
 			"author": "_7gOSaa_author",
+			"authorSelect": "_7gOSaa_authorSelect",
 			"binaryNotice": "_7gOSaa_binaryNotice",
 			"body": "_7gOSaa_body",
 			"changesTool": "_7gOSaa_changesTool",
 			"chrome": "_7gOSaa_chrome",
 			"commitButton": "_7gOSaa_commitButton",
 			"date": "_7gOSaa_date",
+			"dateClear": "_7gOSaa_dateClear",
+			"dateDash": "_7gOSaa_dateDash",
+			"dateInput": "_7gOSaa_dateInput",
+			"dateRow": "_7gOSaa_dateRow",
+			"dateToolActive": "_7gOSaa_dateToolActive",
 			"detailDialog": "_7gOSaa_detailDialog",
 			"detailDialogFullscreen": "_7gOSaa_detailDialogFullscreen",
 			"detailFileSelected": "_7gOSaa_detailFileSelected",
@@ -1395,7 +1420,7 @@ window.__ModuleLoader__.load({
 			if (state.commits.length === 0) return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
 				className: GitHistoryBody_module_css_default.note,
 				"data-git-row": "empty",
-				children: state.search === "" ? t("empty") : t("emptySearch")
+				children: state.search === "" && state.author === "" && state.since === "" && state.until === "" ? t("empty") : t("emptySearch")
 			});
 			return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("ul", {
 				className: GitHistoryBody_module_css_default.level,
@@ -2021,6 +2046,7 @@ window.__ModuleLoader__.load({
 				const zoom = (event) => {
 					if (!matchesDiffZoomModifier(event, zoomModifier) || event.deltaY === 0) return;
 					event.preventDefault();
+					event.stopPropagation();
 					setFontSize((value) => {
 						const next = Math.max(DIFF_FONT_MIN, Math.min(DIFF_FONT_MAX, value + (event.deltaY < 0 ? 1 : -1)));
 						if (next === value) return value;
@@ -2088,6 +2114,7 @@ window.__ModuleLoader__.load({
 				if (other === null) return;
 				synchronizing.current = true;
 				other.scrollTop = event.currentTarget.scrollTop;
+				other.scrollLeft = event.currentTarget.scrollLeft;
 				window.requestAnimationFrame(() => {
 					synchronizing.current = false;
 				});
@@ -2512,7 +2539,7 @@ window.__ModuleLoader__.load({
 				window.addEventListener("mousemove", move);
 				window.addEventListener("mouseup", stop);
 			};
-			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(_deepseek_ai_dsh_client_ui_primitives.Modal, {
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(ComparisonDialog, { fullscreen,
 				open: commit !== void 0,
 				className: clsx(GitHistoryBody_module_css_default.detailDialog, fullscreen && GitHistoryBody_module_css_default.detailDialogFullscreen),
 				title: commit?.subject ?? t("detail.title"),
@@ -2634,7 +2661,7 @@ window.__ModuleLoader__.load({
 				request.current?.abort();
 				onClose();
 			};
-			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(_deepseek_ai_dsh_client_ui_primitives.Modal, {
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(ComparisonDialog, { fullscreen,
 				open: file !== void 0,
 				className: clsx(GitHistoryBody_module_css_default.detailDialog, fullscreen && GitHistoryBody_module_css_default.detailDialogFullscreen),
 				title: file?.path ?? t("detail.title"),
@@ -2698,6 +2725,7 @@ window.__ModuleLoader__.load({
 			const state = useStore((store) => store.byTab[tab.id]);
 			const [query, setQuery] = (0, react.useState)("");
 			const [selectedCommit, setSelectedCommit] = (0, react.useState)(void 0);
+			const [dateOpen, setDateOpen] = (0, react.useState)(false);
 			const changesVisible = useGitChangesVisible(sessionId);
 			(0, react.useEffect)(() => {
 				if (state !== void 0 || workspaceId === void 0 || signal.aborted) return;
@@ -2710,13 +2738,24 @@ window.__ModuleLoader__.load({
 				start
 			]);
 			const historySearch = state?.search;
+			const historyAuthor = state?.author;
+			const historySince = state?.since;
+			const historyUntil = state?.until;
 			(0, react.useEffect)(() => {
-				if (workspaceId === void 0 || historySearch === void 0) return;
+				if (workspaceId === void 0 || historySearch === void 0 || historyAuthor === void 0 || historySince === void 0 || historyUntil === void 0) return;
 				return subscribeGitHistoryRefresh(sessionId, () => {
-					if (!signal.aborted) reload(tab.id, workspaceId, historySearch, signal);
+					if (!signal.aborted) reload(tab.id, workspaceId, {
+						search: historySearch,
+						author: historyAuthor,
+						since: historySince,
+						until: historyUntil
+					}, signal);
 				});
 			}, [
+				historyAuthor,
 				historySearch,
+				historySince,
+				historyUntil,
 				reload,
 				sessionId,
 				signal,
@@ -2733,10 +2772,48 @@ window.__ModuleLoader__.load({
 				})
 			});
 			if (state === void 0) return null;
+			/** The filter one read carries: the window's applied bounds, plus what the reader just typed. */
+			const filterOf = (overrides = {}) => ({
+				search: query.trim(),
+				author: state.author,
+				since: state.since,
+				until: state.until,
+				...overrides
+			});
 			const submit = (event) => {
 				event.preventDefault();
-				reload(tab.id, workspaceId, query.trim(), signal);
+				reload(tab.id, workspaceId, filterOf({ search: query.trim() }), signal);
 			};
+			/** Apply one author choice at once: a dropdown choice is the filter itself. */
+			const chooseAuthor = (author) => {
+				if (author === state.author) return;
+				reload(tab.id, workspaceId, filterOf({ author }), signal);
+			};
+			/** Apply one date bound at once; a cleared field simply drops that bound. */
+			const chooseDate = (bound, value) => {
+				if (state[bound] === value) return;
+				const next = filterOf();
+				reload(tab.id, workspaceId, bound === "since" ? {
+					...next,
+					since: value
+				} : {
+					...next,
+					until: value
+				}, signal);
+			};
+			const clearDates = () => {
+				setDateOpen(true);
+				if (state.since === '' && state.until === '') return;
+				reload(tab.id, workspaceId, filterOf({
+					since: "",
+					until: ""
+				}), signal);
+			};
+			const dateFiltered = state.since !== "" || state.until !== "";
+			const dateTitle = state.since !== "" && state.until !== "" ? t("search.date.range", {
+				since: state.since,
+				until: state.until
+			}) : state.since !== "" ? t("search.date.sinceRange", { since: state.since }) : state.until !== "" ? t("search.date.untilRange", { until: state.until }) : t("search.date.toggle");
 			const title = state.branch === void 0 ? t("header.detached") : t("header.branch", { branch: state.branch });
 			const workspaceTitle = cwd === void 0 ? "" : workspaceTitleOf(cwd);
 			const failed = state.failure === void 0 ? void 0 : failureLine(t, state.failure);
@@ -2781,7 +2858,12 @@ window.__ModuleLoader__.load({
 									title: t("reload"),
 									"data-git-reload": true,
 									onClick: () => {
-										reload(tab.id, workspaceId, state.search, signal);
+										reload(tab.id, workspaceId, {
+											search: state.search,
+											author: state.author,
+											since: state.since,
+											until: state.until
+										}, signal);
 									},
 									children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconRefreshOutline16, {})
 								})
@@ -2789,7 +2871,18 @@ window.__ModuleLoader__.load({
 						}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("form", {
 							className: GitHistoryBody_module_css_default.search,
 							onSubmit: submit,
-							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.Input, {
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(AuthorFilter, { authors: state.authors, value: state.author, allLabel: t("search.author.all"), label: t("search.author.label"), onChange: chooseAuthor }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: clsx(GitHistoryBody_module_css_default.searchTool, dateFiltered && GitHistoryBody_module_css_default.dateToolActive),
+								"aria-label": dateTitle,
+								title: dateTitle,
+								"aria-pressed": dateFiltered,
+								"data-git-date-toggle": true,
+								onClick: () => {
+									setDateOpen((value) => !value);
+								},
+								children: t("search.date.toggle")
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.Input, {
 								className: GitHistoryBody_module_css_default.input,
 								type: "search",
 								value: query,
@@ -2803,6 +2896,36 @@ window.__ModuleLoader__.load({
 								className: GitHistoryBody_module_css_default.searchTool,
 								"data-git-search": true,
 								children: t("search.submit")
+							})]
+						}), (dateOpen || dateFiltered) && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+							className: GitHistoryBody_module_css_default.dateRow,
+							"data-git-date-row": true,
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(HistoryDatePicker, {
+								value: state.since,
+								max: state.until === "" ? void 0 : state.until,
+								"aria-label": t("search.date.since"),
+								title: t("search.date.since"),
+								"data-git-since": true,
+								onChange: (value) => { chooseDate("since", value); }
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: GitHistoryBody_module_css_default.dateDash,
+								"aria-hidden": "true",
+								children: "–"
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)(HistoryDatePicker, {
+								value: state.until,
+								min: state.since === "" ? void 0 : state.since,
+								"aria-label": t("search.date.until"),
+								title: t("search.date.until"),
+								"data-git-until": true,
+								onChange: (value) => { chooseDate("until", value); }
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: GitHistoryBody_module_css_default.dateClear,
+								"aria-label": t("search.date.clear"),
+								title: t("search.date.clear"),
+								"data-git-date-clear": true,
+								onClick: clearDates,
+								children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconCloseOutline16, { size: 13 })
 							})]
 						})]
 					}),
@@ -2835,7 +2958,12 @@ window.__ModuleLoader__.load({
 								"data-git-more": true,
 								disabled: state.loadingMore,
 								onClick: () => {
-									loadMore(tab.id, workspaceId, state.search, state.skip, signal);
+									loadMore(tab.id, workspaceId, {
+										search: state.search,
+										author: state.author,
+										since: state.since,
+										until: state.until
+									}, state.skip, signal);
 								},
 								children: state.loadingMore ? t("loadingMore") : t("more")
 							})
@@ -2897,15 +3025,19 @@ window.__ModuleLoader__.load({
 		}
 		//#endregion
 		//#region dsh-css:source/git-review/client/GitChangesBody.module.css.mjs
-		const css$1 = ".jdsH1W_root{height:50%;min-height:0;color:var(--dsw-alias-label-primary);font-size:var(--dsh-content-font-size-secondary,13px);border-bottom:.5px solid var(--dsw-alias-border-l2);flex-direction:column;flex:none;line-height:1.5;display:flex;position:relative;overflow:hidden}.jdsH1W_content{min-height:0;padding:4px 0 8px;overflow:auto}.jdsH1W_resizeHandle{z-index:3;cursor:row-resize;touch-action:none;height:6px;position:absolute;bottom:-3px;left:0;right:0}.jdsH1W_resizeHandle:after{content:\"\";background:var(--dsw-alias-border-l2);height:1px;position:absolute;top:2px;left:0;right:0}.jdsH1W_resizeHandle:hover:after{background:var(--dsw-alias-label-tertiary);height:2px}.jdsH1W_reviewToolbar{flex:none;justify-content:space-between;align-items:center;min-height:28px;padding:0 10px 10px;display:flex}.jdsH1W_reviewTitle{color:var(--dsw-alias-label-primary);font-size:14px}.jdsH1W_header{color:var(--dsw-alias-label-secondary);flex:none;align-items:center;gap:6px;padding:3px 10px;display:flex}.jdsH1W_sectionToggle{min-width:0;color:var(--dsw-alias-label-primary);font:inherit;text-align:start;background:color-mix(in srgb, var(--dsw-alias-bg-base) 68%, transparent);border:.5px solid var(--dsw-alias-border-l2);backdrop-filter:blur(18px)saturate(130%);cursor:pointer;border-radius:7px;flex:auto;align-items:center;gap:5px;padding:4px 8px;font-size:14px;display:flex}.jdsH1W_sectionToggle:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_sectionToggle .jdsH1W_count{color:var(--dsw-alias-label-secondary);font-size:13px}body[data-dsh-background-media] .jdsH1W_sectionToggle{background:color-mix(in srgb, var(--dsw-alias-bg-base) 46%, transparent)}.jdsH1W_sectionChevron{flex:none;transition:transform .12s;transform:rotate(-90deg)}.jdsH1W_sectionChevronExpanded{transform:rotate(0)}.jdsH1W_subsectionHeader{color:var(--dsw-alias-label-secondary);align-items:center;gap:5px;padding:5px 18px 2px;display:flex}.jdsH1W_headerActions{align-items:center;gap:2px;margin-left:auto;display:inline-flex}.jdsH1W_operationStatus{max-width:180px;color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis;align-items:center;gap:6px;margin-right:4px;font-size:12px;display:inline-flex;overflow:hidden}.jdsH1W_operationSpinner{border:1.5px solid color-mix(in srgb, currentColor 28%, transparent);border-top-color:currentColor;border-radius:50%;width:12px;height:12px;animation:.72s linear infinite jdsH1W_git-operation-spin}@keyframes jdsH1W_git-operation-spin{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.jdsH1W_operationSpinner{animation-duration:1.8s}}.jdsH1W_actionButton{height:24px;color:var(--dsw-alias-label-secondary);font:inherit;background:color-mix(in srgb, var(--dsw-alias-bg-base) 68%, transparent);border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;border-radius:6px;align-items:center;gap:3px;padding:0 8px;display:inline-flex}.jdsH1W_actionButton:hover:not(:disabled){color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_actionButton:disabled{cursor:default;opacity:.5}.jdsH1W_rollbackButton{color:var(--dsw-alias-state-error-primary)}.jdsH1W_rollbackWarning{color:var(--dsw-alias-label-secondary);margin:0}.jdsH1W_actionIcon{stroke:currentColor;stroke-width:1.25px;stroke-linecap:round;stroke-linejoin:round;width:16px;height:16px;display:block}.jdsH1W_actionError{border:1px solid var(--dsw-alias-state-error-primary);color:var(--dsw-alias-state-error-primary);overflow-wrap:anywhere;white-space:pre-wrap;border-radius:8px;margin:0 10px 8px;padding:6px 10px;font-size:12px}body[data-dsh-background-media] .jdsH1W_actionDialog{background:color-mix(in srgb, var(--dsw-alias-bg-layer-2) 72%, transparent);backdrop-filter:blur(16px)saturate(125%)}.jdsH1W_lastMessage{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border:.5px solid var(--dsw-alias-border-l2);border-radius:8px;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;margin-top:10px;padding:7px 9px;font-size:12px;display:grid}body[data-dsh-background-media] .jdsH1W_lastMessage{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 60%, transparent);backdrop-filter:blur(16px)saturate(125%)}.jdsH1W_lastMessageLabel{white-space:nowrap}.jdsH1W_lastMessageText{min-width:0;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.jdsH1W_fillMessageButton{color:var(--dsw-alias-label-secondary);font:inherit;background:var(--dsw-alias-interactive-bg-hover);border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;border-radius:5px;padding:2px 7px}.jdsH1W_fillMessageButton:hover{color:var(--dsw-alias-label-primary)}.jdsH1W_name{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_count{color:var(--dsw-alias-label-tertiary);flex:none;font-size:12px}.jdsH1W_tool{width:24px;height:24px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.jdsH1W_tool:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_closeFloating{position:absolute;top:4px;right:10px}.jdsH1W_list{flex-direction:column;flex:none;display:flex}.jdsH1W_level{margin:0;padding:0;list-style:none}.jdsH1W_pendingCommit{padding:0 10px}.jdsH1W_pendingCommitButton{width:100%;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;grid-template-columns:auto minmax(0,1fr);align-items:baseline;gap:0 7px;padding:3px 8px;display:grid}.jdsH1W_pendingCommitButton:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_pendingHash{color:var(--dsw-alias-link);font-family:var(--ds-font-family-code);grid-row:1/span 2;font-size:12px}.jdsH1W_pendingSubject{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_pendingMeta{min-width:0;color:var(--dsw-alias-label-tertiary);white-space:nowrap;text-overflow:ellipsis;font-size:12px;overflow:hidden}.jdsH1W_item{align-items:center;margin:0;padding:0 4px;display:flex}.jdsH1W_fileCheckbox{width:14px;height:14px;accent-color:var(--dsw-alias-brand-primary);cursor:pointer;flex:none;margin:0 2px}.jdsH1W_fileRow{width:100%;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;align-items:baseline;gap:6px;padding:3px 6px;display:flex}.jdsH1W_fileRow:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_rowAction{width:24px;height:24px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.jdsH1W_rowAction:hover:not(:disabled){color:var(--dsw-alias-state-error-primary);background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_rowAction:disabled{cursor:default;opacity:.5}.jdsH1W_badge{color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);flex:none;font-size:12px}.jdsH1W_badgeModified{color:var(--dsw-alias-state-warn-primary)}.jdsH1W_badgeAdded{color:var(--dsw-alias-state-success-primary)}.jdsH1W_badgeDeleted{color:var(--dsw-alias-state-error-primary)}.jdsH1W_badgeRenamed{color:var(--dsw-alias-link)}.jdsH1W_badgeConflict{color:var(--dsw-alias-state-error-primary)}.jdsH1W_fileName{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_fileDir{min-width:0;color:var(--dsw-alias-label-tertiary);white-space:nowrap;text-overflow:ellipsis;flex:0 auto;font-size:12px;overflow:hidden}.jdsH1W_stashRow{align-items:center;gap:6px;padding:2px 6px;display:flex}.jdsH1W_stashCollection{background:color-mix(in srgb, var(--dsw-alias-bg-base) 52%, transparent);border:.5px solid var(--dsw-alias-border-l2);border-radius:7px;margin:0 4px 4px;overflow:hidden}.jdsH1W_stashToggle{min-width:0;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;flex:auto;align-items:center;gap:5px;padding:4px 2px;display:flex}.jdsH1W_stashChevron{flex:none;transition:transform .12s;transform:rotate(-90deg)}.jdsH1W_stashChevronExpanded{transform:rotate(0)}.jdsH1W_stashSubject{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_stashDate{color:var(--dsw-alias-label-tertiary);flex:none;margin-left:auto;font-size:12px}.jdsH1W_restoreButton{color:var(--dsw-alias-label-secondary);font:inherit;background:var(--dsw-alias-interactive-bg-hover);border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;border-radius:5px;flex:none;padding:2px 7px}.jdsH1W_stashActions{flex:none;gap:4px;display:inline-flex}.jdsH1W_deleteButton{color:var(--dsw-alias-state-error-primary)}.jdsH1W_restoreButton:disabled{cursor:default;opacity:.5}.jdsH1W_stashDetails{border-top:.5px solid var(--dsw-alias-border-l2);padding:2px 4px 5px 19px}.jdsH1W_stashFile{align-items:baseline;gap:6px;min-width:0;padding:2px 6px;display:flex}.jdsH1W_note{color:var(--dsw-alias-label-tertiary);margin:0;padding:3px 10px;font-size:12px}.jdsH1W_ignoreNote{color:var(--dsw-alias-label-secondary);background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 76%, transparent);border:.5px solid var(--dsw-alias-border-l2);border-radius:6px;margin:3px 8px 5px;padding:6px 9px;font-size:12px}body[data-dsh-background-media] .jdsH1W_ignoreNote{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 48%, transparent);backdrop-filter:blur(12px)saturate(125%)}.jdsH1W_error{color:var(--dsw-alias-state-error-primary);margin:0;padding:3px 10px;font-size:12px}";
+		const css$1 = ".jdsH1W_root{height:50%;box-sizing:border-box;min-height:0;color:var(--dsw-alias-label-primary);font-size:var(--dsh-content-font-size-secondary,13px);border-bottom:.5px solid var(--dsw-alias-border-l2);box-shadow:inset 0 1px 0 var(--dsw-alias-border-l2);flex-direction:column;flex:none;line-height:1.5;display:flex;position:relative;overflow:hidden}.jdsH1W_content{min-height:0;padding:0 0 8px;overflow:auto}.jdsH1W_resizeHandle{z-index:4;cursor:row-resize;touch-action:none;height:10px;position:absolute;top:0;left:0;right:0}.jdsH1W_resizeHandle:after{content:\"\";background:0 0;height:1px;position:absolute;top:0;left:0;right:0;transition:background 120ms ease,height 120ms ease}.jdsH1W_resizeHandle:hover:after,.jdsH1W_resizeHandle[data-active=true]:after{background:var(--dsw-alias-label-tertiary);height:2px}.jdsH1W_reviewToolbar{z-index:2;flex:none;justify-content:space-between;align-items:center;gap:6px;min-height:32px;padding:8px 10px;background:color-mix(in srgb, var(--dsw-alias-bg-base) 86%, transparent);backdrop-filter:blur(18px)saturate(130%);box-shadow:inset 0 1px 0 var(--dsw-alias-border-l2),inset 0 -1px 0 var(--dsw-alias-border-l2);position:sticky;top:0;display:flex}body[data-dsh-background-media] .jdsH1W_reviewToolbar{background:color-mix(in srgb, var(--dsw-alias-bg-base) 70%, transparent)}.jdsH1W_reviewTitle{color:var(--dsw-alias-label-primary);font-size:14px}.jdsH1W_header{color:var(--dsw-alias-label-secondary);flex:none;align-items:center;gap:6px;padding:5px 10px;display:flex}.jdsH1W_sectionToggle{min-width:0;color:var(--dsw-alias-label-primary);font:inherit;text-align:start;background:color-mix(in srgb, var(--dsw-alias-bg-base) 68%, transparent);border:.5px solid var(--dsw-alias-border-l2);backdrop-filter:blur(18px)saturate(130%);cursor:pointer;border-radius:7px;flex:auto;align-items:center;gap:5px;padding:4px 8px;font-size:14px;display:flex}.jdsH1W_sectionToggle:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_sectionToggle .jdsH1W_count{color:var(--dsw-alias-label-secondary);font-size:13px}body[data-dsh-background-media] .jdsH1W_sectionToggle{background:color-mix(in srgb, var(--dsw-alias-bg-base) 46%, transparent)}.jdsH1W_sectionChevron{flex:none;transition:transform .12s;transform:rotate(-90deg)}.jdsH1W_sectionChevronExpanded{transform:rotate(0)}.jdsH1W_subsectionHeader{width:100%;font:inherit;text-align:start;background:transparent;border:0;border-radius:6px;cursor:pointer;color:var(--dsw-alias-label-secondary);align-items:center;gap:5px;padding:5px 18px 2px;display:flex}.jdsH1W_subsectionHeader:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_headerActions{align-items:center;gap:2px;margin-left:auto;display:inline-flex}.jdsH1W_operationStatus{max-width:180px;color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis;align-items:center;gap:6px;margin-right:4px;font-size:12px;display:inline-flex;overflow:hidden}.jdsH1W_operationSpinner{border:1.5px solid color-mix(in srgb, currentColor 28%, transparent);border-top-color:currentColor;border-radius:50%;width:12px;height:12px;animation:.72s linear infinite jdsH1W_git-operation-spin}@keyframes jdsH1W_git-operation-spin{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.jdsH1W_operationSpinner{animation-duration:1.8s}}.jdsH1W_actionButton{height:24px;color:var(--dsw-alias-label-secondary);font:inherit;background:color-mix(in srgb, var(--dsw-alias-bg-base) 68%, transparent);border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;border-radius:6px;align-items:center;gap:3px;padding:0 8px;display:inline-flex}.jdsH1W_actionButton:hover:not(:disabled){color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_actionButton:disabled{cursor:default;opacity:.5}.jdsH1W_rollbackButton{color:var(--dsw-alias-state-error-primary)}.jdsH1W_rollbackWarning{color:var(--dsw-alias-label-secondary);margin:0}.jdsH1W_actionIcon{stroke:currentColor;stroke-width:1.25px;stroke-linecap:round;stroke-linejoin:round;width:16px;height:16px;display:block}.jdsH1W_actionError{border:1px solid var(--dsw-alias-state-error-primary);color:var(--dsw-alias-state-error-primary);overflow-wrap:anywhere;white-space:pre-wrap;border-radius:8px;margin:0 10px 8px;padding:6px 10px;font-size:12px}body[data-dsh-background-media] .jdsH1W_actionDialog{background:color-mix(in srgb, var(--dsw-alias-bg-layer-2) 72%, transparent);backdrop-filter:blur(16px)saturate(125%)}.jdsH1W_lastMessage{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border:.5px solid var(--dsw-alias-border-l2);border-radius:8px;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;margin-top:10px;padding:7px 9px;font-size:12px;display:grid}body[data-dsh-background-media] .jdsH1W_lastMessage{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 60%, transparent);backdrop-filter:blur(16px)saturate(125%)}.jdsH1W_lastMessageLabel{white-space:nowrap}.jdsH1W_lastMessageText{min-width:0;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.jdsH1W_fillMessageButton{color:var(--dsw-alias-label-secondary);font:inherit;background:var(--dsw-alias-interactive-bg-hover);border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;border-radius:5px;padding:2px 7px}.jdsH1W_fillMessageButton:hover{color:var(--dsw-alias-label-primary)}.jdsH1W_name{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_count{color:var(--dsw-alias-label-tertiary);flex:none;font-size:12px}.jdsH1W_tool{width:24px;height:24px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.jdsH1W_tool:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_closeFloating{position:absolute;top:4px;right:10px}.jdsH1W_list{flex-direction:column;flex:none;display:flex}.jdsH1W_level{margin:0;padding:0;list-style:none}.jdsH1W_pendingCommit{padding:0 10px}.jdsH1W_pendingCommitButton{width:100%;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;grid-template-columns:auto minmax(0,1fr);align-items:baseline;gap:0 7px;padding:3px 8px;display:grid}.jdsH1W_pendingCommitButton:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_pendingHash{color:var(--dsw-alias-link);font-family:var(--ds-font-family-code);grid-row:1/span 2;font-size:12px}.jdsH1W_pendingSubject{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_pendingMeta{min-width:0;color:var(--dsw-alias-label-tertiary);white-space:nowrap;text-overflow:ellipsis;font-size:12px;overflow:hidden}.jdsH1W_item{align-items:center;margin:0;padding:0 4px;display:flex}.jdsH1W_fileCheckbox{width:14px;height:14px;accent-color:var(--dsw-alias-brand-primary);cursor:pointer;flex:none;margin:0 2px}.jdsH1W_fileRow{width:100%;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;align-items:baseline;gap:6px;padding:3px 6px;display:flex}.jdsH1W_fileRow:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_rowAction{width:24px;height:24px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.jdsH1W_rowAction:hover:not(:disabled){color:var(--dsw-alias-state-error-primary);background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_rowAction:disabled{cursor:default;opacity:.5}.jdsH1W_badge{color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);flex:none;font-size:12px}.jdsH1W_badgeModified{color:var(--dsw-alias-state-warn-primary)}.jdsH1W_badgeAdded{color:var(--dsw-alias-state-success-primary)}.jdsH1W_badgeDeleted{color:var(--dsw-alias-state-error-primary)}.jdsH1W_badgeRenamed{color:var(--dsw-alias-link)}.jdsH1W_badgeConflict{color:var(--dsw-alias-state-error-primary)}.jdsH1W_fileName{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_fileDir{min-width:0;color:var(--dsw-alias-label-tertiary);white-space:nowrap;text-overflow:ellipsis;flex:0 auto;font-size:12px;overflow:hidden}.jdsH1W_stashRow{align-items:center;gap:6px;padding:2px 6px;display:flex}.jdsH1W_stashCollection{background:color-mix(in srgb, var(--dsw-alias-bg-base) 52%, transparent);border:.5px solid var(--dsw-alias-border-l2);border-radius:7px;margin:0 4px 4px;overflow:hidden}.jdsH1W_stashToggle{min-width:0;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;flex:auto;align-items:center;gap:5px;padding:4px 2px;display:flex}.jdsH1W_stashChevron{flex:none;transition:transform .12s;transform:rotate(-90deg)}.jdsH1W_stashChevronExpanded{transform:rotate(0)}.jdsH1W_stashSubject{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_stashDate{color:var(--dsw-alias-label-tertiary);flex:none;margin-left:auto;font-size:12px}.jdsH1W_restoreButton{color:var(--dsw-alias-label-secondary);font:inherit;background:var(--dsw-alias-interactive-bg-hover);border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;border-radius:5px;flex:none;padding:2px 7px}.jdsH1W_stashActions{flex:none;gap:4px;display:inline-flex}.jdsH1W_deleteButton{color:var(--dsw-alias-state-error-primary)}.jdsH1W_restoreButton:disabled{cursor:default;opacity:.5}.jdsH1W_stashDetails{border-top:.5px solid var(--dsw-alias-border-l2);padding:2px 4px 5px 19px}.jdsH1W_stashFile{align-items:baseline;gap:6px;min-width:0;padding:2px 6px;display:flex}.jdsH1W_note{color:var(--dsw-alias-label-tertiary);margin:0;padding:3px 10px;font-size:12px}.jdsH1W_ignoreNote{color:var(--dsw-alias-label-secondary);background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 76%, transparent);border:.5px solid var(--dsw-alias-border-l2);border-radius:6px;margin:3px 8px 5px;padding:6px 9px;font-size:12px}body[data-dsh-background-media] .jdsH1W_ignoreNote{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 48%, transparent);backdrop-filter:blur(12px)saturate(125%)}.jdsH1W_error{color:var(--dsw-alias-state-error-primary);margin:0;padding:3px 10px;font-size:12px}";
 		const tagId$1 = "@deepseek-ai/dsh-client-ui-sidebar-git-history/GitChangesBody.module.css";
-		if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$1) + "]") === null) {
-			const tag = document.createElement("style");
-			tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
-			tag.dataset.pluginCss = tagId$1;
-			tag.textContent = css$1;
-			document.head.appendChild(tag);
-		}
+		if (typeof document !== "undefined") {
+			const sheet = css$1;
+			const existing = document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$1) + "]");
+			if (existing === null) {
+				const tag = document.createElement("style");
+				tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
+				tag.dataset.pluginCss = tagId$1;
+				tag.textContent = sheet;
+				document.head.appendChild(tag);
+			} else if (existing.textContent !== sheet) existing.textContent = sheet;
+			}
 		var GitChangesBody_module_css_default = {
 			"actionButton": "jdsH1W_actionButton",
 			"actionDialog": "jdsH1W_actionDialog",
@@ -2987,6 +3119,16 @@ window.__ModuleLoader__.load({
 		*/
 		const MIN_REGION_HEIGHT = 96;
 		/**
+		* The height a drag to `pointerY` asks for: the region hugs the bottom of the
+		* panel, so the pointer distance to that edge is the height, clamped so both
+		* regions keep their minimum.
+		*/
+		function regionHeightAt(panelRect, pointerY) {
+			return Math.max(MIN_REGION_HEIGHT, Math.min(panelRect.height - MIN_REGION_HEIGHT, panelRect.bottom - pointerY));
+		}
+		/** The height the reader last dragged the region to; a layout preference, not state. */
+		let rememberedHeight;
+		/**
 		* The badge a file row shows: the side that carries the change. An untracked
 		* file reads as `?`; otherwise the work-tree letter wins, then the index one.
 		* @param file - one settled status row.
@@ -3028,63 +3170,65 @@ window.__ModuleLoader__.load({
 			"?": GitChangesBody_module_css_default.badgeAdded
 		};
 		/** One file row: badge, name, and dimmed directory; pressing it opens the file. */
-		function FileRow({ file, selected, disabled, onSelect, onOpen, onRollback, t }) {
-			const badge = statusBadgeOf(file);
-			const { name, dir } = pathSegments(file.path);
-			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("li", {
-				className: GitChangesBody_module_css_default.item,
-				children: [
-					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
-						type: "checkbox",
-						className: GitChangesBody_module_css_default.fileCheckbox,
-						checked: selected,
-						"aria-label": t("changes.selectFile", { path: file.path }),
-						"data-git-file-select": file.path,
-						onChange: (event) => {
-							onSelect(event.target.checked);
-						}
-					}),
-					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
-						type: "button",
-						className: GitChangesBody_module_css_default.fileRow,
-						title: file.renamedFrom === void 0 ? file.path : `${file.renamedFrom} → ${file.path}`,
-						"data-git-file": file.path,
-						onClick: () => {
-							onOpen(file);
-						},
-						children: [
-							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
-								className: clsx(GitChangesBody_module_css_default.badge, BADGE_CLASS[badge]),
-								"data-git-status": badge,
-								children: badge
-							}),
-							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
-								className: GitChangesBody_module_css_default.fileName,
-								children: name
-							}),
-							dir !== "" && /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
-								className: GitChangesBody_module_css_default.fileDir,
-								children: dir
-							})
-						]
-					}),
-					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
-						type: "button",
-						className: GitChangesBody_module_css_default.rowAction,
-						disabled,
-						"aria-label": t("rollback.single", { path: file.path }),
-						title: t("rollback.single", { path: file.path }),
-						"data-git-rollback-file": file.path,
-						onClick: () => {
-							onRollback(file);
-						},
-						children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(RollbackIcon, {})
-					})
-				]
-			});
-		}
-		/** One file stored inside an expanded stash collection. */
-		function StashFileRow({ file }) {
+		function FileRow({
+  file,
+  selected,
+  disabled,
+  onSelect,
+  onOpen,
+  onRollback,
+  onTrack,
+  t
+}) {
+  const badge = statusBadgeOf(file);
+  const { name, dir } = pathSegments(file.path);
+  return /* @__PURE__ */ react.createElement("li", { className: GitChangesBody_module_css_default.item }, !file.untracked && /* @__PURE__ */ react.createElement(
+    "input",
+    {
+      type: "checkbox",
+      className: GitChangesBody_module_css_default.fileCheckbox,
+      checked: selected,
+      "aria-label": t("changes.selectFile", { path: file.path }),
+      "data-git-file-select": file.path,
+      onChange: (event) => {
+        onSelect(event.target.checked);
+      },
+      disabled
+    }
+  ), /* @__PURE__ */ react.createElement(
+    "button",
+    {
+      type: "button",
+      className: GitChangesBody_module_css_default.fileRow,
+      title: file.renamedFrom === void 0 ? file.path : `${file.renamedFrom} \u2192 ${file.path}`,
+      "data-git-file": file.path,
+      onClick: () => {
+        onOpen(file);
+      }
+    },
+    /* @__PURE__ */ react.createElement("span", { className: clsx(GitChangesBody_module_css_default.badge, BADGE_CLASS[badge]), "data-git-status": badge }, badge),
+    /* @__PURE__ */ react.createElement("span", { className: GitChangesBody_module_css_default.fileName }, name),
+    dir !== "" && /* @__PURE__ */ react.createElement("span", { className: GitChangesBody_module_css_default.fileDir }, dir)
+  ), file.untracked && /* @__PURE__ */ react.createElement("button", { type: "button", className: GitChangesBody_module_css_default.rowAction, disabled, "aria-label": t("changes.track"), title: t("changes.track"), "data-git-track-file": file.path, onClick: () => {
+    onTrack?.(file);
+  } }, /* @__PURE__ */ react.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", "aria-hidden": "true" }, /* @__PURE__ */ react.createElement("path", { d: "M8 3v10M3 8h10" }))), /* @__PURE__ */ react.createElement(
+    "button",
+    {
+      type: "button",
+      className: GitChangesBody_module_css_default.rowAction,
+      disabled,
+      "aria-label": t("rollback.single", { path: file.path }),
+      title: t("rollback.single", { path: file.path }),
+      "data-git-rollback-file": file.path,
+      onClick: () => {
+        onRollback(file);
+      }
+    },
+    /* @__PURE__ */ react.createElement(RollbackIcon, null)
+  ));
+}
+
+function StashFileRow({ file }) {
 			const { name, dir } = pathSegments(file.path);
 			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("li", {
 				className: GitChangesBody_module_css_default.stashFile,
@@ -3465,7 +3609,7 @@ window.__ModuleLoader__.load({
 			return t("actions.failedWithReason", { message: failure.message });
 		}
 		/** Mutation controls shown in the working-changes header. */
-		function GitActionControls({ workspaceId, paths, commit, commitAndPush, push, pull, stash, onRollback, operation, setOperation, error, setError, onDone, t }) {
+		function GitActionControls({ workspaceId, paths, generateCommitMessage, commit, commitAndPush, push, pull, stash, onRollback, operation, setOperation, error, setError, onDone, t }) {
 			const operationRef = (0, react.useRef)(void 0);
 			const [menuOpen, setMenuOpen] = (0, react.useState)(false);
 			const [mode, setMode] = (0, react.useState)(void 0);
@@ -3499,6 +3643,7 @@ window.__ModuleLoader__.load({
 					setOperation(void 0);
 					if (failure !== void 0) {
 						setError(actionFailureLine(t, failure));
+                    if (selectedMode === "commit-push") onDone("commit");
 						return;
 					}
 					const kind = selectedMode === "stash" ? "stash" : "commit";
@@ -3603,8 +3748,9 @@ window.__ModuleLoader__.load({
 					onClick: onRollback,
 					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(RollbackIcon, {}), t("rollback.batch")]
 				}),
-				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)(_deepseek_ai_dsh_client_ui_primitives.Modal, {
+				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)(CommitMessageDialog, {
 					open: mode !== void 0,
+          ai: mode !== void 0 && mode !== "stash" ? { workspaceId, paths, message, generate: generateCommitMessage, onMessage: setMessage, onError: setError } : void 0,
 					className: clsx(GitChangesBody_module_css_default.actionDialog),
 					onClose: () => {
 						setMode(void 0);
@@ -3664,7 +3810,7 @@ window.__ModuleLoader__.load({
 			] });
 		}
 		/** The code-review region and its independently collapsible Git sections. */
-		function GitChangesBody({ sessionId, useSessions, useWorkspaces, readChanges, commitChanges, commitAndPushChanges, pushChanges, pullChanges, stashChanges, rollbackChanges, readStashFiles, restoreStash, dropStash, readWorkingDiff, readCommitFiles, readCommitDiff, useDiffZoomModifier, t }) {
+		function GitChangesBody({ sessionId, useSessions, useWorkspaces, readChanges, commitChanges, commitAndPushChanges, pushChanges, pullChanges, stashChanges, rollbackChanges, readStashFiles, restoreStash, dropStash, readWorkingDiff, readCommitFiles, readCommitDiff, useDiffZoomModifier, t , generateCommitMessage , trackFiles }) {
 			const zoomModifier = useDiffZoomModifier((value) => value);
 			const visible = useGitChangesVisible(sessionId);
 			const rootRef = (0, react.useRef)(null);
@@ -3675,11 +3821,14 @@ window.__ModuleLoader__.load({
 				if (owned !== void 0) return owned.workspaceId;
 				return workspaces.items.find((workspace) => workspace.path === cwd)?.workspaceId;
 			});
+			const trackRequest = (0, react.useRef)(void 0);
+(0, react.useEffect)(() => { trackRequest.current?.abort(); trackRequest.current = undefined; setOperation(undefined); return () => { trackRequest.current?.abort(); }; }, [workspaceId]);
 			const [read, setRead] = (0, react.useState)(void 0);
 			const [selected, setSelected] = (0, react.useState)(/* @__PURE__ */ new Set());
 			const [revision, setRevision] = (0, react.useState)(0);
 			const [pendingExpanded, setPendingExpanded] = (0, react.useState)(true);
 			const [changesExpanded, setChangesExpanded] = (0, react.useState)(true);
+			const [untrackedExpanded, setUntrackedExpanded] = (0, react.useState)(false);
 			const [stashExpanded, setStashExpanded] = (0, react.useState)(true);
 			const [selectedCommit, setSelectedCommit] = (0, react.useState)(void 0);
 			const [selectedWorkingFile, setSelectedWorkingFile] = (0, react.useState)(void 0);
@@ -3693,7 +3842,7 @@ window.__ModuleLoader__.load({
 				readChanges(workspaceId, controller.signal).then((next) => {
 					if (!alive || controller.signal.aborted) return;
 					setRead(next);
-					setSelected(new Set(next.files.filter((file) => !isGitIgnorePath(file.path)).map((file) => file.path)));
+					setSelected(new Set(next.files.filter((file) => !file.untracked && !isGitIgnorePath(file.path)).map((file) => file.path)));
 				});
 				return () => {
 					alive = false;
@@ -3717,14 +3866,19 @@ window.__ModuleLoader__.load({
 				if (panel === null) return;
 				event.preventDefault();
 				stopResizeRef.current?.();
+				const handle = event.currentTarget;
 				let nextY = event.clientY;
+				let height = root.getBoundingClientRect().height;
 				let frame;
 				const previousUserSelect = document.body.style.userSelect;
+				const previousCursor = document.body.style.cursor;
 				document.body.style.userSelect = "none";
+				document.body.style.cursor = "row-resize";
+				handle.dataset.active = "true";
 				const applyHeight = () => {
 					frame = void 0;
-					const panelRect = panel.getBoundingClientRect();
-					const next = Math.max(MIN_REGION_HEIGHT, Math.min(panelRect.height - MIN_REGION_HEIGHT, nextY - panelRect.top));
+					const next = regionHeightAt(panel.getBoundingClientRect(), nextY);
+					height = next;
 					root.style.height = `${next}px`;
 				};
 				const move = (moveEvent) => {
@@ -3734,14 +3888,21 @@ window.__ModuleLoader__.load({
 				const stop = () => {
 					if (frame !== void 0) cancelAnimationFrame(frame);
 					applyHeight();
+					rememberedHeight = height;
 					window.removeEventListener("mousemove", move);
 					window.removeEventListener("mouseup", stop);
 					document.body.style.userSelect = previousUserSelect;
+					document.body.style.cursor = previousCursor;
+					delete handle.dataset.active;
 					stopResizeRef.current = void 0;
 				};
 				stopResizeRef.current = stop;
 				window.addEventListener("mousemove", move);
 				window.addEventListener("mouseup", stop);
+			};
+			const resetHeight = () => {
+				rememberedHeight = void 0;
+				if (rootRef.current !== null) rootRef.current.style.height = "";
 			};
 			const close = () => {
 				setGitChangesVisible(sessionId, false);
@@ -3774,7 +3935,8 @@ window.__ModuleLoader__.load({
 						"aria-label": t("changes.resize"),
 						"aria-orientation": "horizontal",
 						"data-git-changes-resize": true,
-						onMouseDown: beginResize
+						onMouseDown: beginResize,
+						onDoubleClick: resetHeight
 					})
 				]
 			});
@@ -3792,9 +3954,27 @@ window.__ModuleLoader__.load({
 			const open = (file) => {
 				setSelectedWorkingFile(file);
 			};
-			const allSelected = files.length > 0 && files.every((file) => selected.has(file.path));
-			const operationPaths = files.flatMap((file) => selected.has(file.path) ? [file.path, ...file.renamedFrom === void 0 ? [] : [file.renamedFrom]] : []);
-			const selectedFiles = files.filter((file) => selected.has(file.path));
+			const trackFile = (file) => {
+  if (operation !== void 0 || trackRequest.current) return;
+  const controller = new AbortController();
+  trackRequest.current = controller;
+  setOperation({ kind: "track" });
+  setActionError(void 0);
+  void trackFiles(workspaceId, controller.signal, [file.path]).then(() => {
+    if (!controller.signal.aborted) setRevision((value) => value + 1);
+  }).catch((error) => {
+    if (!controller.signal.aborted) setActionError(error instanceof Error ? error.message : String(error));
+  }).finally(() => {
+    if (trackRequest.current === controller) {
+      trackRequest.current = void 0;
+      if (!controller.signal.aborted) setOperation(void 0);
+    }
+  });
+};
+
+const allSelected = tracked.length > 0 && tracked.every((file) => selected.has(file.path));
+			const operationPaths = tracked.flatMap((file) => selected.has(file.path) ? [file.path, ...file.renamedFrom === void 0 ? [] : [file.renamedFrom]] : []);
+			const selectedFiles = tracked.filter((file) => selected.has(file.path));
 			const setFileSelected = (path, checked) => {
 				setSelected((current) => {
 					const next = new Set(current);
@@ -3807,6 +3987,7 @@ window.__ModuleLoader__.load({
 				ref: rootRef,
 				className: GitChangesBody_module_css_default.root,
 				"data-git-changes": workspaceId,
+				style: rememberedHeight === void 0 ? void 0 : { height: `${rememberedHeight}px` },
 				children: [
 					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
 						className: GitChangesBody_module_css_default.content,
@@ -3816,7 +3997,8 @@ window.__ModuleLoader__.load({
 								operations: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(GitActionControls, {
 									workspaceId,
 									paths: operationPaths,
-									commit: commitChanges,
+									generateCommitMessage,
+								commit: commitChanges,
 									commitAndPush: commitAndPushChanges,
 									push: pushChanges,
 									pull: pullChanges,
@@ -3829,6 +4011,7 @@ window.__ModuleLoader__.load({
 									error: actionError,
 									setError: setActionError,
 									onDone: (completed) => {
+                  if (completed === "commit" || completed === "commit-push" || completed === "push" || completed === "pull") notifyGitHistoryRefresh(sessionId);
 										if (completed === "push") {
 											setRead((current) => current === void 0 ? current : {
 												...current,
@@ -3838,7 +4021,6 @@ window.__ModuleLoader__.load({
 											});
 											return;
 										}
-										if (completed === "pull") notifyGitHistoryRefresh(sessionId);
 										setRevision((current) => current + 1);
 									},
 									t
@@ -3902,19 +4084,19 @@ window.__ModuleLoader__.load({
 							/* @__PURE__ */ (0, react_jsx_runtime.jsx)(SectionHeader, {
 								section: "changes",
 								title: t("changes.sectionTitle"),
-								count: read === void 0 ? 0 : tracked.length + untracked.length,
+								count: read === void 0 ? 0 : tracked.length,
 								expanded: changesExpanded,
 								onToggle: () => {
 									setChangesExpanded((value) => !value);
 								},
-								selection: files.length > 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+								selection: tracked.length > 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
 									type: "checkbox",
 									className: GitChangesBody_module_css_default.fileCheckbox,
 									checked: allSelected,
 									"aria-label": t("changes.selectAll"),
 									"data-git-select-all": true,
 									onChange: (event) => {
-										setSelected(event.target.checked ? new Set(files.map((file) => file.path)) : /* @__PURE__ */ new Set());
+										setSelected(event.target.checked ? new Set(tracked.map((file) => file.path)) : /* @__PURE__ */ new Set());
 									}
 								}) : void 0
 							}),
@@ -3951,7 +4133,7 @@ window.__ModuleLoader__.load({
 										className: GitChangesBody_module_css_default.level,
 										children: tracked.map((file) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)(FileRow, {
 											file,
-											selected: selected.has(file.path),
+											selected: selected.has(file.path), onTrack: trackFile,
 											disabled: operation !== void 0,
 											onSelect: (checked) => {
 												setFileSelected(file.path, checked);
@@ -3963,18 +4145,13 @@ window.__ModuleLoader__.load({
 											t
 										}, file.path))
 									}),
-									repository && untracked.length > 0 && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(react_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
-										className: GitChangesBody_module_css_default.subsectionHeader,
-										"data-git-changes-header": "untracked",
-										children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: t("changes.untrackedTitle") }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
-											className: GitChangesBody_module_css_default.count,
-											children: untracked.length
-										})]
-									}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("ul", {
+									repository && untracked.length > 0 && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(react_jsx_runtime.Fragment, { children: [/* @__PURE__ */ react.createElement("button", { type: "button", className: GitChangesBody_module_css_default.subsectionHeader, "data-git-changes-header": "untracked", "aria-expanded": untrackedExpanded, onClick: () => {
+  setUntrackedExpanded((value) => !value);
+} }, /* @__PURE__ */ react.createElement(_deepseek_ai_dsh_client_ui_primitives.IconChevronDownOutline14, { className: clsx(GitChangesBody_module_css_default.sectionChevron, untrackedExpanded && GitChangesBody_module_css_default.sectionChevronExpanded) }), /* @__PURE__ */ react.createElement("span", null, t("changes.untrackedTitle")), /* @__PURE__ */ react.createElement("span", { className: GitChangesBody_module_css_default.count }, untracked.length)), untrackedExpanded && /* @__PURE__ */ (0, react_jsx_runtime.jsx)("ul", {
 										className: GitChangesBody_module_css_default.level,
 										children: untracked.map((file) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)(FileRow, {
 											file,
-											selected: selected.has(file.path),
+											selected: selected.has(file.path), onTrack: trackFile,
 											disabled: operation !== void 0,
 											onSelect: (checked) => {
 												setFileSelected(file.path, checked);
@@ -4072,7 +4249,8 @@ window.__ModuleLoader__.load({
 						"aria-label": t("changes.resize"),
 						"aria-orientation": "horizontal",
 						"data-git-changes-resize": true,
-						onMouseDown: beginResize
+						onMouseDown: beginResize,
+						onDoubleClick: resetHeight
 					})
 				]
 			});
@@ -4081,13 +4259,17 @@ window.__ModuleLoader__.load({
 		//#region dsh-css:source/git-review/client/GitReviewPage.module.css.mjs
 		const css = ".VpfCBq_page{height:100%;min-height:0;color:var(--dsw-alias-label-primary);flex-direction:column;flex:auto;display:flex;overflow:hidden}";
 		const tagId = "@deepseek-ai/dsh-client-ui-sidebar-git-history/GitReviewPage.module.css";
-		if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId) + "]") === null) {
-			const tag = document.createElement("style");
-			tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
-			tag.dataset.pluginCss = tagId;
-			tag.textContent = css;
-			document.head.appendChild(tag);
-		}
+		if (typeof document !== "undefined") {
+			const sheet = css;
+			const existing = document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId) + "]");
+			if (existing === null) {
+				const tag = document.createElement("style");
+				tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
+				tag.dataset.pluginCss = tagId;
+				tag.textContent = sheet;
+				document.head.appendChild(tag);
+			} else if (existing.textContent !== sheet) existing.textContent = sheet;
+			}
 		var GitReviewPage_module_css_default = { "page": "VpfCBq_page" };
 		//#endregion
 		//#region src/client/GitReviewPage.tsx
@@ -4119,6 +4301,15 @@ window.__ModuleLoader__.load({
 			more: "加载更多",
 			"search.placeholder": "搜索提交说明…",
 			"search.submit": "搜索",
+			"search.author.all": "全部作者",
+			"search.author.label": "按提交作者筛选",
+			"search.date.toggle": "日期",
+			"search.date.since": "起始日期（含当天）",
+			"search.date.until": "结束日期（含当天）",
+			"search.date.clear": "清除日期",
+			"search.date.range": "提交日期：{since} 至 {until}",
+			"search.date.sinceRange": "提交日期：{since} 之后",
+			"search.date.untilRange": "提交日期：{until} 之前",
 			"detail.title": "提交详情",
 			"detail.close": "关闭提交详情",
 			"detail.files": "提交文件",
@@ -4133,8 +4324,8 @@ window.__ModuleLoader__.load({
 			"detail.resize": "调整文件目录宽度",
 			"detail.binary": "这是二进制或不支持的文件，无法以代码形式对比。",
 			"detail.sync": "同步滚动",
-			"detail.sync.enable": "开启左右同步滚动",
-			"detail.sync.disable": "关闭左右同步滚动",
+			"detail.sync.enable": "开启横向和竖向同步滚动",
+			"detail.sync.disable": "关闭横向和竖向同步滚动",
 			"detail.fullscreen.enter": "全屏显示提交详情",
 			"detail.fullscreen.exit": "退出提交详情全屏",
 			"detail.search.placeholder": "搜索代码…",
@@ -4143,7 +4334,7 @@ window.__ModuleLoader__.load({
 			"detail.search.next": "查找下一处",
 			"detail.search.clear": "清空搜索",
 			"settings.diffZoom.title": "代码对比缩放",
-			"settings.diffZoom.description": "按住选择的按键并在代码对比区滚动；默认为 Alt，避免与浏览器 Ctrl + 滚轮缩放冲突。",
+			"settings.diffZoom.description": "在代码对比区按 Ctrl + 滚轮缩放代码；也支持下方选择的附加按键，默认为 Alt。",
 			"settings.diffZoom.alt": "Alt + 滚轮",
 			"settings.diffZoom.control": "Ctrl + 滚轮",
 			"settings.diffZoom.shift": "Shift + 滚轮",
@@ -4183,7 +4374,8 @@ window.__ModuleLoader__.load({
 			"operations.stash": "正在搁置…",
 			"operations.stash-restore": "正在恢复搁置…",
 			"operations.stash-delete": "正在删除搁置…",
-			"operations.rollback": "正在回滚…",
+			"operations.track": "正在加入版本管理…", "changes.track": "加入版本管理",
+"operations.rollback": "正在回滚…",
 			"changes.untrackedTitle": "未进行版本管理的文件",
 			"changes.empty": "没有未提交的更改。",
 			"changes.selectAll": "选择全部更改",
@@ -4193,7 +4385,7 @@ window.__ModuleLoader__.load({
 			"rollback.single": "回滚 {path}",
 			"rollback.titleSingle": "回滚文件",
 			"rollback.titleBatch": "批量回滚",
-			"rollback.warning": "将放弃所选的 {count} 项工作区更改，恢复后无法撤销。",
+			"rollback.warning": "将回滚所选的 {count} 项：已有文件恢复到上次提交；尚未提交的新文件仅取消版本管理并保留内容。已有文件的修改将丢失。",
 			"rollback.untrackedWarning": "所选内容包含未跟踪文件；这些文件将被永久删除。",
 			"rollback.confirm": "确认回滚",
 			"stash.title": "搁置",
@@ -4222,6 +4414,15 @@ window.__ModuleLoader__.load({
 			more: "Load more",
 			"search.placeholder": "Search commit messages…",
 			"search.submit": "Search",
+			"search.author.all": "All authors",
+			"search.author.label": "Filter by commit author",
+			"search.date.toggle": "Date",
+			"search.date.since": "Start date (inclusive)",
+			"search.date.until": "End date (inclusive)",
+			"search.date.clear": "Clear dates",
+			"search.date.range": "Commit date: {since} to {until}",
+			"search.date.sinceRange": "Commit date: from {since}",
+			"search.date.untilRange": "Commit date: up to {until}",
 			"detail.title": "Commit details",
 			"detail.close": "Close commit details",
 			"detail.files": "Commit files",
@@ -4236,8 +4437,8 @@ window.__ModuleLoader__.load({
 			"detail.resize": "Resize the file tree",
 			"detail.binary": "This binary or unsupported file cannot be compared as code.",
 			"detail.sync": "Sync scrolling",
-			"detail.sync.enable": "Enable synchronized scrolling",
-			"detail.sync.disable": "Disable synchronized scrolling",
+			"detail.sync.enable": "Enable horizontal and vertical synchronized scrolling",
+			"detail.sync.disable": "Disable horizontal and vertical synchronized scrolling",
 			"detail.fullscreen.enter": "Show commit details fullscreen",
 			"detail.fullscreen.exit": "Exit commit details fullscreen",
 			"detail.search.placeholder": "Search code…",
@@ -4246,7 +4447,7 @@ window.__ModuleLoader__.load({
 			"detail.search.next": "Find next match",
 			"detail.search.clear": "Clear search",
 			"settings.diffZoom.title": "Code comparison zoom",
-			"settings.diffZoom.description": "Hold the selected key while scrolling over a comparison. Alt is the default to avoid the browser Ctrl+wheel gesture.",
+			"settings.diffZoom.description": "Use Ctrl+wheel to zoom comparison text. The selected key is also supported; Alt is the default additional modifier.",
 			"settings.diffZoom.alt": "Alt + wheel",
 			"settings.diffZoom.control": "Ctrl + wheel",
 			"settings.diffZoom.shift": "Shift + wheel",
@@ -4286,7 +4487,8 @@ window.__ModuleLoader__.load({
 			"operations.stash": "Stashing…",
 			"operations.stash-restore": "Restoring stash…",
 			"operations.stash-delete": "Deleting stash…",
-			"operations.rollback": "Rolling back…",
+			"operations.track": "Adding to version control…", "changes.track": "Add to version control",
+"operations.rollback": "Rolling back…",
 			"changes.untrackedTitle": "Untracked Files",
 			"changes.empty": "No uncommitted changes.",
 			"changes.selectAll": "Select all changes",
@@ -4296,7 +4498,7 @@ window.__ModuleLoader__.load({
 			"rollback.single": "Rollback {path}",
 			"rollback.titleSingle": "Rollback file",
 			"rollback.titleBatch": "Rollback selected files",
-			"rollback.warning": "Discard {count} selected workspace change(s). This cannot be undone.",
+			"rollback.warning": "Roll back {count} selected change(s): restore existing files to the last commit; return new, uncommitted files to untracked status while preserving their contents. Edits to existing files will be lost.",
 			"rollback.untrackedWarning": "The selection contains untracked files. Those files will be permanently deleted.",
 			"rollback.confirm": "Rollback",
 			"stash.title": "Shelves",
@@ -4345,10 +4547,14 @@ window.__ModuleLoader__.load({
 				draft.commits = append ? [...draft.commits, ...page.commits] : [...page.commits];
 				draft.skip = append ? draft.skip + page.commits.length : page.commits.length;
 				draft.more = page.more;
+				// Only a first page carries the author list; a later page keeps what the
+				// window already offers so the dropdown does not empty while paging.
+				if (page.authors !== void 0) draft.authors = [...page.authors];
 			} else {
 				draft.commits = [];
 				draft.skip = 0;
 				draft.more = false;
+				draft.authors = [];
 			}
 		}
 		/**
@@ -4372,6 +4578,10 @@ window.__ModuleLoader__.load({
 							repository: true,
 							commits: [],
 							search: "",
+							author: "",
+							since: "",
+							until: "",
+							authors: [],
 							skip: 0,
 							more: false,
 							status: "loading",
@@ -4380,14 +4590,17 @@ window.__ModuleLoader__.load({
 						};
 					},
 					/**
-					* Mark a first-page read (open, reload, or a new search) as in flight.
+					* Mark a first-page read (open, reload, or a new filter) as in flight.
 					* @param d - draft state.
 					* @param tabId - the tab being drawn.
-					* @param search - the subject filter the read carries.
+					* @param filter - the subject, author, and date filters the read carries.
 					*/
-					loading: (d, tabId, search) => {
+					loading: (d, tabId, filter) => {
 						const state = bucket(d, tabId);
-						state.search = search;
+						state.search = filter.search;
+						state.author = filter.author;
+						state.since = filter.since;
+						state.until = filter.until;
 						state.status = "loading";
 						state.failure = void 0;
 					},
@@ -4473,6 +4686,15 @@ window.__ModuleLoader__.load({
 			const zoomPreference = new DiffZoomPreferenceController(ctx.settingsScope.bind({ namespace: GIT_HISTORY_SETTINGS_NAMESPACE }));
 			const zoomHooks = { diffZoomModifier: zoomPreference.diffZoomModifier };
 			const changesFace = {
+trackFiles: async (workspaceId, signal, paths) => {
+      const result = await ctx.remote.gitWorkspace.trackFiles({ workspaceId, paths }, signal)
+      if (!result.ok) throw new Error(result.error.message)
+    },
+generateCommitMessage: async (workspaceId, signal, paths) => {
+      const result = await ctx.remote.gitWorkspace.generateCommitMessage({ workspaceId, paths }, signal)
+      if (!result.ok) throw new Error(result.error.message)
+      return result.value.message
+    },
 				readChanges: createReadChanges(ctx.remote),
 				commitChanges: async (workspaceId, signal, paths, message) => {
 					const result = await ctx.remote.gitWorkspace.commit({
