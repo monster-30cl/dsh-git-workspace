@@ -26079,7 +26079,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
 var typert_remote_client_default = TYPERT_REMOTE;
 
 // packages/panel/src/client/index.js
-var inject = ["slots", "remote", "sidebarRightTabs", "sidebarRight"];
+var inject = ["slots", "remote", "sidebarRightTabs", "sidebarRight", "uiSession", "layout", "shortcuts", "locale"];
 var BRANCHES_ID = "@local/dsh-git-branch-panel/branches";
 var BRANCHES_KIND = "gitBranches";
 var h = import_react.default.createElement;
@@ -26336,6 +26336,66 @@ function BranchesPage({ sessionId, useWorkspaces, git }) {
   );
 }
 function apply(ctx) {
+  const shortcutText = ctx.locale.bind("gitWorkspace.shortcuts");
+  ctx.effect(() => ctx.locale.register("gitWorkspace.shortcuts", { zh: { "review": "\u6253\u5F00 Git \u4EE3\u7801\u5BA1\u67E5", "branches": "\u6253\u5F00 Git \u5206\u652F\u5217\u8868", "noSession": "\u8BF7\u5148\u9009\u62E9\u4E00\u4E2A\u5BF9\u8BDD" }, en: { "review": "Open Git review", "branches": "Open Git branches", "noSession": "Select a conversation first" } }), "gitWorkspace.shortcuts: dictionaries");
+  ctx.effect(() => ctx.shortcuts.register({
+    id: "git.workspace.review.open",
+    label: () => shortcutText("review"),
+    aliases: ["Git", "\u4EE3\u7801\u5BA1\u67E5", "git review"],
+    defaults: {},
+    regions: ["page", "editable", "terminal"],
+    modals: [],
+    resolve: () => {
+      const sessionId = ctx.uiSession.adapter.current.getSnapshot().key;
+      if (sessionId === void 0) return { status: "blocked", reason: shortcutText("noSession") };
+      return { status: "handled", run: () => {
+        ctx.layout.selectPanel(null);
+        let attempts = 0;
+        const open2 = () => {
+          if (ctx.uiSession.adapter.current.getSnapshot().key !== sessionId) return;
+          if (ctx.sidebarRight.mounted.getSnapshot() === sessionId) {
+            try {
+              ctx.sidebarRight.openTab("gitHistory");
+              return;
+            } catch (error62) {
+              if (!(error62 instanceof Error) || !error62.message.includes("no session surface is mounted")) throw error62;
+            }
+          }
+          if (++attempts < 120) requestAnimationFrame(open2);
+        };
+        requestAnimationFrame(open2);
+      } };
+    }
+  }), "git.workspace.review.open: shortcut");
+  ctx.effect(() => ctx.shortcuts.register({
+    id: "git.workspace.branches.open",
+    label: () => shortcutText("branches"),
+    aliases: ["Git", "\u5206\u652F\u5217\u8868", "git branches"],
+    defaults: {},
+    regions: ["page", "editable", "terminal"],
+    modals: [],
+    resolve: () => {
+      const sessionId = ctx.uiSession.adapter.current.getSnapshot().key;
+      if (sessionId === void 0) return { status: "blocked", reason: shortcutText("noSession") };
+      return { status: "handled", run: () => {
+        ctx.layout.selectPanel(null);
+        let attempts = 0;
+        const open2 = () => {
+          if (ctx.uiSession.adapter.current.getSnapshot().key !== sessionId) return;
+          if (ctx.sidebarRight.mounted.getSnapshot() === sessionId) {
+            try {
+              ctx.sidebarRight.openTab("gitBranches");
+              return;
+            } catch (error62) {
+              if (!(error62 instanceof Error) || !error62.message.includes("no session surface is mounted")) throw error62;
+            }
+          }
+          if (++attempts < 120) requestAnimationFrame(open2);
+        };
+        requestAnimationFrame(open2);
+      } };
+    }
+  }), "git.workspace.branches.open: shortcut");
   ctx.inject(GitReview.inject, (reviewCtx) => {
     reviewCtx.plugin(GitReview);
   });

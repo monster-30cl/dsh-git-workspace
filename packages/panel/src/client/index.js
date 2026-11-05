@@ -16,7 +16,7 @@ import {
 } from '@deepseek-ai/dsh-client-ui-primitives'
 import GIT_REMOTE from '../../../controller/lib/typert.remote-client.js'
 
-export const inject = ['slots', 'remote', 'sidebarRightTabs', 'sidebarRight']
+export const inject = ['slots', 'remote', 'sidebarRightTabs', 'sidebarRight', 'uiSession', 'layout', 'shortcuts', 'locale']
 
 /** This implementation's identity in the tab system: the key its body registers under. */
 const BRANCHES_ID = '@local/dsh-git-branch-panel/branches'
@@ -323,6 +323,53 @@ function BranchesPage({ sessionId, useWorkspaces, git }) {
  * @param ctx - the client plugin context.
  */
 export function apply(ctx) {
+  const shortcutText = ctx.locale.bind('gitWorkspace.shortcuts')
+  ctx.effect(() => ctx.locale.register('gitWorkspace.shortcuts', { zh: {"review":"打开 Git 代码审查","branches":"打开 Git 分支列表","noSession":"请先选择一个对话"}, en: {"review":"Open Git review","branches":"Open Git branches","noSession":"Select a conversation first"} }), 'gitWorkspace.shortcuts: dictionaries')
+  ctx.effect(() => ctx.shortcuts.register({
+    id: 'git.workspace.review.open', label: () => shortcutText('review'),
+    aliases: ["Git","代码审查","git review"], defaults: {},
+    regions: ['page', 'editable', 'terminal'], modals: [],
+    resolve: () => {
+      const sessionId = ctx.uiSession.adapter.current.getSnapshot().key
+      if (sessionId === undefined) return { status: 'blocked', reason: shortcutText('noSession') }
+      return { status: 'handled', run: () => {
+        ctx.layout.selectPanel(null)
+        let attempts = 0
+        const open = () => {
+          if (ctx.uiSession.adapter.current.getSnapshot().key !== sessionId) return
+          if (ctx.sidebarRight.mounted.getSnapshot() === sessionId) {
+            try { ctx.sidebarRight.openTab('gitHistory'); return }
+            catch (error) { if (!(error instanceof Error) || !error.message.includes('no session surface is mounted')) throw error }
+          }
+          if (++attempts < 120) requestAnimationFrame(open)
+        }
+        requestAnimationFrame(open)
+      } }
+    },
+  }), 'git.workspace.review.open: shortcut')
+  ctx.effect(() => ctx.shortcuts.register({
+    id: 'git.workspace.branches.open', label: () => shortcutText('branches'),
+    aliases: ["Git","分支列表","git branches"], defaults: {},
+    regions: ['page', 'editable', 'terminal'], modals: [],
+    resolve: () => {
+      const sessionId = ctx.uiSession.adapter.current.getSnapshot().key
+      if (sessionId === undefined) return { status: 'blocked', reason: shortcutText('noSession') }
+      return { status: 'handled', run: () => {
+        ctx.layout.selectPanel(null)
+        let attempts = 0
+        const open = () => {
+          if (ctx.uiSession.adapter.current.getSnapshot().key !== sessionId) return
+          if (ctx.sidebarRight.mounted.getSnapshot() === sessionId) {
+            try { ctx.sidebarRight.openTab('gitBranches'); return }
+            catch (error) { if (!(error instanceof Error) || !error.message.includes('no session surface is mounted')) throw error }
+          }
+          if (++attempts < 120) requestAnimationFrame(open)
+        }
+        requestAnimationFrame(open)
+      } }
+    },
+  }), 'git.workspace.branches.open: shortcut')
+
   ctx.inject(GitReview.inject, (reviewCtx) => { reviewCtx.plugin(GitReview) })
   ctx.effect(() => {
     let closed = false

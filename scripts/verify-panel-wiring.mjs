@@ -131,7 +131,10 @@ const reviewCtx = {
   },
 }
 
+const shortcutCommands = []
 const ctx = {
+  locale: { bind: () => key => key, register: () => () => {} },
+  shortcuts: { register: command => { shortcutCommands.push(command); return () => {} } },
   inject: (services, callback) => {
     injectedServices.push(...services)
     callback({ plugin: (plugin) => { plugin.apply(reviewCtx) } })
@@ -149,6 +152,8 @@ const ctx = {
 }
 
 exports.apply(ctx)
+if (!exports.inject.includes('shortcuts') || !exports.inject.includes('locale')) throw new Error('shortcut dependencies missing')
+if (shortcutCommands.map(command => command.id).sort().join(',') !== 'git.workspace.branches.open,git.workspace.review.open') throw new Error('Git page shortcuts missing')
 
 const report = {
   inject: exports.inject,
