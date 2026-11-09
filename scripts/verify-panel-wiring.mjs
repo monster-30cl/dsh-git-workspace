@@ -196,6 +196,12 @@ if (reviewSlots.some(({ entry }) => entry.name === 'sidebar.right.panel.changes'
 }
 if (reviewTabs.some((tab) => tab.kind === 'gitChanges')) throw new Error('separate changes tab type is still registered')
 
+// Guide cards resolve effective user bindings through their commandId.
+const reviewGuide = reviewTabs[0].guide[0]
+assert.equal(reviewGuide.commandId, 'git.workspace.review.open')
+assert(shortcutCommands.some(command => command.id === reviewGuide.commandId), 'review guide must reference a registered shortcut command')
+assert.equal(reviewGuide.order, 25, 'review guide must retain its position after Terminal')
+
 const chipInjected = chip.entry.inject()
 const pageInjected = page.entry.inject()
 if (typeof chipInjected.git.list !== 'function') throw new Error('chip has no git operations')

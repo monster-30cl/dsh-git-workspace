@@ -1282,7 +1282,8 @@ return module.exports.HistoryDatePicker; })(require);
 				priority: "builtin",
 				title: () => t("type.label"),
 				guide: [{
-					order: 25,
+					commandId: "git.workspace.review.open",
+                    order: 25,
 					title: () => t("guide.title"),
 					description: () => t("guide.description"),
 					icon: GitReviewIcon
