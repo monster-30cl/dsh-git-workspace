@@ -252,7 +252,9 @@ export class GitWorkspaceController extends TypertRemoteService {
       workspace, ['show', '--format=', '--name-status', '-z', commit], signal, 'commit-files',
     )
     if (result.exitCode !== 0 || result.truncated) this.failed(workspace, 'commit-files', result)
-    return { repository: true, files: parseCommitFiles(result.stdout) }
+    const message = await this.git(workspace, ['show', '-s', '--format=%B', commit], signal, 'commit-files')
+    if (message.exitCode !== 0 || message.truncated) this.failed(workspace, 'commit-files', message)
+    return { repository: true, files: parseCommitFiles(result.stdout), message: message.stdout.trimEnd() }
   }
 
   /** Read one file's complete before/after contents and patch from one commit returned by {@link log}. */

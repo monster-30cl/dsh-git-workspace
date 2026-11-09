@@ -227,7 +227,9 @@ var GitWorkspaceController = class extends (_a = TypertRemoteService, _list_dec 
       "commit-files"
     );
     if (result.exitCode !== 0 || result.truncated) this.failed(workspace, "commit-files", result);
-    return { repository: true, files: parseCommitFiles(result.stdout) };
+    const message = await this.git(workspace, ["show", "-s", "--format=%B", commit], signal, "commit-files");
+    if (message.exitCode !== 0 || message.truncated) this.failed(workspace, "commit-files", message);
+    return { repository: true, files: parseCommitFiles(result.stdout), message: message.stdout.trimEnd() };
   }
   async commitDiff(request, signal) {
     const workspace = this.workspace(request.workspaceId);

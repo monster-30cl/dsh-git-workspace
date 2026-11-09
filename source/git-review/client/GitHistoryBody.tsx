@@ -815,6 +815,7 @@ export function CommitDetailModal({
   const layoutRef = useRef<HTMLDivElement>(null)
   const stopResizeRef = useRef<(() => void) | undefined>(undefined)
   const [files, setFiles] = useState<readonly GitWorkspaceCommitFile[] | undefined>(undefined)
+  const [commitMessage, setCommitMessage] = useState<{ hash: string; value: string } | undefined>(undefined)
   const [selectedPath, setSelectedPath] = useState<string | undefined>(undefined)
   const [comparison, setComparison] = useState<GitWorkspaceCommitDiffState | undefined>(undefined)
   const [synchronized, setSynchronized] = useState(true)
@@ -834,7 +835,7 @@ export function CommitDetailModal({
     setFailure(undefined)
     void readCommitFiles(workspaceId, commit.hash.trim(), controller.signal).then((result) => {
       if (controller.signal.aborted) return
-      if (result.ok) setFiles(result.value.files)
+      if (result.ok) { setFiles(result.value.files); setCommitMessage({ hash: commit.hash, value: result.value.message ?? commit.subject }) }
       else setFailure(failureLine(t, result.error))
     })
     return () => { controller.abort() }
@@ -900,6 +901,8 @@ export function CommitDetailModal({
       open={commit !== undefined}
       className={clsx(css.detailDialog, fullscreen && css.detailDialogFullscreen)}
       title={commit?.subject ?? t('detail.title')}
+      fullText={commitMessage?.hash === commit?.hash ? commitMessage?.value : undefined}
+      copyDisabled={files === undefined}
       closeLabel={t('detail.close')}
       onClose={close}
     >

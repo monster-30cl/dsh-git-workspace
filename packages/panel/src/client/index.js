@@ -187,6 +187,66 @@ function BranchChip({ sessionId, useWorkspaces, git, openPanel }) {
 }
 
 /**
+ * The workspace picker: the same themed menu the Session-header branch chip
+ * uses, so the pane's controls read as one family instead of mixing a native
+ * `<select>` with DSH buttons.
+ * @param props - every registered workspace, the chosen one, and the picker.
+ * @returns the menu trigger and its workspace list.
+ */
+function WorkspacePicker({ workspaces, selected, disabled, onPick }) {
+  const [open, setOpen] = React.useState(false)
+  const labelOf = (workspace) => workspace.title || workspace.path || workspace.workspaceId
+  const current = workspaces.find((workspace) => workspace.workspaceId === selected)
+  const currentLabel = current === undefined ? '选择工作区' : labelOf(current)
+  if (workspaces.length === 0) {
+    return h(Button, {
+      size: 'sm',
+      variant: 'outline',
+      disabled: true,
+      style: { flex: 1, minWidth: 0, justifyContent: 'flex-start' },
+    }, '没有工作区')
+  }
+  const items = [{ type: 'label', id: 'workspace-label', text: '工作区' }]
+  for (const workspace of workspaces) {
+    items.push({ id: `workspace:${workspace.workspaceId}`, label: labelOf(workspace) })
+  }
+  return h(Menu, {
+    open,
+    onClose: () => setOpen(false),
+    onSelect: (id) => {
+      setOpen(false)
+      if (id.startsWith('workspace:')) onPick(id.slice('workspace:'.length))
+    },
+    items,
+    selectedId: selected === undefined ? undefined : `workspace:${selected}`,
+    align: 'start',
+    side: 'bottom',
+    portal: true,
+    dense: true,
+    anchor: h(
+      Button,
+      {
+        size: 'sm',
+        variant: 'outline',
+        'aria-haspopup': 'menu',
+        'aria-expanded': open,
+        'aria-label': '选择工作区',
+        title: currentLabel,
+        disabled,
+        style: { flex: 1, minWidth: 0, justifyContent: 'space-between', gap: 6 },
+        onClick: () => setOpen((value) => !value),
+      },
+      h(
+        'span',
+        { style: { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } },
+        currentLabel,
+      ),
+      h(IconChevronDownOutlineRegular, { size: 14 }),
+    ),
+  })
+}
+
+/**
  * The right-Sidebar `gitBranches` page: workspace choice, both branch lists, and
  * one creation field. Renders in the pane's own column, never over the chat.
  * @param props - framework props plus the injected Git operations.
@@ -272,21 +332,12 @@ function BranchesPage({ sessionId, useWorkspaces, git }) {
     h(
       'div',
       { style: { display: 'flex', gap: 8, alignItems: 'center' } },
-      h(
-        'select',
-        {
-          value: selected ?? '',
-          disabled: busy || syncing,
-          onChange: (event) => setWorkspaceId(event.target.value),
-          style: fieldStyle,
-        },
-        workspaces.length === 0 && h('option', { key: 'none', value: '' }, '没有工作区'),
-        workspaces.map((workspace) => h(
-          'option',
-          { key: workspace.workspaceId, value: workspace.workspaceId },
-          workspace.title || workspace.path || workspace.workspaceId,
-        )),
-      ),
+      h(WorkspacePicker, {
+        workspaces,
+        selected,
+        disabled: busy || syncing,
+        onPick: (id) => setWorkspaceId(id),
+      }),
       h(Button, { size: 'sm', variant: 'outline', disabled: busy || selected === undefined, onClick: () => void refresh() }, '刷新'),
       h(Button, { size: 'sm', variant: 'outline', disabled: busy || syncing || selected === undefined, title: '同步远端分支并清理已删除的远端记录，不合并代码', 'aria-busy': syncing, 'data-git-fetch-branches': true, onClick: () => void syncRemote() }, syncing ? '同步中…' : '同步远端'),
     ),

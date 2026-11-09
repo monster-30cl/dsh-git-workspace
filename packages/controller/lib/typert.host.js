@@ -66,6 +66,7 @@ const _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_par
 }))
 let _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_result$schema$value
 const _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_result$schema = () => (_deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_result$schema$value ??= z.object({
+  'message': z.string().readonly().optional(),
   'repository': z.literal(true).readonly(),
   'files': z.array(z.object({
   'status': z.string().readonly(),
@@ -567,7 +568,7 @@ const $remote = createTypertRemoteInfo({
         typeSymbol: '@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitFilesState',
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_result$schema,
         description: 'Changed files and change kinds for the selected commit.',
-        jsonSchema: {"type":"object","properties":{"repository":{"type":"boolean","const":true},"files":{"type":"array","items":{"type":"object","properties":{"status":{"type":"string"},"path":{"type":"string"},"renamedFrom":{"type":"string"}},"required":["status","path"],"additionalProperties":true}}},"required":["repository","files"],"additionalProperties":true},
+        jsonSchema: {"type":"object","properties":{"message":{"type":"string"},"repository":{"type":"boolean","const":true},"files":{"type":"array","items":{"type":"object","properties":{"status":{"type":"string"},"path":{"type":"string"},"renamedFrom":{"type":"string"}},"required":["status","path"],"additionalProperties":true}}},"required":["repository","files"],"additionalProperties":true},
       },
       sourceLocation: {"file":"packages/api/git-workspace-controller/src/index.ts","line":237,"column":9},
     },

@@ -104,11 +104,34 @@ __export(ComparisonDialog_exports, {
 module.exports = __toCommonJS(ComparisonDialog_exports);
 var import_react = __toESM(require("react"), 1);
 var import_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-primitives");
-function ComparisonDialog({ open, fullscreen, className, title, closeLabel, onClose, children }) {
+function ComparisonDialog({ open, fullscreen, className, title, fullText, copyDisabled, closeLabel, onClose, children }) {
+  const [copyState, setCopyState] = (0, import_react.useState)("");
+  const timer = (0, import_react.useRef)(void 0);
+  (0, import_react.useEffect)(() => {
+    setCopyState("");
+    return () => {
+      clearTimeout(timer.current);
+    };
+  }, [title, fullText, open]);
+  const completeText = fullText ?? title;
+  const copyText = async () => {
+    try {
+      await navigator.clipboard.writeText(completeText);
+      setCopyState("\u5DF2\u590D\u5236\u5B8C\u6574\u5907\u6CE8");
+    } catch {
+      setCopyState("\u590D\u5236\u5931\u8D25\uFF0C\u8BF7\u70B9\u51FB\u6807\u9898\u540E\u624B\u52A8\u590D\u5236");
+    }
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      setCopyState("");
+    }, 2e3);
+  };
   const [meta, ...content] = import_react.default.Children.toArray(children);
   const metaChildren = import_react.default.Children.toArray(meta?.props.children);
   const tools = metaChildren.pop();
-  return /* @__PURE__ */ import_react.default.createElement(import_dsh_client_ui_primitives.Modal, { open, headless: true, title, onClose, className: `${className} dsh-comparison-shell${fullscreen ? " dsh-comparison-expanded" : ""}` }, /* @__PURE__ */ import_react.default.createElement("style", null, `.dsh-comparison-shell{position:relative;gap:0;max-height:100%;max-width:100%;padding-bottom:0;display:flex;flex-direction:column;overflow:hidden}.dsh-comparison-shell.dsh-comparison-expanded{position:relative;inset:auto;width:100%;height:100%;max-width:100%;max-height:100%;border-radius:10px}.dsh-comparison-heading{display:flex;flex:none;align-items:center;gap:8px;padding:14px 8px 12px 24px;min-height:56px;box-sizing:border-box}.dsh-comparison-heading h2{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0;color:var(--dsw-alias-label-primary);font-size:16px;line-height:24px;font-weight:500}.dsh-comparison-close{display:inline-flex;flex:none;align-items:center;justify-content:center;width:28px;height:28px;padding:0;border:0;border-radius:6px;color:var(--dsw-alias-label-secondary);background:transparent;cursor:pointer}.dsh-comparison-close:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}.dsh-comparison-close:focus-visible{outline:2px solid var(--dsw-alias-link);outline-offset:1px}.dsh-comparison-meta{flex:none;padding:0 24px 10px;color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);font-size:12px}.dsh-comparison-content{display:flex;flex:1;min-height:0;overflow:hidden;padding:0 12px 12px 24px}.dsh-comparison-content>div{flex:1;min-width:0;min-height:0;height:auto;margin-top:0}`), /* @__PURE__ */ import_react.default.createElement("div", { className: "dsh-comparison-heading" }, /* @__PURE__ */ import_react.default.createElement("h2", { title }, title), tools, /* @__PURE__ */ import_react.default.createElement(import_dsh_client_ui_primitives.Tooltip, { label: closeLabel, side: "bottom", portal: true }, /* @__PURE__ */ import_react.default.createElement("button", { type: "button", className: "dsh-comparison-close", "aria-label": closeLabel, onClick: onClose }, /* @__PURE__ */ import_react.default.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", "aria-hidden": "true" }, /* @__PURE__ */ import_react.default.createElement("path", { d: "m3 3 10 10M13 3 3 13" }))))), !fullscreen && /* @__PURE__ */ import_react.default.createElement("div", { className: "dsh-comparison-meta" }, metaChildren), /* @__PURE__ */ import_react.default.createElement("div", { className: "dsh-comparison-content" }, content));
+  return /* @__PURE__ */ import_react.default.createElement(import_dsh_client_ui_primitives.Modal, { open, headless: true, title, onClose, className: `${className} dsh-comparison-shell${fullscreen ? " dsh-comparison-expanded" : ""}` }, /* @__PURE__ */ import_react.default.createElement("style", null, `.dsh-comparison-shell{position:relative;gap:0;max-height:100%;max-width:100%;padding-bottom:0;display:flex;flex-direction:column;overflow:hidden}.dsh-comparison-shell.dsh-comparison-expanded{position:relative;inset:auto;width:100%;height:100%;max-width:100%;max-height:100%;border-radius:10px}.dsh-comparison-heading{display:flex;flex:none;align-items:center;gap:8px;padding:14px 8px 12px 24px;min-height:56px;box-sizing:border-box}.dsh-comparison-heading h2{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0;color:var(--dsw-alias-label-primary);font-size:16px;line-height:24px;font-weight:500}.dsh-comparison-title{cursor:help}.dsh-comparison-title:focus-visible{outline:2px solid var(--dsw-alias-link);outline-offset:3px;border-radius:4px}.dsh-comparison-close{display:inline-flex;flex:none;align-items:center;justify-content:center;width:28px;height:28px;padding:0;border:0;border-radius:6px;color:var(--dsw-alias-label-secondary);background:transparent;cursor:pointer}.dsh-comparison-close:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}.dsh-comparison-close:focus-visible{outline:2px solid var(--dsw-alias-link);outline-offset:1px}.dsh-comparison-meta{flex:none;padding:0 24px 10px;color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);font-size:12px}.dsh-comparison-content{display:flex;flex:1;min-height:0;overflow:hidden;padding:0 12px 12px 24px}.dsh-comparison-content>div{flex:1;min-width:0;min-height:0;height:auto;margin-top:0}`), /* @__PURE__ */ import_react.default.createElement("div", { className: "dsh-comparison-heading" }, /* @__PURE__ */ import_react.default.createElement(import_dsh_client_ui_primitives.Tooltip, { label: completeText, side: "bottom", portal: true, delayMs: 250, focusDelayMs: 150, openOnClick: true }, /* @__PURE__ */ import_react.default.createElement("h2", { className: "dsh-comparison-title", tabIndex: 0 }, title)), /* @__PURE__ */ import_react.default.createElement(import_dsh_client_ui_primitives.Tooltip, { label: copyState || "\u590D\u5236\u5B8C\u6574\u5907\u6CE8", side: "bottom", portal: true }, /* @__PURE__ */ import_react.default.createElement("button", { type: "button", className: "dsh-comparison-close", disabled: copyDisabled, "aria-label": copyState || "\u590D\u5236\u5B8C\u6574\u5907\u6CE8", "data-git-copy-message": true, onClick: () => {
+    void copyText();
+  } }, /* @__PURE__ */ import_react.default.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", "aria-hidden": "true" }, /* @__PURE__ */ import_react.default.createElement("rect", { x: "5.5", y: "5.5", width: "8", height: "8", rx: "1.5" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "M10.5 5.5v-2A1 1 0 0 0 9.5 2.5h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2" })))), /* @__PURE__ */ import_react.default.createElement("span", { role: "status", style: { position: "absolute", width: 1, height: 1, overflow: "hidden", clipPath: "inset(50%)" } }, copyState), tools, /* @__PURE__ */ import_react.default.createElement(import_dsh_client_ui_primitives.Tooltip, { label: closeLabel, side: "bottom", portal: true }, /* @__PURE__ */ import_react.default.createElement("button", { type: "button", className: "dsh-comparison-close", "aria-label": closeLabel, onClick: onClose }, /* @__PURE__ */ import_react.default.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", "aria-hidden": "true" }, /* @__PURE__ */ import_react.default.createElement("path", { d: "m3 3 10 10M13 3 3 13" }))))), !fullscreen && /* @__PURE__ */ import_react.default.createElement("div", { className: "dsh-comparison-meta" }, metaChildren), /* @__PURE__ */ import_react.default.createElement("div", { className: "dsh-comparison-content" }, content));
 }
 
 return module.exports.ComparisonDialog; })(require);
@@ -2776,6 +2799,7 @@ return module.exports.HistoryDatePicker; })(require);
 			const layoutRef = (0, react.useRef)(null);
 			const stopResizeRef = (0, react.useRef)(void 0);
 			const [files, setFiles] = (0, react.useState)(void 0);
+            const [commitMessage, setCommitMessage] = (0, react.useState)(void 0);
 			const [selectedPath, setSelectedPath] = (0, react.useState)(void 0);
 			const [comparison, setComparison] = (0, react.useState)(void 0);
 			const [synchronized, setSynchronized] = (0, react.useState)(true);
@@ -2795,7 +2819,7 @@ return module.exports.HistoryDatePicker; })(require);
 				setFailure(void 0);
 				readCommitFiles(workspaceId, commit.hash.trim(), controller.signal).then((result) => {
 					if (controller.signal.aborted) return;
-					if (result.ok) setFiles(result.value.files);
+					if (result.ok) { setFiles(result.value.files); setCommitMessage({ hash: commit.hash, value: result.value.message ?? commit.subject }); }
 					else setFailure(failureLine(t, result.error));
 				});
 				return () => {
@@ -2866,6 +2890,7 @@ return module.exports.HistoryDatePicker; })(require);
 				open: commit !== void 0,
 				className: clsx(GitHistoryBody_module_css_default.detailDialog, fullscreen && GitHistoryBody_module_css_default.detailDialogFullscreen),
 				title: commit?.subject ?? t("detail.title"),
+                fullText: commitMessage?.hash === commit?.hash ? commitMessage?.value : void 0, copyDisabled: files === void 0,
 				closeLabel: t("detail.close"),
 				onClose: close,
 				children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
@@ -25091,6 +25116,7 @@ var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_param
 });
 var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_result$schema$value;
 var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_result$schema = () => _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_result$schema$value ??= external_exports.object({
+  "message": external_exports.string().readonly().optional(),
   "repository": external_exports.literal(true).readonly(),
   "files": external_exports.array(external_exports.object({
     "status": external_exports.string().readonly(),
@@ -25594,7 +25620,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
         typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitFilesState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_result$schema,
         description: "Changed files and change kinds for the selected commit.",
-        jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "files": { "type": "array", "items": { "type": "object", "properties": { "status": { "type": "string" }, "path": { "type": "string" }, "renamedFrom": { "type": "string" } }, "required": ["status", "path"], "additionalProperties": true } } }, "required": ["repository", "files"], "additionalProperties": true }
+        jsonSchema: { "type": "object", "properties": { "message": { "type": "string" }, "repository": { "type": "boolean", "const": true }, "files": { "type": "array", "items": { "type": "object", "properties": { "status": { "type": "string" }, "path": { "type": "string" }, "renamedFrom": { "type": "string" } }, "required": ["status", "path"], "additionalProperties": true } } }, "required": ["repository", "files"], "additionalProperties": true }
       },
       sourceLocation: { "file": "packages/api/git-workspace-controller/src/index.ts", "line": 237, "column": 9 }
     },
@@ -26263,6 +26289,58 @@ function BranchChip({ sessionId, useWorkspaces, git, openPanel }) {
     )
   });
 }
+function WorkspacePicker({ workspaces, selected, disabled, onPick }) {
+  const [open2, setOpen] = import_react.default.useState(false);
+  const labelOf = (workspace) => workspace.title || workspace.path || workspace.workspaceId;
+  const current = workspaces.find((workspace) => workspace.workspaceId === selected);
+  const currentLabel = current === void 0 ? "\u9009\u62E9\u5DE5\u4F5C\u533A" : labelOf(current);
+  if (workspaces.length === 0) {
+    return h(import_dsh_client_ui_primitives.Button, {
+      size: "sm",
+      variant: "outline",
+      disabled: true,
+      style: { flex: 1, minWidth: 0, justifyContent: "flex-start" }
+    }, "\u6CA1\u6709\u5DE5\u4F5C\u533A");
+  }
+  const items = [{ type: "label", id: "workspace-label", text: "\u5DE5\u4F5C\u533A" }];
+  for (const workspace of workspaces) {
+    items.push({ id: `workspace:${workspace.workspaceId}`, label: labelOf(workspace) });
+  }
+  return h(import_dsh_client_ui_primitives.Menu, {
+    open: open2,
+    onClose: () => setOpen(false),
+    onSelect: (id) => {
+      setOpen(false);
+      if (id.startsWith("workspace:")) onPick(id.slice("workspace:".length));
+    },
+    items,
+    selectedId: selected === void 0 ? void 0 : `workspace:${selected}`,
+    align: "start",
+    side: "bottom",
+    portal: true,
+    dense: true,
+    anchor: h(
+      import_dsh_client_ui_primitives.Button,
+      {
+        size: "sm",
+        variant: "outline",
+        "aria-haspopup": "menu",
+        "aria-expanded": open2,
+        "aria-label": "\u9009\u62E9\u5DE5\u4F5C\u533A",
+        title: currentLabel,
+        disabled,
+        style: { flex: 1, minWidth: 0, justifyContent: "space-between", gap: 6 },
+        onClick: () => setOpen((value) => !value)
+      },
+      h(
+        "span",
+        { style: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } },
+        currentLabel
+      ),
+      h(import_dsh_client_ui_primitives.IconChevronDownOutlineRegular, { size: 14 })
+    )
+  });
+}
 function BranchesPage({ sessionId, useWorkspaces, git }) {
   const workspaces = useWorkspaces((state) => state.items) || [];
   const [workspaceId, setWorkspaceId] = import_react.default.useState(void 0);
@@ -26341,21 +26419,12 @@ function BranchesPage({ sessionId, useWorkspaces, git }) {
     h(
       "div",
       { style: { display: "flex", gap: 8, alignItems: "center" } },
-      h(
-        "select",
-        {
-          value: selected ?? "",
-          disabled: busy || syncing,
-          onChange: (event) => setWorkspaceId(event.target.value),
-          style: fieldStyle
-        },
-        workspaces.length === 0 && h("option", { key: "none", value: "" }, "\u6CA1\u6709\u5DE5\u4F5C\u533A"),
-        workspaces.map((workspace) => h(
-          "option",
-          { key: workspace.workspaceId, value: workspace.workspaceId },
-          workspace.title || workspace.path || workspace.workspaceId
-        ))
-      ),
+      h(WorkspacePicker, {
+        workspaces,
+        selected,
+        disabled: busy || syncing,
+        onPick: (id) => setWorkspaceId(id)
+      }),
       h(import_dsh_client_ui_primitives.Button, { size: "sm", variant: "outline", disabled: busy || selected === void 0, onClick: () => void refresh() }, "\u5237\u65B0"),
       h(import_dsh_client_ui_primitives.Button, { size: "sm", variant: "outline", disabled: busy || syncing || selected === void 0, title: "\u540C\u6B65\u8FDC\u7AEF\u5206\u652F\u5E76\u6E05\u7406\u5DF2\u5220\u9664\u7684\u8FDC\u7AEF\u8BB0\u5F55\uFF0C\u4E0D\u5408\u5E76\u4EE3\u7801", "aria-busy": syncing, "data-git-fetch-branches": true, onClick: () => void syncRemote() }, syncing ? "\u540C\u6B65\u4E2D\u2026" : "\u540C\u6B65\u8FDC\u7AEF")
     ),

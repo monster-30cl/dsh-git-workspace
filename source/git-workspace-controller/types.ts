@@ -103,6 +103,7 @@ export interface GitWorkspaceCommitFile {
 
 /** Files changed by one selected commit. */
 export interface GitWorkspaceCommitFilesState {
+  readonly message?: string
   readonly repository: true
   readonly files: readonly GitWorkspaceCommitFile[]
 }

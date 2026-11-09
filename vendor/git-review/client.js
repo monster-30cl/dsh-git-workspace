@@ -2453,6 +2453,7 @@ window.__ModuleLoader__.load({
 			const layoutRef = (0, react.useRef)(null);
 			const stopResizeRef = (0, react.useRef)(void 0);
 			const [files, setFiles] = (0, react.useState)(void 0);
+            const [commitMessage, setCommitMessage] = (0, react.useState)(void 0);
 			const [selectedPath, setSelectedPath] = (0, react.useState)(void 0);
 			const [comparison, setComparison] = (0, react.useState)(void 0);
 			const [synchronized, setSynchronized] = (0, react.useState)(true);
@@ -2472,7 +2473,7 @@ window.__ModuleLoader__.load({
 				setFailure(void 0);
 				readCommitFiles(workspaceId, commit.hash.trim(), controller.signal).then((result) => {
 					if (controller.signal.aborted) return;
-					if (result.ok) setFiles(result.value.files);
+					if (result.ok) { setFiles(result.value.files); setCommitMessage({ hash: commit.hash, value: result.value.message ?? commit.subject }); }
 					else setFailure(failureLine(t, result.error));
 				});
 				return () => {
@@ -2543,6 +2544,7 @@ window.__ModuleLoader__.load({
 				open: commit !== void 0,
 				className: clsx(GitHistoryBody_module_css_default.detailDialog, fullscreen && GitHistoryBody_module_css_default.detailDialogFullscreen),
 				title: commit?.subject ?? t("detail.title"),
+                fullText: commitMessage?.hash === commit?.hash ? commitMessage?.value : void 0, copyDisabled: files === void 0,
 				closeLabel: t("detail.close"),
 				onClose: close,
 				children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
