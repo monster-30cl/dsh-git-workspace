@@ -384,13 +384,21 @@ var GitWorkspaceController = class extends (_a = TypertRemoteService, _list_dec 
     const workspace = this.workspace(request.workspaceId);
     const inside = await this.git(workspace, ["rev-parse", "--is-inside-work-tree"], signal, "status");
     if (inside.exitCode !== 0 || inside.stdout.trim() !== "true") return { repository: false };
-    const result = await this.git(
+    const read = (untrackedFiles) => this.git(
       workspace,
-      ["status", "--porcelain=v1", "-z", "--untracked-files=all"],
+      ["status", "--porcelain=v1", "-z", `--untracked-files=${untrackedFiles}`],
       signal,
       "status"
     );
-    if (result.exitCode !== 0 || result.truncated) this.failed(workspace, "status", result);
+    const result = await readWorktreeStatus(read);
+    if (result.exitCode !== 0) this.failed(workspace, "status", result);
+    if (result.truncated) {
+      throw new RemoteError(
+        "git/operation-failed",
+        "The working tree lists more changes than one read can retain, even with untracked directories collapsed. Ignore generated output (for example node_modules or build directories) to shrink it.",
+        { workspaceId: workspace.id, operation: "status" }
+      );
+    }
     return { repository: true, files: parseStatusRecords(result.stdout) };
   }
   async stash(request, signal) {
@@ -716,6 +724,11 @@ function parseCommitRow(row) {
   const [hash = "", shortHash = "", authorName = "", authorEmail = "", date = "", ...subject] = cleanRow.split("");
   return { hash, shortHash, authorName, authorEmail, date, subject: subject.join("") };
 }
+async function readWorktreeStatus(read) {
+  const complete = await read("all");
+  if (complete.exitCode === 0 && complete.truncated) return read("normal");
+  return complete;
+}
 function parseStatusRecords(stdout) {
   const records = stdout.split("\0").filter((record) => record !== "");
   const files = [];
@@ -790,5 +803,6 @@ export {
   parseCommitFiles,
   parseStashFiles,
   parseStashRows,
-  parseStatusRecords
+  parseStatusRecords,
+  readWorktreeStatus
 };

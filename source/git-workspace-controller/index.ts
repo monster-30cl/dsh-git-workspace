@@ -401,13 +401,21 @@ export class GitWorkspaceController extends TypertRemoteService {
     const workspace = this.workspace(request.workspaceId)
     const inside = await this.git(workspace, ['rev-parse', '--is-inside-work-tree'], signal, 'status')
     if (inside.exitCode !== 0 || inside.stdout.trim() !== 'true') return { repository: false }
-    const result = await this.git(
+    const read = (untrackedFiles: 'all' | 'normal'): Promise<GitResult> => this.git(
       workspace,
-      ['status', '--porcelain=v1', '-z', '--untracked-files=all'],
+      ['status', '--porcelain=v1', '-z', `--untracked-files=${untrackedFiles}`],
       signal,
       'status',
     )
-    if (result.exitCode !== 0 || result.truncated) this.failed(workspace, 'status', result)
+    const result = await readWorktreeStatus(read)
+    if (result.exitCode !== 0) this.failed(workspace, 'status', result)
+    if (result.truncated) {
+      throw new RemoteError(
+        'git/operation-failed',
+        'The working tree lists more changes than one read can retain, even with untracked directories collapsed. Ignore generated output (for example node_modules or build directories) to shrink it.',
+        { workspaceId: workspace.id, operation: 'status' },
+      )
+    }
     return { repository: true, files: parseStatusRecords(result.stdout) }
   }
 
@@ -768,6 +776,22 @@ function parseCommitRow(row: string): GitWorkspaceCommit {
   const cleanRow = row.replace(/^[\r\n]+/u, '')
   const [hash = '', shortHash = '', authorName = '', authorEmail = '', date = '', ...subject] = cleanRow.split('\x1f')
   return { hash, shortHash, authorName, authorEmail, date, subject: subject.join('\x1f') }
+}
+
+/**
+ * Read one worktree's status, giving up per-file untracked rows when the full
+ * listing does not fit the retained-output limit: a worktree with thousands of
+ * untracked files then still opens, with its untracked directories collapsed
+ * into one record each.
+ * @param read - runs one status read for the requested untracked mode.
+ * @returns the first result that fits, else the last clipped or failed result.
+ */
+export async function readWorktreeStatus(
+  read: (untrackedFiles: 'all' | 'normal') => Promise<GitResult>,
+): Promise<GitResult> {
+  const complete = await read('all')
+  if (complete.exitCode === 0 && complete.truncated) return read('normal')
+  return complete
 }
 
 /**
