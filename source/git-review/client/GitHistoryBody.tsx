@@ -22,7 +22,7 @@ import {
 import { workspaceTitleOf } from '@deepseek-ai/dsh-util-workspace-path'
 import type {
   GitWorkspaceCommit, GitWorkspaceCommitDiffState, GitWorkspaceCommitFile, GitWorkspaceStatusFile,
-} from '@deepseek-ai/dsh-api-git-workspace-controller/types'
+} from '@monster-30cl/dsh-git-workspace-controller/types'
 import type { WorkspaceId } from '@deepseek-ai/dsh-workspace/types'
 import type { GitHistoryInjected } from './face.ts'
 import { matchesDiffZoomModifier, type DiffZoomModifier } from '../diff-zoom-settings.ts'
@@ -30,8 +30,11 @@ import type { DiffZoomPreferenceInjected } from './diff-zoom-preference.ts'
 import type { ReadGitWorkingDiff } from './changes.ts'
 import { setGitChangesVisible, subscribeGitHistoryRefresh, useGitChangesVisible } from './changes-visibility.ts'
 import type {} from './locales.ts'
-import type { GitTabState, createGitHistoryStore } from './store.ts'
+import type { GitHistoryFilter, GitTabState, createGitHistoryStore } from './store.ts'
 import css from './GitHistoryBody.module.css'
+import { ComparisonDialog } from './ComparisonDialog'
+import { HistoryDatePicker } from './HistoryDatePicker'
+import { AuthorFilter } from './AuthorFilter'
 
 /** The body's composed props: the tab it draws, its store, its face, and its copy. */
 export type GitHistoryBodyProps =
@@ -98,7 +101,9 @@ function HistoryList({ state, onOpen, t }: {
   if (state.commits.length === 0) {
     return (
       <p className={css.note} data-git-row="empty">
-        {state.search === '' ? t('empty') : t('emptySearch')}
+        {state.search === '' && state.author === '' && state.since === '' && state.until === ''
+          ? t('empty')
+          : t('emptySearch')}
       </p>
     )
   }
@@ -483,6 +488,7 @@ const FullDiff = memo(function FullDiff({ comparison, path, synchronized, zoomMo
     const zoom = (event: WheelEvent): void => {
       if (!matchesDiffZoomModifier(event, zoomModifier) || event.deltaY === 0) return
       event.preventDefault()
+      event.stopPropagation()
       setFontSize((value) => {
         const next = Math.max(DIFF_FONT_MIN, Math.min(DIFF_FONT_MAX, value + (event.deltaY < 0 ? 1 : -1)))
         if (next === value) return value
@@ -530,6 +536,7 @@ const FullDiff = memo(function FullDiff({ comparison, path, synchronized, zoomMo
     if (other === null) return
     synchronizing.current = true
     other.scrollTop = event.currentTarget.scrollTop
+    other.scrollLeft = event.currentTarget.scrollLeft
     window.requestAnimationFrame(() => { synchronizing.current = false })
   }
   if (rows.length === 0) return <p className={css.diffHint} data-git-diff-empty>{t('detail.noTextChanges')}</p>
@@ -808,6 +815,7 @@ export function CommitDetailModal({
   const layoutRef = useRef<HTMLDivElement>(null)
   const stopResizeRef = useRef<(() => void) | undefined>(undefined)
   const [files, setFiles] = useState<readonly GitWorkspaceCommitFile[] | undefined>(undefined)
+  const [commitMessage, setCommitMessage] = useState<{ hash: string; value: string } | undefined>(undefined)
   const [selectedPath, setSelectedPath] = useState<string | undefined>(undefined)
   const [comparison, setComparison] = useState<GitWorkspaceCommitDiffState | undefined>(undefined)
   const [synchronized, setSynchronized] = useState(true)
@@ -827,7 +835,7 @@ export function CommitDetailModal({
     setFailure(undefined)
     void readCommitFiles(workspaceId, commit.hash.trim(), controller.signal).then((result) => {
       if (controller.signal.aborted) return
-      if (result.ok) setFiles(result.value.files)
+      if (result.ok) { setFiles(result.value.files); setCommitMessage({ hash: commit.hash, value: result.value.message ?? commit.subject }) }
       else setFailure(failureLine(t, result.error))
     })
     return () => { controller.abort() }
@@ -888,10 +896,13 @@ export function CommitDetailModal({
     window.addEventListener('mouseup', stop)
   }
   return (
-    <Modal
+    <ComparisonDialog
+      fullscreen={fullscreen}
       open={commit !== undefined}
       className={clsx(css.detailDialog, fullscreen && css.detailDialogFullscreen)}
       title={commit?.subject ?? t('detail.title')}
+      fullText={commitMessage?.hash === commit?.hash ? commitMessage?.value : undefined}
+      copyDisabled={files === undefined}
       closeLabel={t('detail.close')}
       onClose={close}
     >
@@ -951,7 +962,7 @@ export function CommitDetailModal({
           {failure !== undefined && <p className={css.error} role="alert">{failure}</p>}
         </section>
       </div>
-    </Modal>
+    </ComparisonDialog>
   )
 }
 
@@ -990,7 +1001,8 @@ export function WorkingTreeDiffModal({ file, workspaceId, readWorkingDiff, zoomM
     onClose()
   }
   return (
-    <Modal
+    <ComparisonDialog
+      fullscreen={fullscreen}
       open={file !== undefined}
       className={clsx(css.detailDialog, fullscreen && css.detailDialogFullscreen)}
       title={file?.path ?? t('detail.title')}
@@ -1018,7 +1030,7 @@ export function WorkingTreeDiffModal({ file, workspaceId, readWorkingDiff, zoomM
           {failure !== undefined && <p className={css.error} role="alert">{failure}</p>}
         </section>
       </div>
-    </Modal>
+    </ComparisonDialog>
   )
 }
 
@@ -1039,6 +1051,7 @@ export function GitHistoryBody({
   const state = useStore(store => store.byTab[tab.id])
   const [query, setQuery] = useState('')
   const [selectedCommit, setSelectedCommit] = useState<GitWorkspaceCommit | undefined>(undefined)
+  const [dateOpen, setDateOpen] = useState(false)
   const changesVisible = useGitChangesVisible(sessionId)
   useEffect(() => {
     // A bucket gone because the record aborted must not be re-seeded by a
@@ -1047,12 +1060,20 @@ export function GitHistoryBody({
     start(tab.id, workspaceId, signal)
   }, [state, workspaceId, tab.id, signal, start])
   const historySearch = state?.search
+  const historyAuthor = state?.author
+  const historySince = state?.since
+  const historyUntil = state?.until
   useEffect(() => {
-    if (workspaceId === undefined || historySearch === undefined) return
+    if (workspaceId === undefined || historySearch === undefined || historyAuthor === undefined
+      || historySince === undefined || historyUntil === undefined) return
     return subscribeGitHistoryRefresh(sessionId, () => {
-      if (!signal.aborted) reload(tab.id, workspaceId, historySearch, signal)
+      if (!signal.aborted) {
+        reload(tab.id, workspaceId, {
+          search: historySearch, author: historyAuthor, since: historySince, until: historyUntil,
+        }, signal)
+      }
     })
-  }, [historySearch, reload, sessionId, signal, tab.id, workspaceId])
+  }, [historyAuthor, historySearch, historySince, historyUntil, reload, sessionId, signal, tab.id, workspaceId])
 
   if (workspaceId === undefined) {
     return (
@@ -1063,10 +1084,42 @@ export function GitHistoryBody({
   }
   if (state === undefined) return null
 
+  /** The filter one read carries: the window's applied bounds, plus what the reader just typed. */
+  const filterOf = (overrides: Partial<GitHistoryFilter> = {}): GitHistoryFilter => ({
+    search: query.trim(),
+    author: state.author,
+    since: state.since,
+    until: state.until,
+    ...overrides,
+  })
   const submit = (event: FormEvent): void => {
     event.preventDefault()
-    reload(tab.id, workspaceId, query.trim(), signal)
+    reload(tab.id, workspaceId, filterOf({ search: query.trim() }), signal)
   }
+  /** Apply one author choice at once: a dropdown choice is the filter itself. */
+  const chooseAuthor = (author: string): void => {
+    if (author === state.author) return
+    reload(tab.id, workspaceId, filterOf({ author }), signal)
+  }
+  /** Apply one date bound at once; a cleared field simply drops that bound. */
+  const chooseDate = (bound: 'since' | 'until', value: string): void => {
+    if (state[bound] === value) return
+    const next = filterOf()
+    reload(tab.id, workspaceId, bound === 'since' ? { ...next, since: value } : { ...next, until: value }, signal)
+  }
+  const clearDates = (): void => {
+    setDateOpen(true)
+    if (state.since === '' && state.until === '') return
+    reload(tab.id, workspaceId, filterOf({ since: '', until: '' }), signal)
+  }
+  const dateFiltered = state.since !== '' || state.until !== ''
+  const dateTitle = state.since !== '' && state.until !== ''
+    ? t('search.date.range', { since: state.since, until: state.until })
+    : state.since !== ''
+      ? t('search.date.sinceRange', { since: state.since })
+      : state.until !== ''
+        ? t('search.date.untilRange', { until: state.until })
+        : t('search.date.toggle')
   const title = state.branch === undefined ? t('header.detached') : t('header.branch', { branch: state.branch })
   const workspaceTitle = cwd === undefined ? '' : workspaceTitleOf(cwd)
   const failed = state.failure === undefined ? undefined : failureLine(t, state.failure)
@@ -1100,12 +1153,28 @@ export function GitHistoryBody({
             aria-label={t('reload')}
             title={t('reload')}
             data-git-reload
-            onClick={() => { reload(tab.id, workspaceId, state.search, signal) }}
+            onClick={() => {
+              reload(tab.id, workspaceId, {
+                search: state.search, author: state.author, since: state.since, until: state.until,
+              }, signal)
+            }}
           >
             <IconRefreshOutline16 />
           </button>
         </div>
         <form className={css.search} onSubmit={submit}>
+          <AuthorFilter authors={state.authors} value={state.author} allLabel={t('search.author.all')} label={t('search.author.label')} onChange={chooseAuthor} />
+          <button
+            type="button"
+            className={clsx(css.searchTool, dateFiltered && css.dateToolActive)}
+            aria-label={dateTitle}
+            title={dateTitle}
+            aria-pressed={dateFiltered}
+            data-git-date-toggle
+            onClick={() => { setDateOpen(value => !value) }}
+          >
+            {t('search.date.toggle')}
+          </button>
           <Input
             className={css.input}
             type="search"
@@ -1116,6 +1185,37 @@ export function GitHistoryBody({
           />
           <button type="submit" className={css.searchTool} data-git-search>{t('search.submit')}</button>
         </form>
+        {(dateOpen || dateFiltered) && (
+          <div className={css.dateRow} data-git-date-row>
+            <HistoryDatePicker
+              value={state.since}
+              max={state.until === '' ? undefined : state.until}
+              aria-label={t('search.date.since')}
+              title={t('search.date.since')}
+              data-git-since
+              onChange={(value) => { chooseDate('since', value) }}
+            />
+            <span className={css.dateDash} aria-hidden="true">–</span>
+            <HistoryDatePicker
+              value={state.until}
+              min={state.since === '' ? undefined : state.since}
+              aria-label={t('search.date.until')}
+              title={t('search.date.until')}
+              data-git-until
+              onChange={(value) => { chooseDate('until', value) }}
+            />
+            <button
+              type="button"
+              className={css.dateClear}
+              aria-label={t('search.date.clear')}
+              title={t('search.date.clear')}
+              data-git-date-clear
+              onClick={clearDates}
+            >
+              <IconCloseOutline16 size={13} />
+            </button>
+          </div>
+        )}
       </div>
       <div className={css.body}>
         {pending && <p className={css.note} data-git-row="loading">{t('loading')}</p>}
@@ -1129,7 +1229,11 @@ export function GitHistoryBody({
             className={clsx(css.more, state.loadingMore && css.moreBusy)}
             data-git-more
             disabled={state.loadingMore}
-            onClick={() => { loadMore(tab.id, workspaceId, state.search, state.skip, signal) }}
+            onClick={() => {
+              loadMore(tab.id, workspaceId, {
+                search: state.search, author: state.author, since: state.since, until: state.until,
+              }, state.skip, signal)
+            }}
           >
             {state.loadingMore ? t('loadingMore') : t('more')}
           </button>

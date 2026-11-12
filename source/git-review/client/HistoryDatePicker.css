@@ -1,0 +1,13 @@
+.dsh-history-date{position:relative;flex:1 1 0;min-width:0;color:var(--dsw-alias-label-primary);font:inherit}
+.dsh-history-date-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;box-sizing:border-box;width:100%;height:32px;padding:0 12px;color:inherit;font:inherit;white-space:nowrap;background:color-mix(in srgb,var(--dsw-alias-bg-layer-1) 64%,transparent);border:.5px solid var(--dsw-alias-border-l4);border-radius:16px;cursor:pointer}
+.dsh-history-date-trigger span{overflow:hidden;text-overflow:ellipsis}.dsh-history-date-trigger svg{flex:none;color:var(--dsw-alias-label-secondary)}
+.dsh-history-calendar{position:fixed;inset:auto;margin:0;z-index:20;box-sizing:border-box;width:260px;max-width:calc(100vw - 16px);max-height:calc(100vh - 16px);overflow:auto;padding:12px;color:var(--dsw-alias-label-primary);font:inherit;background:var(--dsw-alias-bg-layer-2);border:.5px solid var(--dsw-alias-border-l4);border-radius:14px;box-shadow:0 8px 28px #00000024}
+.dsh-history-calendar::backdrop{background:transparent;pointer-events:none}
+.dsh-history-calendar button{display:flex;align-items:center;justify-content:center;min-width:0;height:28px;padding:0;color:inherit;font:inherit;background:transparent;border:0;border-radius:7px;cursor:pointer}
+.dsh-history-calendar button:hover,.dsh-history-date-trigger:hover{background:var(--dsw-alias-interactive-bg-hover)}
+.dsh-history-calendar button:focus-visible,.dsh-history-date-trigger:focus-visible{outline:2px solid var(--dsw-alias-link);outline-offset:1px}
+.dsh-history-calendar-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-weight:500}.dsh-history-calendar-heading button{width:28px;font-size:20px}
+.dsh-history-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.dsh-history-weekday{display:flex;align-items:center;justify-content:center;height:24px;color:var(--dsw-alias-label-tertiary);font-size:12px}
+.dsh-history-calendar button[data-outside=true]{color:var(--dsw-alias-label-tertiary)}.dsh-history-calendar button[aria-current=date]{box-shadow:inset 0 0 0 1px var(--dsw-alias-link)}.dsh-history-calendar button[aria-pressed=true]{color:var(--dsw-alias-link);background:var(--dsw-alias-interactive-bg-active);font-weight:600}
+.dsh-history-calendar button:disabled{opacity:.3;cursor:default;background:transparent}
+.dsh-history-calendar-footer{display:flex;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:.5px solid var(--dsw-alias-border-l2)}.dsh-history-calendar-footer button{padding:0 8px;color:var(--dsw-alias-link)}

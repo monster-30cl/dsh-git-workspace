@@ -94,7 +94,7 @@
   background: var(--dsw-alias-interactive-bg-hover);
 }
 
-/* The subject-search row under the header. */
+/* The filter row under the header: author dropdown, date toggle, then the subject search. */
 .search {
   display: flex;
   flex: 0 0 auto;
@@ -123,6 +123,96 @@
 
 .searchTool:hover {
   background: color-mix(in srgb, var(--dsw-alias-interactive-bg-hover) 72%, transparent);
+}
+
+/* The author dropdown beside the subject search: one applied filter each. */
+.authorSelect {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 46%;
+  height: 32px;
+  padding: 0 8px;
+  color: var(--dsw-alias-label-primary);
+  font: inherit;
+  text-overflow: ellipsis;
+  background: color-mix(in srgb, var(--dsw-alias-bg-layer-1) 64%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--dsw-alias-border-l4) 72%, transparent);
+  border-radius: 16px;
+  backdrop-filter: blur(16px) saturate(125%);
+  cursor: pointer;
+}
+
+.authorSelect:hover {
+  background: color-mix(in srgb, var(--dsw-alias-interactive-bg-hover) 72%, transparent);
+}
+
+.authorSelect:focus-visible {
+  outline: 2px solid var(--dsw-alias-border-l4);
+  outline-offset: 1px;
+}
+
+.authorSelect option {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-bg-layer-1);
+}
+
+/* The date toggle shares searchTool with the search button. */
+/* The applied-date state of that control. */
+.dateToolActive {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-active);
+  border-color: color-mix(in srgb, var(--dsw-alias-label-primary) 48%, transparent);
+}
+
+/* The date bounds row below the filter row: two whole days, either one optional. */
+.dateRow {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px 6px;
+}
+
+.dateInput {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 32px;
+  padding: 0 10px;
+  color: var(--dsw-alias-label-primary);
+  font: inherit;
+  background: color-mix(in srgb, var(--dsw-alias-bg-layer-1) 64%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--dsw-alias-border-l4) 72%, transparent);
+  border-radius: 16px;
+}
+
+.dateInput:focus-visible {
+  outline: 2px solid var(--dsw-alias-border-l4);
+  outline-offset: 1px;
+}
+
+.dateDash {
+  flex: 0 0 auto;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.dateClear {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: var(--dsw-alias-label-tertiary);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.dateClear:hover {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
 }
 
 .level {
@@ -249,11 +339,12 @@
 }
 
 .detailDialogFullscreen {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  border-radius: 0;
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  border-radius: 10px;
 }
 
 :global(body[data-dsh-background-media]) .detailDialog {
@@ -797,4 +888,29 @@
 .removed {
   color: var(--dsw-alias-state-error-primary);
   background: color-mix(in srgb, var(--dsw-alias-state-error-primary) 16%, transparent);
+}
+
+/*
+ * A changed row marks its own line number, not just its code: the gutter cell
+ * takes the same tint and a bar on its outer edge, so a removed or added line
+ * reads as one continuous marker across the number and the text.
+ */
+.added .lineNumber {
+  color: var(--dsw-alias-state-success-primary);
+  background: color-mix(
+    in srgb,
+    var(--dsw-alias-state-success-primary) 16%,
+    color-mix(in srgb, var(--dsw-alias-bg-base) 84%, var(--dsw-alias-border-l2))
+  );
+  box-shadow: inset 2px 0 0 var(--dsw-alias-state-success-primary);
+}
+
+.removed .lineNumber {
+  color: var(--dsw-alias-state-error-primary);
+  background: color-mix(
+    in srgb,
+    var(--dsw-alias-state-error-primary) 16%,
+    color-mix(in srgb, var(--dsw-alias-bg-base) 84%, var(--dsw-alias-border-l2))
+  );
+  box-shadow: inset -2px 0 0 var(--dsw-alias-state-error-primary);
 }

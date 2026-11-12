@@ -5,6 +5,7 @@
  * it as an entry box, and picking that box opens the commit history for the
  * session's workspace. Nothing in `ui-sidebar-right` knows this package.
  */
+import type { ShortcutCommandId } from '@deepseek-ai/dsh-client-shortcuts/client'
 import type { SidebarRightTabDefinition } from '@deepseek-ai/dsh-client-ui-sidebar-right/client'
 import type { TranslateNS } from '@deepseek-ai/dsh-client-locale/client'
 import type {} from './locales.ts'
@@ -28,7 +29,8 @@ export function gitHistoryDefinition(t: TranslateNS<'sidebarGitHistory'>): Sideb
     priority: 'builtin',
     title: () => t('type.label'),
     guide: [{
-      order: 20,
+      commandId: 'git.workspace.review.open' as ShortcutCommandId,
+      order: 25,
       title: () => t('guide.title'),
       description: () => t('guide.description'),
       icon: GitReviewIcon,

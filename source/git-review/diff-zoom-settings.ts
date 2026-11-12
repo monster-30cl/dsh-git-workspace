@@ -28,11 +28,12 @@ export const GitHistorySettingsSchema: z<GitHistorySettings> = z.object({
   [DIFF_ZOOM_MODIFIER_FIELD]: z.union([...DIFF_ZOOM_MODIFIERS]).default(DEFAULT_DIFF_ZOOM_MODIFIER),
 })
 
-/** Whether a wheel event carries the configured modifier. */
+/** Ctrl is always available; settings may enable an additional modifier. */
 export function matchesDiffZoomModifier(
   event: Pick<WheelEvent, 'altKey' | 'ctrlKey' | 'shiftKey'>,
   modifier: DiffZoomModifier,
 ): boolean {
+  if (event.ctrlKey) return true
   switch (modifier) {
     case 'alt': return event.altKey
     case 'control': return event.ctrlKey
