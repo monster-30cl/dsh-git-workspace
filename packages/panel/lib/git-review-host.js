@@ -1,4 +1,4 @@
-// ../vendor/cosmokit/src/misc.ts
+// node_modules/@deepseek-ai/cosmokit/lib/index.js
 function isNullable(value) {
   return value === null || value === void 0;
 }
@@ -14,13 +14,35 @@ function mapValues(object, transform) {
 function pick(source, keys, forced) {
   if (!keys) return { ...source };
   const result = {};
-  for (const key of keys) {
-    if (forced || source[key] !== void 0) result[key] = source[key];
-  }
+  for (const key of keys) if (forced || source[key] !== void 0) result[key] = source[key];
   return result;
 }
-
-// ../vendor/cosmokit/src/types.ts
+var write = /* @__PURE__ */ Symbol.for("cosmokit.volatile.write");
+function snapshot(value, ancestors = /* @__PURE__ */ new Set()) {
+  if (typeof value === "function") throw new TypeError("volatile config cannot contain functions");
+  if (value === null || typeof value !== "object") return value;
+  if (ancestors.has(value)) throw new TypeError("volatile config cannot contain cycles");
+  ancestors.add(value);
+  try {
+    if (Array.isArray(value)) return Object.freeze(value.map((item) => snapshot(item, ancestors)));
+    if (Object.getPrototypeOf(value) !== Object.prototype && Object.getPrototypeOf(value) !== null) throw new TypeError("volatile config objects must be plain objects or arrays");
+    return Object.freeze(Object.fromEntries(Object.entries(value).map(([key, item]) => [key, snapshot(item, ancestors)])));
+  } finally {
+    ancestors.delete(value);
+  }
+}
+function createVolatile(value) {
+  let current = snapshot(value);
+  return Object.freeze({
+    get: () => current,
+    [write]: (value2) => {
+      current = value2;
+    }
+  });
+}
+function isVolatile(value) {
+  return typeof value === "object" && value !== null && write in value;
+}
 function is(type, value) {
   if (arguments.length === 1) return (value2) => is(type, value2);
   return type in globalThis && value instanceof globalThis[type] || Object.prototype.toString.call(value).slice(8, -1) === type;
@@ -32,27 +54,20 @@ function isArrayBufferSource(value) {
   return isArrayBufferLike(value) || ArrayBuffer.isView(value);
 }
 var Binary;
-((Binary2) => {
+(function(Binary2) {
   Binary2.is = isArrayBufferLike;
   Binary2.isSource = isArrayBufferSource;
   function fromSource(source) {
-    if (ArrayBuffer.isView(source)) {
-      return source.buffer.slice(source.byteOffset, source.byteOffset + source.byteLength);
-    } else {
-      return source;
-    }
+    if (ArrayBuffer.isView(source)) return source.buffer.slice(source.byteOffset, source.byteOffset + source.byteLength);
+    else return source;
   }
   Binary2.fromSource = fromSource;
   function toBase64(source) {
     source = fromSource(source);
-    if (typeof Buffer !== "undefined") {
-      return Buffer.from(source).toString("base64");
-    }
+    if (typeof Buffer !== "undefined") return Buffer.from(source).toString("base64");
     let binary = "";
     const bytes = new Uint8Array(source);
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
+    for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
     return btoa(binary);
   }
   Binary2.toBase64 = toBase64;
@@ -71,9 +86,7 @@ var Binary;
     if (typeof Buffer !== "undefined") return fromSource(Buffer.from(source, "hex"));
     const hex = source.length % 2 === 0 ? source : source.slice(0, source.length - 1);
     const buffer = [];
-    for (let i = 0; i < hex.length; i += 2) {
-      buffer.push(parseInt(`${hex[i]}${hex[i + 1]}`, 16));
-    }
+    for (let i = 0; i < hex.length; i += 2) buffer.push(parseInt(`${hex[i]}${hex[i + 1]}`, 16));
     return Uint8Array.from(buffer).buffer;
   }
   Binary2.fromHex = fromHex;
@@ -102,36 +115,46 @@ function clone(source, refs = /* @__PURE__ */ new Map()) {
   refs.set(source, result);
   for (const key of Reflect.ownKeys(source)) {
     const descriptor = { ...Reflect.getOwnPropertyDescriptor(source, key) };
-    if ("value" in descriptor) {
-      descriptor.value = Reflect.apply(clone, null, [descriptor.value, refs]);
-    }
+    if ("value" in descriptor) descriptor.value = Reflect.apply(clone, null, [descriptor.value, refs]);
     Reflect.defineProperty(result, key, descriptor);
   }
   return result;
 }
 function deepEqual(a, b, strict) {
-  if (a === b) return true;
-  if (!strict && isNullable(a) && isNullable(b)) return true;
-  if (typeof a !== typeof b) return false;
-  if (typeof a !== "object") return false;
-  if (!a || !b) return false;
-  function check(test, then) {
-    return test(a) ? test(b) ? then(a, b) : false : test(b) ? false : void 0;
-  }
-  return check(Array.isArray, (a2, b2) => a2.length === b2.length && a2.every((item, index) => deepEqual(item, b2[index]))) ?? check(is("Date"), (a2, b2) => a2.valueOf() === b2.valueOf()) ?? check(is("RegExp"), (a2, b2) => a2.source === b2.source && a2.flags === b2.flags) ?? check(isArrayBufferLike, (a2, b2) => {
-    if (a2.byteLength !== b2.byteLength) return false;
-    const viewA = new Uint8Array(a2);
-    const viewB = new Uint8Array(b2);
-    for (let i = 0; i < viewA.length; i++) {
-      if (viewA[i] !== viewB[i]) return false;
+  const ancestors = /* @__PURE__ */ new Set();
+  function compare(a2, b2) {
+    if (a2 === b2) return true;
+    if (isVolatile(a2) || isVolatile(b2)) return isVolatile(a2) && isVolatile(b2);
+    if (!strict && isNullable(a2) && isNullable(b2)) return true;
+    if (typeof a2 !== typeof b2 || typeof a2 !== "object" || !a2 || !b2) return false;
+    if (ancestors.has(a2)) return false;
+    function check(test, then) {
+      return test(a2) ? test(b2) ? then(a2, b2) : false : test(b2) ? false : void 0;
     }
-    return true;
-  }) ?? Object.keys({ ...a, ...b }).every((key) => deepEqual(a[key], b[key], strict));
+    ancestors.add(a2);
+    try {
+      return check(Array.isArray, (a3, b3) => {
+        if (a3.length !== b3.length) return false;
+        for (let index = 0; index < a3.length; index++) if (!compare(a3[index], b3[index])) return false;
+        return true;
+      }) ?? check(is("Date"), (a3, b3) => a3.valueOf() === b3.valueOf()) ?? check(is("URL"), (a3, b3) => a3.href === b3.href) ?? check(is("RegExp"), (a3, b3) => a3.source === b3.source && a3.flags === b3.flags) ?? check(isArrayBufferLike, (a3, b3) => {
+        if (a3.byteLength !== b3.byteLength) return false;
+        const viewA = new Uint8Array(a3);
+        const viewB = new Uint8Array(b3);
+        for (let i = 0; i < viewA.length; i++) if (viewA[i] !== viewB[i]) return false;
+        return true;
+      }) ?? ((!strict || [a2, b2].every((value) => Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null)) && Object.keys({
+        ...a2,
+        ...b2
+      }).every((key) => compare(a2[key], b2[key])));
+    } finally {
+      ancestors.delete(a2);
+    }
+  }
+  return compare(a, b);
 }
-
-// ../vendor/cosmokit/src/time.ts
 var Time;
-((Time2) => {
+(function(Time2) {
   Time2.millisecond = 1;
   Time2.second = 1e3;
   Time2.minute = Time2.second * 60;
@@ -175,27 +198,18 @@ var Time;
   Time2.parseTime = parseTime;
   function parseDate(date2) {
     const parsed = parseTime(date2);
-    if (parsed) {
-      date2 = Date.now() + parsed;
-    } else if (/^\d{1,2}(:\d{1,2}){1,2}$/.test(date2)) {
-      date2 = `${(/* @__PURE__ */ new Date()).toLocaleDateString()}-${date2}`;
-    } else if (/^\d{1,2}-\d{1,2}-\d{1,2}(:\d{1,2}){1,2}$/.test(date2)) {
-      date2 = `${(/* @__PURE__ */ new Date()).getFullYear()}-${date2}`;
-    }
+    if (parsed) date2 = Date.now() + parsed;
+    else if (/^\d{1,2}(:\d{1,2}){1,2}$/.test(date2)) date2 = `${(/* @__PURE__ */ new Date()).toLocaleDateString()}-${date2}`;
+    else if (/^\d{1,2}-\d{1,2}-\d{1,2}(:\d{1,2}){1,2}$/.test(date2)) date2 = `${(/* @__PURE__ */ new Date()).getFullYear()}-${date2}`;
     return date2 ? new Date(date2) : /* @__PURE__ */ new Date();
   }
   Time2.parseDate = parseDate;
   function format(ms) {
     const abs = Math.abs(ms);
-    if (abs >= Time2.day - Time2.hour / 2) {
-      return Math.round(ms / Time2.day) + "d";
-    } else if (abs >= Time2.hour - Time2.minute / 2) {
-      return Math.round(ms / Time2.hour) + "h";
-    } else if (abs >= Time2.minute - Time2.second / 2) {
-      return Math.round(ms / Time2.minute) + "m";
-    } else if (abs >= Time2.second) {
-      return Math.round(ms / Time2.second) + "s";
-    }
+    if (abs >= Time2.day - Time2.hour / 2) return Math.round(ms / Time2.day) + "d";
+    else if (abs >= Time2.hour - Time2.minute / 2) return Math.round(ms / Time2.hour) + "h";
+    else if (abs >= Time2.minute - Time2.second / 2) return Math.round(ms / Time2.minute) + "m";
+    else if (abs >= Time2.second) return Math.round(ms / Time2.second) + "s";
     return ms + "ms";
   }
   Time2.format = format;
@@ -209,36 +223,28 @@ var Time;
   Time2.template = template;
 })(Time || (Time = {}));
 
-// ../vendor/schemastery/src/index.ts
+// node_modules/@deepseek-ai/schemastery/lib/index.mjs
 var kSchema = /* @__PURE__ */ Symbol.for("schemastery");
 var kValidationError = /* @__PURE__ */ Symbol.for("ValidationError");
 globalThis.__schemastery_index__ ??= 0;
 globalThis.__schemastery_refs__ = void 0;
 var ValidationError = class extends TypeError {
+  options;
+  name = "ValidationError";
   constructor(message, options) {
     let prefix = "$";
-    for (const segment of options.path || []) {
-      if (typeof segment === "string") {
-        prefix += "." + segment;
-      } else if (typeof segment === "number") {
-        prefix += "[" + segment + "]";
-      } else if (typeof segment === "symbol") {
-        prefix += `[Symbol(${segment.toString()})]`;
-      }
-    }
+    for (const segment of options.path || []) if (typeof segment === "string") prefix += "." + segment;
+    else if (typeof segment === "number") prefix += "[" + segment + "]";
+    else if (typeof segment === "symbol") prefix += `[Symbol(${segment.toString()})]`;
     if (prefix.startsWith(".")) prefix = prefix.slice(1);
     super((prefix === "$" ? "" : `${prefix} `) + message);
     this.options = options;
   }
-  options;
-  name = "ValidationError";
   static is(error) {
     return !!error?.[kValidationError];
   }
 };
-Object.defineProperty(ValidationError.prototype, kValidationError, {
-  value: true
-});
+Object.defineProperty(ValidationError.prototype, kValidationError, { value: true });
 var Schema = function(options) {
   const schema = function(data, options2 = {}) {
     return Schema.resolve(data, schema, options2)[0];
@@ -256,11 +262,9 @@ var Schema = function(options) {
     return refs[options.uid];
   }
   Object.assign(schema, options);
-  if (typeof schema.callback === "string") {
-    try {
-      schema.callback = new Function("return " + schema.callback)();
-    } catch {
-    }
+  if (typeof schema.callback === "string") try {
+    schema.callback = new Function("return " + schema.callback)();
+  } catch {
   }
   Object.defineProperty(schema, "uid", { value: globalThis.__schemastery_index__++ });
   Object.setPrototypeOf(schema, Schema.prototype);
@@ -270,24 +274,23 @@ var Schema = function(options) {
 };
 Schema.prototype = Object.create(Function.prototype);
 Schema.prototype[kSchema] = true;
-Object.defineProperty(Schema.prototype, "~standard", {
-  get() {
-    return {
-      version: 1,
-      vendor: "schemastery",
-      validate: (value) => {
-        try {
-          return { value: Schema.resolve(value, this, {})[0] };
-        } catch (error) {
-          if (ValidationError.is(error)) {
-            return { issues: [{ message: error.message, path: error.options.path }] };
-          }
-          throw error;
-        }
+Object.defineProperty(Schema.prototype, "~standard", { get() {
+  return {
+    version: 1,
+    vendor: "schemastery",
+    validate: (value) => {
+      try {
+        return { value: Schema.resolve(value, this, {})[0] };
+      } catch (error) {
+        if (ValidationError.is(error)) return { issues: [{
+          message: error.message,
+          path: error.options.path
+        }] };
+        throw error;
       }
-    };
-  }
-});
+    }
+  };
+} });
 Schema.ValidationError = ValidationError;
 Schema.prototype.toJSON = function toJSON() {
   if (globalThis.__schemastery_refs__) {
@@ -296,7 +299,10 @@ Schema.prototype.toJSON = function toJSON() {
   }
   globalThis.__schemastery_refs__ = { [this.uid]: { ...this } };
   globalThis.__schemastery_refs__[this.uid] = JSON.parse(JSON.stringify({ ...this }));
-  const result = { uid: this.uid, refs: globalThis.__schemastery_refs__ };
+  const result = {
+    uid: this.uid,
+    refs: globalThis.__schemastery_refs__
+  };
   globalThis.__schemastery_refs__ = void 0;
   return result;
 };
@@ -312,11 +318,8 @@ function mergeDesc(original, messages) {
   const result = typeof original === "string" ? { "": original } : { ...original };
   for (const locale in messages) {
     const value = messages[locale];
-    if (value?.$description || value?.$desc) {
-      result[locale] = value.$description || value.$desc;
-    } else if (typeof value === "string") {
-      result[locale] = value;
-    }
+    if (value?.$description || value?.$desc) result[locale] = value.$description || value.$desc;
+    else if (typeof value === "string") result[locale] = value;
   }
   return result;
 }
@@ -330,71 +333,80 @@ Schema.prototype.i18n = function i18n(messages) {
   const schema = Schema(this);
   const desc = mergeDesc(schema.meta.description, messages);
   if (Object.keys(desc).length) schema.meta.description = desc;
-  if (schema.dict) {
-    schema.dict = mapValues(schema.dict, (inner, key) => {
-      return inner.i18n(mapValues(messages, (data) => getInner(data)?.[key] ?? data?.[key]));
-    });
-  }
-  if (schema.list) {
-    schema.list = schema.list.map((inner, index) => {
-      return inner.i18n(mapValues(messages, (data = {}) => {
-        if (Array.isArray(getInner(data))) return getInner(data)[index];
-        if (Array.isArray(data)) return data[index];
-        return extractKeys(data);
-      }));
-    });
-  }
-  if (schema.inner) {
-    schema.inner = schema.inner.i18n(mapValues(messages, (data) => {
-      if (getInner(data)) return getInner(data);
+  if (schema.dict) schema.dict = mapValues(schema.dict, (inner, key) => {
+    return inner.i18n(mapValues(messages, (data) => getInner(data)?.[key] ?? data?.[key]));
+  });
+  if (schema.list) schema.list = schema.list.map((inner, index) => {
+    return inner.i18n(mapValues(messages, (data = {}) => {
+      if (Array.isArray(getInner(data))) return getInner(data)[index];
+      if (Array.isArray(data)) return data[index];
       return extractKeys(data);
     }));
-  }
-  if (schema.sKey) {
-    schema.sKey = schema.sKey.i18n(mapValues(messages, (data) => data?.$key));
-  }
+  });
+  if (schema.inner) schema.inner = schema.inner.i18n(mapValues(messages, (data) => {
+    if (getInner(data)) return getInner(data);
+    return extractKeys(data);
+  }));
+  if (schema.sKey) schema.sKey = schema.sKey.i18n(mapValues(messages, (data) => data?.$key));
   return schema;
 };
 Schema.prototype.extra = function extra(key, value) {
   const schema = Schema(this);
-  schema.meta = { ...schema.meta, [key]: value };
+  schema.meta = {
+    ...schema.meta,
+    [key]: value
+  };
   return schema;
 };
-for (const key of ["required", "disabled", "collapse", "hidden", "loose"]) {
-  Object.assign(Schema.prototype, {
-    [key](value = true) {
-      const schema = Schema(this);
-      schema.meta = { ...schema.meta, [key]: value };
-      return schema;
-    }
-  });
-}
+for (const key of [
+  "required",
+  "disabled",
+  "collapse",
+  "hidden",
+  "loose"
+]) Object.assign(Schema.prototype, { [key](value = true) {
+  const schema = Schema(this);
+  schema.meta = {
+    ...schema.meta,
+    [key]: value
+  };
+  return schema;
+} });
 Schema.prototype.deprecated = function deprecated() {
   const schema = Schema(this);
   schema.meta.badges ||= [];
-  schema.meta.badges.push({ text: "deprecated", type: "danger" });
+  schema.meta.badges.push({
+    text: "deprecated",
+    type: "danger"
+  });
   return schema;
 };
 Schema.prototype.experimental = function experimental() {
   const schema = Schema(this);
   schema.meta.badges ||= [];
-  schema.meta.badges.push({ text: "experimental", type: "warning" });
+  schema.meta.badges.push({
+    text: "experimental",
+    type: "warning"
+  });
   return schema;
 };
 Schema.prototype.pattern = function pattern(regexp) {
   const schema = Schema(this);
   const pattern2 = pick(regexp, ["source", "flags"]);
-  schema.meta = { ...schema.meta, pattern: pattern2 };
+  schema.meta = {
+    ...schema.meta,
+    pattern: pattern2
+  };
   return schema;
 };
 Schema.prototype.simplify = function simplify(value) {
+  if (isVolatile(value)) value = value.get();
   if (deepEqual(value, this.meta.default, this.type === "dict")) return null;
   if (isNullable(value)) return value;
   if (this.type === "object" || this.type === "dict") {
     const result = {};
     for (const key in value) {
-      const schema = this.type === "object" ? this.dict[key] : this.inner;
-      const item = schema?.simplify(value[key]);
+      const item = (this.type === "object" ? this.dict[key] : this.inner)?.simplify(value[key]);
       if (this.type === "dict" || !isNullable(item)) result[key] = item;
     }
     if (deepEqual(result, this.meta.default, this.type === "dict")) return null;
@@ -409,18 +421,12 @@ Schema.prototype.simplify = function simplify(value) {
     return result;
   } else if (this.type === "intersect") {
     const result = {};
-    for (const item of this.list) {
-      Object.assign(result, item.simplify(value));
-    }
+    for (const item of this.list) Object.assign(result, item.simplify(value));
     return result;
-  } else if (this.type === "union") {
-    for (const schema of this.list) {
-      try {
-        Schema.resolve(value, schema, {});
-        return schema.simplify(value);
-      } catch {
-      }
-    }
+  } else if (this.type === "union") for (const schema of this.list) try {
+    Schema.resolve(value, schema, {});
+    return schema.simplify(value);
+  } catch {
   }
   return value;
 };
@@ -429,24 +435,72 @@ Schema.prototype.toString = function toString(inline) {
 };
 Schema.prototype.role = function role(role, extra2) {
   const schema = Schema(this);
-  schema.meta = { ...schema.meta, role, extra: extra2 };
+  schema.meta = {
+    ...schema.meta,
+    role,
+    extra: extra2
+  };
   return schema;
 };
-for (const key of ["default", "link", "comment", "description", "max", "min", "step"]) {
-  Object.assign(Schema.prototype, {
-    [key](value) {
-      const schema = Schema(this);
-      schema.meta = { ...schema.meta, [key]: value };
-      return schema;
-    }
-  });
-}
+for (const key of [
+  "default",
+  "link",
+  "comment",
+  "description",
+  "max",
+  "min",
+  "step"
+]) Object.assign(Schema.prototype, { [key](value) {
+  const schema = Schema(this);
+  schema.meta = {
+    ...schema.meta,
+    [key]: value
+  };
+  return schema;
+} });
+Schema.prototype.volatile = function volatile() {
+  if (this.meta.volatile) throw new TypeError("volatile schema is already wrapped");
+  return this.extra("volatile", true);
+};
 var resolvers = {};
+var checkedVolatile = /* @__PURE__ */ Symbol("checked-volatile-schema");
+function validateVolatileSchema(schema, path = [], blocked = false, seen = /* @__PURE__ */ new Map()) {
+  const states = seen.get(schema) ?? /* @__PURE__ */ new Set();
+  if (states.has(blocked)) return;
+  states.add(blocked);
+  seen.set(schema, states);
+  if (schema.meta?.volatile && blocked) throw new ValidationError("volatile fields require a fixed object path without an enclosing volatile field", { path });
+  const nested = blocked || !!schema.meta?.volatile;
+  if (schema.dict) for (const [key, child] of Object.entries(schema.dict)) validateVolatileSchema(child, [...path, key], nested, seen);
+  if (schema.sKey) validateVolatileSchema(schema.sKey, [...path, "<key>"], true, seen);
+  if (schema.inner && (schema.type !== "lazy" || schema.inner[kSchema])) validateVolatileSchema(schema.inner, [...path, "*"], true, seen);
+  if (schema.list) for (let index = 0; index < schema.list.length; index++) validateVolatileSchema(schema.list[index], [...path, String(index)], true, seen);
+}
 Schema.extend = function extend(type, resolve2) {
   resolvers[type] = resolve2;
 };
 Schema.resolve = function resolve(data, schema, options = {}, strict = false) {
   if (!schema) return [data];
+  if (!options[checkedVolatile]) {
+    validateVolatileSchema(schema, options.path);
+    options = {
+      ...options,
+      [checkedVolatile]: true
+    };
+  }
+  if (schema.meta?.volatile) {
+    const inner = Schema(schema);
+    inner.meta = {
+      ...schema.meta,
+      volatile: false
+    };
+    const [value, adapted] = Schema.resolve(data, inner, options, strict);
+    try {
+      return [createVolatile(value), adapted];
+    } catch (error) {
+      throw new ValidationError(error instanceof Error ? error.message : String(error), options);
+    }
+  }
   if (options.ignore?.(data, schema)) return [data];
   if (isNullable(data) && schema.type !== "lazy") {
     if (schema.meta.required) throw new ValidationError(`missing required value`, options);
@@ -469,38 +523,43 @@ Schema.resolve = function resolve(data, schema, options = {}, strict = false) {
   }
 };
 Schema.from = function from(source) {
-  if (isNullable(source)) {
-    return Schema.any();
-  } else if (["string", "number", "boolean"].includes(typeof source)) {
-    return Schema.const(source).required();
-  } else if (source[kSchema]) {
-    return source;
-  } else if (typeof source === "function") {
-    switch (source) {
-      case String:
-        return Schema.string().required();
-      case Number:
-        return Schema.number().required();
-      case Boolean:
-        return Schema.boolean().required();
-      case Function:
-        return Schema.function().required();
-      default:
-        return Schema.is(source).required();
-    }
-  } else {
-    throw new TypeError(`cannot infer schema from ${source}`);
+  if (isNullable(source)) return Schema.any();
+  else if ([
+    "string",
+    "number",
+    "boolean"
+  ].includes(typeof source)) return Schema.const(source).required();
+  else if (source[kSchema]) return source;
+  else if (typeof source === "function") switch (source) {
+    case String:
+      return Schema.string().required();
+    case Number:
+      return Schema.number().required();
+    case Boolean:
+      return Schema.boolean().required();
+    case Function:
+      return Schema.function().required();
+    default:
+      return Schema.is(source).required();
   }
+  else throw new TypeError(`cannot infer schema from ${source}`);
 };
 Schema.lazy = function lazy(builder) {
   const toJSON2 = () => {
     if (!schema.inner[kSchema]) {
       schema.inner = schema.builder();
-      schema.inner.meta = { ...schema.meta, ...schema.inner.meta };
+      schema.inner.meta = {
+        ...schema.meta,
+        ...schema.inner.meta
+      };
     }
     return schema.inner.toJSON();
   };
-  const schema = new Schema({ type: "lazy", builder, inner: { toJSON: toJSON2 } });
+  const schema = new Schema({
+    type: "lazy",
+    builder,
+    inner: { toJSON: toJSON2 }
+  });
   return schema;
 };
 Schema.natural = function natural() {
@@ -510,26 +569,20 @@ Schema.percent = function percent() {
   return Schema.number().step(0.01).min(0).max(1).role("slider");
 };
 Schema.date = function date() {
-  return Schema.union([
-    Schema.is(Date),
-    Schema.transform(Schema.string().role("datetime"), (value, options) => {
-      const date2 = new Date(value);
-      if (isNaN(+date2)) throw new ValidationError(`invalid date "${value}"`, options);
-      return date2;
-    }, true)
-  ]);
+  return Schema.union([Schema.is(Date), Schema.transform(Schema.string().role("datetime"), (value, options) => {
+    const date2 = new Date(value);
+    if (isNaN(+date2)) throw new ValidationError(`invalid date "${value}"`, options);
+    return date2;
+  }, true)]);
 };
 Schema.regExp = function regExp(flag = "") {
-  return Schema.union([
-    Schema.is(RegExp),
-    Schema.transform(Schema.string().role("regexp", { flag }), (value, options) => {
-      try {
-        return new RegExp(value, flag);
-      } catch (e) {
-        throw new ValidationError(e.message, options);
-      }
-    }, true)
-  ]);
+  return Schema.union([Schema.is(RegExp), Schema.transform(Schema.string().role("regexp", { flag }), (value, options) => {
+    try {
+      return new RegExp(value, flag);
+    } catch (e) {
+      throw new ValidationError(e.message, options);
+    }
+  }, true)]);
 };
 Schema.arrayBuffer = function arrayBuffer(encoding) {
   return Schema.union([
@@ -551,7 +604,11 @@ Schema.arrayBuffer = function arrayBuffer(encoding) {
 Schema.extend("lazy", (data, schema, options, strict) => {
   if (!schema.inner[kSchema]) {
     schema.inner = schema.builder();
-    schema.inner.meta = { ...schema.meta, ...schema.inner.meta };
+    schema.inner.meta = {
+      ...schema.meta,
+      ...schema.inner.meta
+    };
+    validateVolatileSchema(schema.inner, options.path, true);
   }
   return Schema.resolve(data, schema.inner, options, strict);
 });
@@ -591,9 +648,7 @@ function decimalShift(data, digits) {
 }
 function isMultipleOf(data, min, step) {
   step = Math.abs(step);
-  if (!/^\d+\.\d+$/.test(step.toString())) {
-    return (data - min) % step === 0;
-  }
+  if (!/^\d+\.\d+$/.test(step.toString())) return (data - min) % step === 0;
   const index = step.toString().indexOf(".");
   const digits = step.toString().slice(index + 1).length;
   return Math.abs(decimalShift(data, digits) - decimalShift(min, digits)) % decimalShift(step, digits) === 0;
@@ -602,9 +657,7 @@ Schema.extend("number", (data, { meta }, options) => {
   if (typeof data !== "number") throw new ValidationError(`expected number but got ${data}`, options);
   checkWithinRange(data, meta, "number", options);
   const { step } = meta;
-  if (step && !isMultipleOf(data, meta.min ?? 0, step)) {
-    throw new ValidationError(`expected number multiple of ${step} but got ${data}`, options);
-  }
+  if (step && !isMultipleOf(data, meta.min ?? 0, step)) throw new ValidationError(`expected number multiple of ${step} but got ${data}`, options);
   return [data];
 });
 Schema.extend("boolean", (data, _, options) => {
@@ -615,20 +668,14 @@ Schema.extend("bitset", (data, { bits, meta }, options) => {
   let value = 0, keys = [];
   if (typeof data === "number") {
     value = data;
-    for (const key in bits) {
-      if (data & bits[key]) {
-        keys.push(key);
-      }
-    }
+    for (const key in bits) if (data & bits[key]) keys.push(key);
   } else if (Array.isArray(data)) {
     keys = data;
     for (const key of keys) {
       if (typeof key !== "string") throw new ValidationError(`expected string but got ${key}`, options);
       if (key in bits) value |= bits[key];
     }
-  } else {
-    throw new ValidationError(`expected number or array but got ${data}`, options);
-  }
+  } else throw new ValidationError(`expected number or array but got ${data}`, options);
   if (value === meta.default) return [value];
   return [value, keys];
 });
@@ -641,9 +688,7 @@ Schema.extend("is", (data, { constructor }, options) => {
     if (data instanceof constructor) return [data];
     throw new ValidationError(`expected ${constructor.name} but got ${data}`, options);
   } else {
-    if (isNullable(data)) {
-      throw new ValidationError(`expected ${constructor} but got ${data}`, options);
-    }
+    if (isNullable(data)) throw new ValidationError(`expected ${constructor} but got ${data}`, options);
     let prototype = Object.getPrototypeOf(data);
     while (prototype) {
       if (prototype.constructor?.name === constructor) return [data];
@@ -663,7 +708,7 @@ function property(data, key, schema, options) {
   } catch (e) {
     if (!options?.autofix) throw e;
     delete data[key];
-    return schema.meta.default;
+    return schema.meta.volatile ? createVolatile(schema.meta.default) : schema.meta.default;
   }
 }
 Schema.extend("array", (data, { inner, meta }, options) => {
@@ -706,21 +751,17 @@ Schema.extend("object", (data, { dict }, options, strict) => {
   const result = {};
   for (const key in dict) {
     const value = property(data, key, dict[key], options);
-    if (!isNullable(value) || key in data) {
-      result[key] = value;
-    }
+    if (!isNullable(value) || key in data) result[key] = value;
   }
   if (!strict) merge(result, data);
   return [result];
 });
 Schema.extend("union", (data, { list, toString: toString2 }, options, strict) => {
   const messages = [];
-  for (const inner of list) {
-    try {
-      return Schema.resolve(data, inner, options, strict);
-    } catch (error) {
-      messages.push(error);
-    }
+  for (const inner of list) try {
+    return Schema.resolve(data, inner, options, strict);
+  } catch (error) {
+    messages.push(error);
   }
   throw new ValidationError(`expected ${toString2()} but got ${JSON.stringify(data)}`, options);
 });
@@ -730,89 +771,68 @@ Schema.extend("intersect", (data, { list, toString: toString2 }, options, strict
   for (const inner of list) {
     const value = Schema.resolve(data, inner, options, true)[0];
     if (isNullable(value)) continue;
-    if (isNullable(result)) {
-      result = value;
-    } else if (typeof result !== typeof value) {
-      throw new ValidationError(`expected ${toString2()} but got ${JSON.stringify(data)}`, options);
-    } else if (typeof value === "object") {
-      merge(result ??= {}, value);
-    } else if (result !== value) {
-      throw new ValidationError(`expected ${toString2()} but got ${JSON.stringify(data)}`, options);
-    }
+    if (isNullable(result)) result = value;
+    else if (typeof result !== typeof value) throw new ValidationError(`expected ${toString2()} but got ${JSON.stringify(data)}`, options);
+    else if (typeof value === "object") merge(result ??= {}, value);
+    else if (result !== value) throw new ValidationError(`expected ${toString2()} but got ${JSON.stringify(data)}`, options);
   }
   if (!strict && isPlainObject(data)) merge(result, data);
   return [result];
 });
 Schema.extend("transform", (data, { inner, callback, preserve }, options) => {
   const [result, adapted = data] = Schema.resolve(data, inner, options, true);
-  if (preserve) {
-    return [callback(result)];
-  } else {
-    return [callback(result), callback(adapted)];
-  }
+  if (preserve) return [callback(result)];
+  else return [callback(result), callback(adapted)];
 });
 var formatters = {};
 function defineMethod(name, keys, format) {
   formatters[name] = format;
-  Object.assign(Schema, {
-    [name](...args) {
-      const schema = new Schema({ type: name });
-      keys.forEach((key, index) => {
-        switch (key) {
-          case "sKey":
-            schema.sKey = args[index] ?? Schema.string();
-            break;
-          case "inner":
-            schema.inner = Schema.from(args[index]);
-            break;
-          case "list":
-            schema.list = args[index].map(Schema.from);
-            break;
-          case "dict":
-            schema.dict = mapValues(args[index], Schema.from);
-            break;
-          case "bits": {
-            schema.bits = {};
-            for (const key2 in args[index]) {
-              if (typeof args[index][key2] !== "number") continue;
-              schema.bits[key2] = args[index][key2];
-            }
-            break;
+  Object.assign(Schema, { [name](...args) {
+    const schema = new Schema({ type: name });
+    keys.forEach((key, index) => {
+      switch (key) {
+        case "sKey":
+          schema.sKey = args[index] ?? Schema.string();
+          break;
+        case "inner":
+          schema.inner = Schema.from(args[index]);
+          break;
+        case "list":
+          schema.list = args[index].map(Schema.from);
+          break;
+        case "dict":
+          schema.dict = mapValues(args[index], Schema.from);
+          break;
+        case "bits":
+          schema.bits = {};
+          for (const key2 in args[index]) {
+            if (typeof args[index][key2] !== "number") continue;
+            schema.bits[key2] = args[index][key2];
           }
-          case "callback": {
-            const callback = schema.callback = args[index];
-            callback["toJSON"] ||= () => callback.toString();
-            break;
-          }
-          case "constructor": {
-            const constructor = schema.constructor = args[index];
-            if (typeof constructor === "function") {
-              ;
-              constructor["toJSON"] ||= () => constructor["name"];
-            }
-            break;
-          }
-          default:
-            schema[key] = args[index];
+          break;
+        case "callback": {
+          const callback = schema.callback = args[index];
+          callback["toJSON"] ||= () => callback.toString();
+          break;
         }
-      });
-      if (name === "object" || name === "dict") {
-        schema.meta.default = {};
-      } else if (name === "array" || name === "tuple") {
-        schema.meta.default = [];
-      } else if (name === "bitset") {
-        schema.meta.default = 0;
+        case "constructor": {
+          const constructor = schema.constructor = args[index];
+          if (typeof constructor === "function") constructor["toJSON"] ||= () => constructor["name"];
+          break;
+        }
+        default:
+          schema[key] = args[index];
       }
-      return schema;
-    }
-  });
+    });
+    if (name === "object" || name === "dict") schema.meta.default = {};
+    else if (name === "array" || name === "tuple") schema.meta.default = [];
+    else if (name === "bitset") schema.meta.default = 0;
+    return schema;
+  } });
 }
 defineMethod("is", ["constructor"], ({ constructor }) => {
-  if (typeof constructor === "function") {
-    return constructor.name;
-  } else {
-    return constructor;
-  }
+  if (typeof constructor === "function") return constructor.name;
+  else return constructor;
 });
 defineMethod("any", [], () => "any");
 defineMethod("never", [], () => "never");
@@ -838,8 +858,11 @@ defineMethod("union", ["list"], ({ list }, inline) => {
 defineMethod("intersect", ["list"], ({ list }) => {
   return `${list.map((inner) => inner.toString(true)).join(" & ")}`;
 });
-defineMethod("transform", ["inner", "callback", "preserve"], ({ inner }, isInner) => inner.toString(isInner));
-var src_default = Schema;
+defineMethod("transform", [
+  "inner",
+  "callback",
+  "preserve"
+], ({ inner }, isInner) => inner.toString(isInner));
 
 // vendor/git-review/index.js
 var GIT_HISTORY_SETTINGS_NAMESPACE = "ui-sidebar-git-history";
@@ -850,7 +873,7 @@ var DIFF_ZOOM_MODIFIERS = [
   "shift"
 ];
 var DEFAULT_DIFF_ZOOM_MODIFIER = "alt";
-var GitHistorySettingsSchema = src_default.object({ [DIFF_ZOOM_MODIFIER_FIELD]: src_default.union([...DIFF_ZOOM_MODIFIERS]).default("alt") });
+var GitHistorySettingsSchema = Schema.object({ [DIFF_ZOOM_MODIFIER_FIELD]: Schema.union([...DIFF_ZOOM_MODIFIERS]).default("alt") });
 function apply(ctx) {
   ctx.inject(["settings"], (settingsCtx) => {
     settingsCtx.settings.register(GIT_HISTORY_SETTINGS_NAMESPACE, GitHistorySettingsSchema);

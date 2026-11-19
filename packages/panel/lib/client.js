@@ -1,5 +1,352 @@
 window.__ModuleLoader__.load({id:"@monster-30cl/dsh-git-workspace-panel",factory:(require)=>{
 const GitReview=((require) => {
+const AuthorFilter = ((require) => { const module = { exports: {} }; const exports = module.exports;
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// source/git-review/client/AuthorFilter.tsx
+var AuthorFilter_exports = {};
+__export(AuthorFilter_exports, {
+  AuthorFilter: () => AuthorFilter
+});
+module.exports = __toCommonJS(AuthorFilter_exports);
+var import_react = __toESM(require("react"), 1);
+var import_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-primitives");
+function AuthorFilter({ authors, value, allLabel, label, onChange }) {
+  const [open, setOpen] = (0, import_react.useState)(false);
+  const title = value || allLabel;
+  return /* @__PURE__ */ import_react.default.createElement("span", { className: "dsh-git-author-filter" }, /* @__PURE__ */ import_react.default.createElement("style", null, `.dsh-git-author-filter{display:inline-flex;flex:0 1 auto;min-width:0;max-width:46%}.dsh-git-author-anchor{min-width:0;max-width:100%}.dsh-git-author-trigger{display:inline-flex;align-items:center;gap:7px;min-width:0;max-width:100%;height:32px;padding:0 11px;color:var(--dsw-alias-label-primary);font:inherit;background:color-mix(in srgb,var(--dsw-alias-bg-layer-1) 64%,transparent);border:.5px solid color-mix(in srgb,var(--dsw-alias-border-l4) 72%,transparent);border-radius:16px;cursor:pointer}.dsh-git-author-trigger:hover,.dsh-git-author-trigger[aria-expanded=true]{background:var(--dsw-alias-interactive-bg-hover)}.dsh-git-author-trigger:focus-visible{outline:2px solid var(--dsw-alias-link);outline-offset:2px}.dsh-git-author-trigger span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dsh-git-author-trigger svg{flex:none;color:var(--dsw-alias-label-secondary)}.dsh-git-author-menu{min-width:180px;max-width:min(320px,calc(100vw - 24px));max-height:min(320px,calc(100dvh - 80px));border-radius:12px;padding:5px}.dsh-git-author-trigger[aria-expanded=true] .dsh-git-author-chevron{transform:rotate(180deg)}.dsh-git-author-chevron{transition:transform .15s}`), /* @__PURE__ */ import_react.default.createElement(
+    import_dsh_client_ui_primitives.Menu,
+    {
+      open,
+      portal: true,
+      autoFocus: true,
+      align: "start",
+      className: "dsh-git-author-anchor",
+      listClassName: "dsh-git-author-menu",
+      selectedId: value,
+      items: [{ id: "", label: allLabel }, ...authors.length ? [{ type: "separator" }] : [], ...authors.map((author) => ({ id: author, label: author }))],
+      onSelect: (author) => {
+        setOpen(false);
+        onChange(author);
+      },
+      onClose: () => {
+        setOpen(false);
+      },
+      anchor: /* @__PURE__ */ import_react.default.createElement("button", { type: "button", className: "dsh-git-author-trigger", "data-git-author": true, "aria-label": `${label}: ${title}`, title, "aria-haspopup": "menu", "aria-expanded": open, onClick: () => {
+        setOpen((value2) => !value2);
+      } }, /* @__PURE__ */ import_react.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.2", "aria-hidden": "true" }, /* @__PURE__ */ import_react.default.createElement("circle", { cx: "8", cy: "5", r: "2.5" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "M3 14v-1.5a5 5 0 0 1 10 0V14" })), /* @__PURE__ */ import_react.default.createElement("span", null, title), /* @__PURE__ */ import_react.default.createElement("svg", { className: "dsh-git-author-chevron", width: "12", height: "12", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.5", "aria-hidden": "true" }, /* @__PURE__ */ import_react.default.createElement("path", { d: "m4 6 4 4 4-4" })))
+    }
+  ));
+}
+
+return module.exports.AuthorFilter; })(require);
+
+const ComparisonDialog = ((require) => { const module = { exports: {} }; const exports = module.exports;
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// source/git-review/client/ComparisonDialog.tsx
+var ComparisonDialog_exports = {};
+__export(ComparisonDialog_exports, {
+  ComparisonDialog: () => ComparisonDialog
+});
+module.exports = __toCommonJS(ComparisonDialog_exports);
+var import_react = __toESM(require("react"), 1);
+var import_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-primitives");
+function ComparisonDialog({ open, fullscreen, className, title, fullText, copyDisabled, closeLabel, onClose, children }) {
+  const [copyState, setCopyState] = (0, import_react.useState)("");
+  const timer = (0, import_react.useRef)(void 0);
+  (0, import_react.useEffect)(() => {
+    setCopyState("");
+    return () => {
+      clearTimeout(timer.current);
+    };
+  }, [title, fullText, open]);
+  const completeText = fullText ?? title;
+  const copyText = async () => {
+    try {
+      await navigator.clipboard.writeText(completeText);
+      setCopyState("\u5DF2\u590D\u5236\u5B8C\u6574\u5907\u6CE8");
+    } catch {
+      setCopyState("\u590D\u5236\u5931\u8D25\uFF0C\u8BF7\u70B9\u51FB\u6807\u9898\u540E\u624B\u52A8\u590D\u5236");
+    }
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      setCopyState("");
+    }, 2e3);
+  };
+  const [meta, ...content] = import_react.default.Children.toArray(children);
+  const metaChildren = import_react.default.Children.toArray(meta?.props.children);
+  const tools = metaChildren.pop();
+  return /* @__PURE__ */ import_react.default.createElement(import_dsh_client_ui_primitives.Modal, { open, headless: true, title, onClose, className: `${className} dsh-comparison-shell${fullscreen ? " dsh-comparison-expanded" : ""}` }, /* @__PURE__ */ import_react.default.createElement("style", null, `.dsh-comparison-shell{position:relative;gap:0;max-height:100%;max-width:100%;padding-bottom:0;display:flex;flex-direction:column;overflow:hidden}.dsh-comparison-shell.dsh-comparison-expanded{position:relative;inset:auto;width:100%;height:100%;max-width:100%;max-height:100%;border-radius:10px}.dsh-comparison-heading{display:flex;flex:none;align-items:center;gap:8px;padding:14px 8px 12px 24px;min-height:56px;box-sizing:border-box}.dsh-comparison-heading h2{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0;color:var(--dsw-alias-label-primary);font-size:16px;line-height:24px;font-weight:500}.dsh-comparison-title{cursor:help}.dsh-comparison-title:focus-visible{outline:2px solid var(--dsw-alias-link);outline-offset:3px;border-radius:4px}.dsh-comparison-close{display:inline-flex;flex:none;align-items:center;justify-content:center;width:28px;height:28px;padding:0;border:0;border-radius:6px;color:var(--dsw-alias-label-secondary);background:transparent;cursor:pointer}.dsh-comparison-close:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}.dsh-comparison-close:focus-visible{outline:2px solid var(--dsw-alias-link);outline-offset:1px}.dsh-comparison-meta{flex:none;padding:0 24px 10px;color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);font-size:12px}.dsh-comparison-content{display:flex;flex:1;min-height:0;overflow:hidden;padding:0 12px 12px 24px}.dsh-comparison-content>div{flex:1;min-width:0;min-height:0;height:auto;margin-top:0}`), /* @__PURE__ */ import_react.default.createElement("div", { className: "dsh-comparison-heading" }, /* @__PURE__ */ import_react.default.createElement(import_dsh_client_ui_primitives.Tooltip, { label: completeText, side: "bottom", portal: true, delayMs: 250, focusDelayMs: 150, openOnClick: true }, /* @__PURE__ */ import_react.default.createElement("h2", { className: "dsh-comparison-title", tabIndex: 0 }, title)), /* @__PURE__ */ import_react.default.createElement(import_dsh_client_ui_primitives.Tooltip, { label: copyState || "\u590D\u5236\u5B8C\u6574\u5907\u6CE8", side: "bottom", portal: true }, /* @__PURE__ */ import_react.default.createElement("button", { type: "button", className: "dsh-comparison-close", disabled: copyDisabled, "aria-label": copyState || "\u590D\u5236\u5B8C\u6574\u5907\u6CE8", "data-git-copy-message": true, onClick: () => {
+    void copyText();
+  } }, /* @__PURE__ */ import_react.default.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", "aria-hidden": "true" }, /* @__PURE__ */ import_react.default.createElement("rect", { x: "5.5", y: "5.5", width: "8", height: "8", rx: "1.5" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "M10.5 5.5v-2A1 1 0 0 0 9.5 2.5h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2" })))), /* @__PURE__ */ import_react.default.createElement("span", { role: "status", style: { position: "absolute", width: 1, height: 1, overflow: "hidden", clipPath: "inset(50%)" } }, copyState), tools, /* @__PURE__ */ import_react.default.createElement(import_dsh_client_ui_primitives.Tooltip, { label: closeLabel, side: "bottom", portal: true }, /* @__PURE__ */ import_react.default.createElement("button", { type: "button", className: "dsh-comparison-close", "aria-label": closeLabel, onClick: onClose }, /* @__PURE__ */ import_react.default.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", "aria-hidden": "true" }, /* @__PURE__ */ import_react.default.createElement("path", { d: "m3 3 10 10M13 3 3 13" }))))), !fullscreen && /* @__PURE__ */ import_react.default.createElement("div", { className: "dsh-comparison-meta" }, metaChildren), /* @__PURE__ */ import_react.default.createElement("div", { className: "dsh-comparison-content" }, content));
+}
+
+return module.exports.ComparisonDialog; })(require);
+
+const CommitMessageDialog = ((require) => { const module = { exports: {} }; const exports = module.exports;
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// source/git-review/client/CommitMessageDialog.tsx
+var CommitMessageDialog_exports = {};
+__export(CommitMessageDialog_exports, {
+  CommitMessageDialog: () => CommitMessageDialog
+});
+module.exports = __toCommonJS(CommitMessageDialog_exports);
+var import_react2 = __toESM(require("react"), 1);
+var import_dsh_client_ui_primitives2 = require("@deepseek-ai/dsh-client-ui-primitives");
+
+// source/git-review/client/CommitMessageGenerator.tsx
+var import_react = __toESM(require("react"), 1);
+var import_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-primitives");
+function CommitMessageGenerator({ workspaceId, paths, message, generate, onMessage, className, onError }) {
+  const [busy, setBusy] = (0, import_react.useState)(false);
+  const request = (0, import_react.useRef)(void 0);
+  const selection = JSON.stringify(paths);
+  (0, import_react.useEffect)(() => {
+    request.current?.abort();
+    request.current = void 0;
+    setBusy(false);
+    onError(void 0);
+    return () => {
+      request.current?.abort();
+    };
+  }, [workspaceId, selection, message]);
+  const run = async () => {
+    if (request.current) return;
+    const controller = new AbortController();
+    request.current = controller;
+    setBusy(true);
+    onError(void 0);
+    try {
+      const generated = await generate(workspaceId, controller.signal, paths);
+      if (!controller.signal.aborted) onMessage(generated);
+    } catch (failure) {
+      if (!controller.signal.aborted) onError(failure instanceof Error ? failure.message : "\u751F\u6210\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5\u3002");
+    } finally {
+      if (request.current === controller) {
+        request.current = void 0;
+        setBusy(false);
+      }
+    }
+  };
+  const label = busy ? "AI \u751F\u6210\u4E2D\u2026" : "AI \u751F\u6210\u63D0\u4EA4\u5907\u6CE8";
+  return /* @__PURE__ */ import_react.default.createElement(import_dsh_client_ui_primitives.Tooltip, { label, side: "bottom", portal: true }, /* @__PURE__ */ import_react.default.createElement("span", { "data-git-ai-message": true, style: { display: "inline-flex", alignItems: "center" } }, /* @__PURE__ */ import_react.default.createElement("button", { type: "button", className, disabled: busy || paths.length === 0, "aria-label": label, "aria-busy": busy, onClick: () => {
+    void run();
+  } }, busy ? /* @__PURE__ */ import_react.default.createElement("svg", { className: "dsh-commit-ai-spinner", width: "18", height: "18", viewBox: "0 0 20 20", fill: "none", stroke: "currentColor", strokeWidth: "1.5", "aria-hidden": "true" }, /* @__PURE__ */ import_react.default.createElement("circle", { cx: "10", cy: "10", r: "7", opacity: ".25" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "M10 3a7 7 0 0 1 7 7" })) : /* @__PURE__ */ import_react.default.createElement("svg", { width: "18", height: "18", viewBox: "0 0 20 20", fill: "none", stroke: "currentColor", strokeWidth: "1.4", strokeLinejoin: "round", "aria-hidden": "true" }, /* @__PURE__ */ import_react.default.createElement("path", { d: "m8 3 1.8 4.8L15 10l-5.2 2.2L8 17l-1.8-4.8L1 10l5.2-2.2L8 3Z" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "m16 1 .8 2.2L19 4l-2.2.8L16 7l-.8-2.2L13 4l2.2-.8L16 1Z" }))), busy && /* @__PURE__ */ import_react.default.createElement("span", { role: "status", style: { position: "absolute", width: 1, height: 1, overflow: "hidden", clipPath: "inset(50%)" } }, "\u6B63\u5728\u5206\u6790\u52FE\u9009\u6587\u4EF6\u7684\u6539\u52A8\u2026")));
+}
+
+// source/git-review/client/CommitMessageDialog.tsx
+function CommitMessageDialog({ open, className, onClose, title, closeLabel, footer, children, ai }) {
+  return /* @__PURE__ */ import_react2.default.createElement(import_dsh_client_ui_primitives2.Modal, { open, headless: true, className, onClose, title }, /* @__PURE__ */ import_react2.default.createElement("style", null, `.dsh-commit-dialog-header{display:flex;align-items:center;gap:8px;padding:22px 14px 12px 24px}.dsh-commit-dialog-header h2{margin:0;color:var(--dsw-alias-label-primary);font-size:16px;line-height:24px;font-weight:500}.dsh-commit-title-tool{display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;color:var(--dsw-alias-label-secondary);background:transparent;border:0;border-radius:6px;cursor:pointer}.dsh-commit-title-tool:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}.dsh-commit-title-tool:focus-visible{outline:2px solid var(--dsw-alias-link);outline-offset:2px}.dsh-commit-title-tool:disabled{cursor:default;opacity:.55}.dsh-commit-ai-spinner{animation:dsh-commit-ai-spin 1s linear infinite}@keyframes dsh-commit-ai-spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.dsh-commit-ai-spinner{animation:none}}`), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dsh-commit-dialog-header" }, /* @__PURE__ */ import_react2.default.createElement("h2", null, title), ai && /* @__PURE__ */ import_react2.default.createElement(CommitMessageGenerator, { ...ai, className: "dsh-commit-title-tool" }), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", className: "dsh-commit-title-tool", style: { marginLeft: "auto" }, "aria-label": closeLabel, onClick: onClose }, /* @__PURE__ */ import_react2.default.createElement("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", "aria-hidden": "true" }, /* @__PURE__ */ import_react2.default.createElement("path", { d: "m3 3 10 10M13 3 3 13" })))), /* @__PURE__ */ import_react2.default.createElement("div", { style: { display: "flex", flexDirection: "column", minWidth: 0, marginTop: 20, padding: "0 24px" } }, children), /* @__PURE__ */ import_react2.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, padding: "0 24px" } }, footer));
+}
+
+return module.exports.CommitMessageDialog; })(require);
+
+const HistoryDatePicker = ((require) => { const module = { exports: {} }; const exports = module.exports;
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// source/git-review/client/HistoryDatePicker.tsx
+var HistoryDatePicker_exports = {};
+__export(HistoryDatePicker_exports, {
+  HistoryDatePicker: () => HistoryDatePicker
+});
+module.exports = __toCommonJS(HistoryDatePicker_exports);
+var import_react = __toESM(require("react"), 1);
+
+// source/git-review/client/HistoryDatePicker.css
+var HistoryDatePicker_default = ".dsh-history-date{position:relative;flex:1 1 0;min-width:0;color:var(--dsw-alias-label-primary);font:inherit}\n.dsh-history-date-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;box-sizing:border-box;width:100%;height:32px;padding:0 12px;color:inherit;font:inherit;white-space:nowrap;background:color-mix(in srgb,var(--dsw-alias-bg-layer-1) 64%,transparent);border:.5px solid var(--dsw-alias-border-l4);border-radius:16px;cursor:pointer}\n.dsh-history-date-trigger span{overflow:hidden;text-overflow:ellipsis}.dsh-history-date-trigger svg{flex:none;color:var(--dsw-alias-label-secondary)}\n.dsh-history-calendar{position:fixed;inset:auto;margin:0;z-index:20;box-sizing:border-box;width:260px;max-width:calc(100vw - 16px);max-height:calc(100vh - 16px);overflow:auto;padding:12px;color:var(--dsw-alias-label-primary);font:inherit;background:var(--dsw-alias-bg-layer-2);border:.5px solid var(--dsw-alias-border-l4);border-radius:14px;box-shadow:0 8px 28px #00000024}\n.dsh-history-calendar::backdrop{background:transparent;pointer-events:none}\n.dsh-history-calendar button{display:flex;align-items:center;justify-content:center;min-width:0;height:28px;padding:0;color:inherit;font:inherit;background:transparent;border:0;border-radius:7px;cursor:pointer}\n.dsh-history-calendar button:hover,.dsh-history-date-trigger:hover{background:var(--dsw-alias-interactive-bg-hover)}\n.dsh-history-calendar button:focus-visible,.dsh-history-date-trigger:focus-visible{outline:2px solid var(--dsw-alias-link);outline-offset:1px}\n.dsh-history-calendar-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-weight:500}.dsh-history-calendar-heading button{width:28px;font-size:20px}\n.dsh-history-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.dsh-history-weekday{display:flex;align-items:center;justify-content:center;height:24px;color:var(--dsw-alias-label-tertiary);font-size:12px}\n.dsh-history-calendar button[data-outside=true]{color:var(--dsw-alias-label-tertiary)}.dsh-history-calendar button[aria-current=date]{box-shadow:inset 0 0 0 1px var(--dsw-alias-link)}.dsh-history-calendar button[aria-pressed=true]{color:var(--dsw-alias-link);background:var(--dsw-alias-interactive-bg-active);font-weight:600}\n.dsh-history-calendar button:disabled{opacity:.3;cursor:default;background:transparent}\n.dsh-history-calendar-footer{display:flex;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:.5px solid var(--dsw-alias-border-l2)}.dsh-history-calendar-footer button{padding:0 8px;color:var(--dsw-alias-link)}\r\n";
+
+// source/git-review/client/HistoryDatePicker.tsx
+function HistoryDatePicker({ value, min, max, onChange, ...props }) {
+  const [open, setOpen] = (0, import_react.useState)(false);
+  const [month, setMonth] = (0, import_react.useState)(() => (value || localDay(/* @__PURE__ */ new Date())).slice(0, 7));
+  const root = (0, import_react.useRef)(null);
+  const trigger = (0, import_react.useRef)(null);
+  const calendar = (0, import_react.useRef)(null);
+  const locale = typeof document === "undefined" ? "zh-CN" : document.documentElement.lang || navigator.language;
+  const chinese = locale.toLowerCase().startsWith("zh");
+  const text = chinese ? ["\u4E0A\u4E00\u6708", "\u4E0B\u4E00\u6708", "\u6E05\u9664", "\u4ECA\u5929", "\u9009\u62E9\u65E5\u671F"] : ["Previous month", "Next month", "Clear", "Today", "Choose date"];
+  (0, import_react.useEffect)(() => {
+    if (!open) return;
+    const close = (event) => {
+      if (!root.current?.contains(event.target)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, [open]);
+  (0, import_react.useLayoutEffect)(() => {
+    if (!open || !calendar.current || !trigger.current) return;
+    const popup = calendar.current;
+    popup.showPopover();
+    const position = () => {
+      const anchor = trigger.current?.getBoundingClientRect();
+      if (!anchor) return;
+      const gap = 6;
+      const margin = 8;
+      const width = popup.offsetWidth;
+      const height = popup.offsetHeight;
+      const below = window.innerHeight - anchor.bottom - gap - margin;
+      const top = below >= height || below >= anchor.top - gap - margin ? anchor.bottom + gap : anchor.top - height - gap;
+      popup.style.left = Math.max(margin, Math.min(anchor.left, window.innerWidth - width - margin)) + "px";
+      popup.style.top = Math.max(margin, Math.min(top, window.innerHeight - height - margin)) + "px";
+    };
+    position();
+    window.addEventListener("resize", position);
+    window.addEventListener("scroll", position, true);
+    const observer = new ResizeObserver(position);
+    observer.observe(popup);
+    observer.observe(trigger.current);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", position);
+      window.removeEventListener("scroll", position, true);
+      popup.hidePopover();
+    };
+  }, [open]);
+  const first = /* @__PURE__ */ new Date(`${month}-01T12:00:00`);
+  const start = new Date(first);
+  start.setDate(1 - (first.getDay() + 6) % 7);
+  const today = localDay(/* @__PURE__ */ new Date());
+  const allowed = (day) => (!min || day >= min) && (!max || day <= max);
+  const choose = (day) => {
+    onChange(day);
+    setOpen(false);
+    trigger.current?.focus();
+  };
+  const shift = (amount) => {
+    const next = new Date(first);
+    next.setMonth(next.getMonth() + amount);
+    setMonth(localDay(next).slice(0, 7));
+  };
+  return /* @__PURE__ */ import_react.default.createElement("div", { className: "dsh-history-date", ref: root, onBlur: (event) => {
+    if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+  }, onKeyDown: (event) => {
+    if (event.key === "Escape") {
+      event.stopPropagation();
+      setOpen(false);
+      trigger.current?.focus();
+    }
+  } }, /* @__PURE__ */ import_react.default.createElement("style", null, HistoryDatePicker_default), /* @__PURE__ */ import_react.default.createElement("button", { ...props, ref: trigger, type: "button", className: "dsh-history-date-trigger", "aria-haspopup": "dialog", "aria-expanded": open, onClick: () => {
+    if (!open) setMonth((value || today).slice(0, 7));
+    setOpen(!open);
+  } }, /* @__PURE__ */ import_react.default.createElement("span", null, value || (chinese ? "\u5E74 / \u6708 / \u65E5" : "yyyy / mm / dd")), /* @__PURE__ */ import_react.default.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", "aria-hidden": "true" }, /* @__PURE__ */ import_react.default.createElement("rect", { x: "2.5", y: "3.5", width: "11", height: "10", rx: "2" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "M5 2v3m6-3v3M3 7h10" }))), open && /* @__PURE__ */ import_react.default.createElement("div", { ref: calendar, popover: "manual", className: "dsh-history-calendar", role: "dialog", "aria-label": props["aria-label"] }, /* @__PURE__ */ import_react.default.createElement("div", { className: "dsh-history-calendar-heading" }, /* @__PURE__ */ import_react.default.createElement("button", { type: "button", "aria-label": text[0], onClick: () => shift(-1) }, "\u2039"), /* @__PURE__ */ import_react.default.createElement("span", { "aria-live": "polite" }, first.toLocaleDateString(locale, { year: "numeric", month: "long" })), /* @__PURE__ */ import_react.default.createElement("button", { type: "button", "aria-label": text[1], onClick: () => shift(1) }, "\u203A")), /* @__PURE__ */ import_react.default.createElement("div", { className: "dsh-history-calendar-grid" }, Array.from({ length: 7 }, (_, i) => /* @__PURE__ */ import_react.default.createElement("span", { className: "dsh-history-weekday", key: i }, new Date(2024, 0, i + 1).toLocaleDateString(locale, { weekday: "narrow" }))), Array.from({ length: 42 }, (_, i) => {
+    const date = new Date(start);
+    date.setDate(start.getDate() + i);
+    const day = localDay(date);
+    return /* @__PURE__ */ import_react.default.createElement("button", { type: "button", key: day, disabled: !allowed(day), "aria-label": day, "aria-pressed": value === day, "aria-current": day === today ? "date" : void 0, "data-outside": day.slice(0, 7) !== month, onClick: () => choose(day) }, date.getDate());
+  })), /* @__PURE__ */ import_react.default.createElement("div", { className: "dsh-history-calendar-footer" }, /* @__PURE__ */ import_react.default.createElement("button", { type: "button", onClick: () => choose("") }, text[2]), /* @__PURE__ */ import_react.default.createElement("button", { type: "button", disabled: !allowed(today), onClick: () => choose(today) }, text[3]))));
+}
+function localDay(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+return module.exports.HistoryDatePicker; })(require);
+
 		var module = { exports: {} };
 		var exports = module.exports;
 		Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
@@ -811,6 +1158,7 @@ const GitReview=((require) => {
 		Schema.object({ [DIFF_ZOOM_MODIFIER_FIELD]: Schema.union([...DIFF_ZOOM_MODIFIERS]).default("alt") });
 		/** Whether a wheel event carries the configured modifier. */
 		function matchesDiffZoomModifier(event, modifier) {
+            if (event.ctrlKey) return true;
 			switch (modifier) {
 				case "alt": return event.altKey;
 				case "control": return event.ctrlKey;
@@ -934,7 +1282,8 @@ const GitReview=((require) => {
 				priority: "builtin",
 				title: () => t("type.label"),
 				guide: [{
-					order: 20,
+					commandId: "git.workspace.review.open",
+                    order: 25,
 					title: () => t("guide.title"),
 					description: () => t("guide.description"),
 					icon: GitReviewIcon
@@ -945,13 +1294,17 @@ const GitReview=((require) => {
 		//#region dsh-css:source/git-review/client/DiffZoomShortcutRow.module.css.mjs
 		const css$3 = ".NYjLYG_row{border-bottom:.5px solid var(--dsw-alias-border-l2);align-items:center;gap:8px;padding:16px 0;display:flex}.NYjLYG_rowText{flex-direction:column;flex:1;gap:4px;min-width:0;padding-right:48px;display:flex}.NYjLYG_title{color:var(--dsw-alias-label-primary);font-size:14px;font-weight:400;line-height:22px}.NYjLYG_desc{color:var(--dsw-alias-label-tertiary);font-size:12px;font-weight:400;line-height:18px}.NYjLYG_selector{height:36px;color:var(--dsw-alias-label-primary);font:inherit;white-space:nowrap;cursor:pointer;background:var(--dsw-alias-bg-module-platform);border:none;border-radius:18px;align-items:center;gap:12px;padding:0 14px;font-size:14px;line-height:22px;display:inline-flex}.NYjLYG_selector:hover{background:var(--dsw-alias-interactive-bg-hover)}.NYjLYG_chevron{flex:none}";
 		const tagId$3 = "@deepseek-ai/dsh-client-ui-sidebar-git-history/DiffZoomShortcutRow.module.css";
-		if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$3) + "]") === null) {
-			const tag = document.createElement("style");
-			tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
-			tag.dataset.pluginCss = tagId$3;
-			tag.textContent = css$3;
-			document.head.appendChild(tag);
-		}
+		if (typeof document !== "undefined") {
+			const sheet = css$3;
+			const existing = document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$3) + "]");
+			if (existing === null) {
+				const tag = document.createElement("style");
+				tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
+				tag.dataset.pluginCss = tagId$3;
+				tag.textContent = sheet;
+				document.head.appendChild(tag);
+			} else if (existing.textContent !== sheet) existing.textContent = sheet;
+			}
 		var DiffZoomShortcutRow_module_css_default = {
 			"chevron": "NYjLYG_chevron",
 			"desc": "NYjLYG_desc",
@@ -1089,9 +1442,17 @@ const GitReview=((require) => {
 				commits: state.commits,
 				more: state.more,
 				...state.branch === void 0 ? {} : { branch: state.branch },
+				...state.authors === void 0 ? {} : { authors: state.authors },
 				repository: true
 			};
 		}
+		/** The filter a first read carries: nothing typed, every author, no date bounds. */
+		const NO_FILTER = {
+			search: "",
+			author: "",
+			since: "",
+			until: ""
+		};
 		/**
 		* Bind the history's face to one commit read.
 		* @param log - the bound `gitWorkspace.log` call.
@@ -1106,15 +1467,15 @@ const GitReview=((require) => {
 					generations.set(tabId, generation);
 					return generation;
 				};
-				const read = (tabId, workspaceId, search, skip, signal) => {
+				const read = (tabId, workspaceId, filter, skip, signal) => {
 					if (signal.aborted) return;
 					const generation = nextGeneration(tabId);
-					if (skip === 0) actions.loading(tabId, search);
+					if (skip === 0) actions.loading(tabId, filter);
 					else actions.moreLoading(tabId);
 					log(workspaceId, {
 						skip,
 						limit: 50,
-						search
+						...filter
 					}, signal).then((result) => {
 						if (generations.get(tabId) !== generation) return;
 						if (result.ok) if (skip === 0) actions.loaded(tabId, pageOf(result.value));
@@ -1130,13 +1491,13 @@ const GitReview=((require) => {
 							generations.delete(tabId);
 							actions.forget(tabId);
 						}, { once: true });
-						read(tabId, workspaceId, "", 0, signal);
+						read(tabId, workspaceId, NO_FILTER, 0, signal);
 					},
-					reload(tabId, workspaceId, search, signal) {
-						read(tabId, workspaceId, search, 0, signal);
+					reload(tabId, workspaceId, filter, signal) {
+						read(tabId, workspaceId, filter, 0, signal);
 					},
-					loadMore(tabId, workspaceId, search, skip, signal) {
-						read(tabId, workspaceId, search, skip, signal);
+					loadMore(tabId, workspaceId, filter, skip, signal) {
+						read(tabId, workspaceId, filter, skip, signal);
 					}
 				};
 			};
@@ -1219,24 +1580,36 @@ const GitReview=((require) => {
 		}
 		//#endregion
 		//#region dsh-css:source/git-review/client/GitHistoryBody.module.css.mjs
-		const css$2 = "._7gOSaa_root{height:100%;min-height:0;color:var(--dsw-alias-label-primary);font-size:var(--dsh-content-font-size-secondary,13px);flex-direction:column;flex:auto;padding:4px 0 0;line-height:1.5;display:flex;overflow:hidden}._7gOSaa_chrome{z-index:2;background:color-mix(in srgb, var(--dsw-alias-bg-base) 68%, transparent);backdrop-filter:blur(18px)saturate(130%);flex:none;position:relative}body[data-dsh-background-media] ._7gOSaa_chrome{background:color-mix(in srgb, var(--dsw-alias-bg-base) 46%, transparent)}._7gOSaa_body{flex-direction:column;flex:auto;min-height:0;padding-bottom:8px;display:flex;overflow:auto}._7gOSaa_header{color:var(--dsw-alias-label-secondary);flex:none;align-items:center;gap:6px;padding:4px 10px;font-weight:500;display:flex}._7gOSaa_icon{color:var(--dsw-alias-label-secondary);flex:none}._7gOSaa_name{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}._7gOSaa_changesTool{color:var(--dsw-alias-label-secondary);font:inherit;border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;background:0 0;border-radius:6px;flex:none;padding:3px 8px}._7gOSaa_changesTool:hover,._7gOSaa_changesTool[aria-pressed=true]{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_tool{width:24px;height:24px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;justify-content:center;align-items:center;margin-left:auto;padding:0;display:inline-flex}._7gOSaa_tool:hover{background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_search{flex:none;align-items:center;gap:6px;padding:2px 10px 6px;display:flex}._7gOSaa_input{flex:auto;min-width:0}._7gOSaa_searchTool{height:32px;color:var(--dsw-alias-label-primary);font:inherit;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 64%, transparent);border:.5px solid color-mix(in srgb, var(--dsw-alias-border-l4) 72%, transparent);backdrop-filter:blur(16px)saturate(125%);cursor:pointer;border-radius:16px;flex:none;padding:0 14px}._7gOSaa_searchTool:hover{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover) 72%, transparent)}._7gOSaa_level{margin:0;padding:0;list-style:none}._7gOSaa_item{margin:0;padding:0 4px}._7gOSaa_commitButton{width:100%;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;padding:3px 6px;display:block}._7gOSaa_commitButton:hover{background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_row{align-items:baseline;gap:6px;min-width:0;display:flex}._7gOSaa_hash{color:var(--dsw-alias-link);font-family:var(--ds-font-family-code);flex:none;font-size:12px}._7gOSaa_subject{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}._7gOSaa_meta{min-width:0;color:var(--dsw-alias-label-tertiary);align-items:baseline;gap:8px;font-size:12px;display:flex}._7gOSaa_author{white-space:nowrap;text-overflow:ellipsis;overflow:hidden}._7gOSaa_date{flex:none}._7gOSaa_note{color:var(--dsw-alias-label-tertiary);margin:0;padding:3px 10px;font-size:12px}._7gOSaa_error{color:var(--dsw-alias-state-error-primary);margin:0;padding:3px 10px;font-size:12px}._7gOSaa_more{color:var(--dsw-alias-label-secondary);font:inherit;border:1px solid var(--dsw-alias-border-l2);cursor:pointer;background:0 0;border-radius:6px;align-self:center;margin:6px 0 0;padding:3px 12px}._7gOSaa_more:hover{background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_moreBusy{cursor:default;opacity:.6}._7gOSaa_status{flex-direction:column;padding:12px 10px;display:flex}._7gOSaa_statusLine{color:var(--dsw-alias-label-secondary);font-size:var(--dsh-content-font-size-secondary,13px);margin:0;line-height:1.6}._7gOSaa_detailDialog{background:var(--dsw-alias-bg-layer-2);width:min(1120px,100vw - 48px);height:min(760px,100vh - 48px);padding-bottom:18px}._7gOSaa_detailDialogFullscreen{border-radius:0;width:100vw;height:100vh;position:fixed;inset:0}body[data-dsh-background-media] ._7gOSaa_detailDialog{background:color-mix(in srgb, var(--dsw-alias-bg-layer-2) 72%, transparent);backdrop-filter:blur(16px)saturate(125%)}._7gOSaa_detailMeta{min-height:30px;color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);justify-content:space-between;align-items:center;padding:0 24px;font-size:12px;display:flex}._7gOSaa_detailMetaFullscreen{justify-content:flex-end}._7gOSaa_detailTools{flex:none;align-items:center;gap:4px;display:flex}._7gOSaa_detailLayout{border-top:.5px solid var(--dsw-alias-border-l2);height:min(620px,100vh - 180px);margin-top:12px;display:grid}._7gOSaa_detailLayoutFullscreen{height:calc(100vh - 126px);margin-top:4px}._7gOSaa_detailLayoutFullscreen ._7gOSaa_fileList,._7gOSaa_detailLayoutFullscreen ._7gOSaa_filePaneResize{display:none}._7gOSaa_detailLayoutFullscreen ._7gOSaa_diff{contain:layout paint style}._7gOSaa_workingDiffLayout{grid-template-columns:minmax(0,1fr)}._7gOSaa_fileList{min-width:0;padding:8px;overflow:auto}._7gOSaa_fileList,._7gOSaa_diffPane{scrollbar-color:color-mix(in srgb, var(--dsw-alias-label-secondary) 62%, transparent) color-mix(in srgb, var(--dsw-alias-bg-layer-1) 78%, transparent);scrollbar-width:auto}._7gOSaa_fileList::-webkit-scrollbar,._7gOSaa_diffPane::-webkit-scrollbar{width:12px;height:12px}._7gOSaa_fileList::-webkit-scrollbar-track,._7gOSaa_diffPane::-webkit-scrollbar-track{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 82%, transparent);border:1px solid color-mix(in srgb, var(--dsw-alias-border-l2) 78%, transparent);border-radius:8px}._7gOSaa_fileList::-webkit-scrollbar-thumb,._7gOSaa_diffPane::-webkit-scrollbar-thumb{background:color-mix(in srgb, var(--dsw-alias-label-secondary) 66%, transparent);background-clip:content-box;border:3px solid #0000;border-radius:8px;min-width:32px;min-height:32px}._7gOSaa_fileList::-webkit-scrollbar-thumb:hover,._7gOSaa_diffPane::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb, var(--dsw-alias-label-primary) 82%, transparent);background-clip:content-box}._7gOSaa_fileList::-webkit-scrollbar-corner,._7gOSaa_diffPane::-webkit-scrollbar-corner{background:0 0}body[data-dsh-background-media] ._7gOSaa_fileList,body[data-dsh-background-media] ._7gOSaa_diffPane{scrollbar-color:color-mix(in srgb, var(--dsw-alias-label-primary) 72%, transparent) color-mix(in srgb, var(--dsw-alias-bg-layer-1) 46%, transparent)}._7gOSaa_treeLevel{min-width:max-content;margin:0;padding:0;list-style:none}._7gOSaa_treeRow{width:100%;min-width:max-content;color:var(--dsw-alias-label-secondary);font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;align-items:center;gap:7px;padding:6px 8px;display:flex}._7gOSaa_treeRow:hover,._7gOSaa_detailFileSelected{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_treeFile{padding-right:16px}._7gOSaa_fileName{min-width:0}._7gOSaa_fileTypeIcon{width:18px;height:18px;color:var(--dsw-alias-label-secondary);font:600 6px/1 var(--ds-font-family-code);flex:0 0 18px;justify-content:center;align-items:center;display:inline-flex;position:relative}._7gOSaa_fileTypeIcon svg{width:18px;height:18px;position:absolute;inset:0}._7gOSaa_fileTypeMark{letter-spacing:-.35px;white-space:nowrap;max-width:13px;position:relative;top:2px;overflow:hidden}._7gOSaa_fileType_java ._7gOSaa_fileTypeMark:after{content:\"J\"}._7gOSaa_fileType_xml ._7gOSaa_fileTypeMark:after{content:\"<>\"}._7gOSaa_fileType_text ._7gOSaa_fileTypeMark:after{content:\"TXT\"}._7gOSaa_fileType_python ._7gOSaa_fileTypeMark:after{content:\"PY\"}._7gOSaa_fileType_typescript ._7gOSaa_fileTypeMark:after{content:\"TS\"}._7gOSaa_fileType_javascript ._7gOSaa_fileTypeMark:after{content:\"JS\"}._7gOSaa_fileType_json ._7gOSaa_fileTypeMark:after{content:\"{}\"}._7gOSaa_fileType_markdown ._7gOSaa_fileTypeMark:after{content:\"MD\"}._7gOSaa_fileType_style ._7gOSaa_fileTypeMark:after{content:\"#\"}._7gOSaa_fileType_html ._7gOSaa_fileTypeMark:after{content:\"</>\"}._7gOSaa_fileType_shell ._7gOSaa_fileTypeMark:after{content:\"$_\"}._7gOSaa_fileType_generic ._7gOSaa_fileTypeMark:after{content:\"—\"}._7gOSaa_fileType_java{color:#c96b3b}._7gOSaa_fileType_xml,._7gOSaa_fileType_html{color:#d57b2d}._7gOSaa_fileType_text,._7gOSaa_fileType_markdown{color:#66737f}._7gOSaa_fileType_python{color:#3572a5}._7gOSaa_fileType_typescript{color:#3178c6}._7gOSaa_fileType_javascript{color:#a78300}._7gOSaa_fileType_json{color:#7b7f28}._7gOSaa_fileType_style{color:#8a55b5}._7gOSaa_fileType_shell{color:#438b57}._7gOSaa_treeChevron{flex:none;transition:transform .12s}._7gOSaa_treeChevronExpanded{transform:rotate(90deg)}._7gOSaa_filePaneResize{cursor:col-resize;touch-action:none;position:relative}._7gOSaa_filePaneResize:after{content:\"\";background:var(--dsw-alias-border-l2);width:1px;position:absolute;top:0;bottom:0;left:2px}._7gOSaa_filePaneResize:hover:after{background:var(--dsw-alias-label-tertiary);width:2px}._7gOSaa_fileStatus{color:var(--dsw-alias-label-tertiary);font-size:11px;font-family:var(--ds-font-family-code);flex:none;margin-left:auto;padding-left:8px}._7gOSaa_diff{background:var(--dsw-alias-bg-base);flex-direction:column;min-width:0;display:flex;overflow:hidden}._7gOSaa_diffHint{color:var(--dsw-alias-label-tertiary);margin:0;padding:12px 16px}._7gOSaa_diffTable{width:100%;min-height:0;color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);flex:auto;grid-template-columns:minmax(0,1fr) minmax(0,1fr);font-size:12px;line-height:20px;display:grid;position:relative}._7gOSaa_syntax_comment{color:var(--dsw-alias-label-tertiary);font-style:italic}._7gOSaa_syntax_string{color:#2f8a57}._7gOSaa_syntax_number{color:#b56a2b}._7gOSaa_syntax_keyword{color:#8750b4;font-weight:500}._7gOSaa_syntax_tag{color:#167f8c}._7gOSaa_syntax_attribute{color:#a65b2e}._7gOSaa_searchMatch{color:inherit;background:#f2c94cad;border-radius:2px;padding:0 1px}._7gOSaa_searchActiveRow ._7gOSaa_searchMatch{background:#ff9f2fd1;box-shadow:0 0 0 1px #9b5b006b}._7gOSaa_zoomIndicator{z-index:4;min-width:48px;color:var(--dsw-alias-label-primary);font:12px/1 var(--ds-font-family-code);text-align:center;pointer-events:none;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 92%, transparent);border:1px solid var(--dsw-alias-border-l2);opacity:0;border-radius:7px;padding:5px 9px;transition:opacity .16s,transform .16s;position:absolute;bottom:16px;right:16px;transform:translateY(4px);box-shadow:0 4px 14px #00000029}._7gOSaa_zoomIndicatorVisible{opacity:1;transform:translateY(0)}body[data-dsh-background-media] ._7gOSaa_zoomIndicator{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 68%, transparent);backdrop-filter:blur(16px)saturate(125%)}._7gOSaa_diffHeader{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border-bottom:.5px solid var(--dsw-alias-border-l2);flex:none;grid-template-columns:minmax(0,1fr) minmax(0,1fr);font-size:12px;display:grid}._7gOSaa_diffHeaderSide{grid-template-columns:minmax(80px,1fr) minmax(150px,220px);align-items:center;min-width:0;padding:5px 8px 5px 12px;display:grid}._7gOSaa_diffHeaderSide:first-child{border-right:.5px solid var(--dsw-alias-border-l2)}._7gOSaa_diffHeaderSide>span{text-align:center;min-width:0}._7gOSaa_diffSearch{background:var(--dsw-alias-bg-base);border:1px solid var(--dsw-alias-border-l2);border-radius:7px;justify-self:end;align-items:center;width:100%;min-width:0;height:28px;display:flex;overflow:hidden}._7gOSaa_diffSearch:focus-within{border-color:var(--dsw-alias-label-secondary);box-shadow:0 0 0 2px color-mix(in srgb, var(--dsw-alias-label-secondary) 14%, transparent)}._7gOSaa_diffSearch input{min-width:0;height:100%;color:var(--dsw-alias-label-primary);font:12px/1 var(--ds-font-family);background:0 0;border:0;outline:0;padding:0 7px}._7gOSaa_diffSearch input::placeholder{color:var(--dsw-alias-label-tertiary)}._7gOSaa_diffSearch output{color:var(--dsw-alias-label-tertiary);font:10px/1 var(--ds-font-family-code);flex:none}._7gOSaa_diffSearch button{width:28px;height:26px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:0;flex:0 0 28px;justify-content:center;align-items:center;padding:0;display:inline-flex}._7gOSaa_diffSearch button:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_diffSearch ._7gOSaa_diffSearchClear{width:24px;color:var(--dsw-alias-label-tertiary);flex-basis:24px}._7gOSaa_diffSearch ._7gOSaa_diffSearchSubmit{border-left:1px solid color-mix(in srgb, var(--dsw-alias-border-l2) 72%, transparent);margin-left:0}body[data-dsh-background-media] ._7gOSaa_diffSearch{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 52%, transparent);backdrop-filter:blur(12px)saturate(125%)}body[data-dsh-background-media] ._7gOSaa_diffHeader{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 60%, transparent);backdrop-filter:blur(16px)saturate(125%)}._7gOSaa_iconTool{width:28px;height:28px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:1px solid #0000;border-radius:6px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}._7gOSaa_iconTool:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_iconTool[aria-pressed=true]{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-active);border-color:color-mix(in srgb, var(--dsw-alias-label-primary) 48%, transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--dsw-alias-label-primary) 12%, transparent)}._7gOSaa_iconTool[aria-pressed=false]{color:var(--dsw-alias-label-tertiary)}body[data-dsh-background-media] ._7gOSaa_iconTool{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 60%, transparent);backdrop-filter:blur(16px)saturate(125%)}body[data-dsh-background-media] ._7gOSaa_iconTool[aria-pressed=true]{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-active) 76%, transparent)}body[data-dsh-background-media] ._7gOSaa_diff{background:0 0}._7gOSaa_binaryNotice{color:var(--dsw-alias-label-secondary);margin:0;padding:18px}._7gOSaa_diffPane{border-right:.5px solid var(--dsw-alias-border-l2);min-width:0;overflow:auto}._7gOSaa_diffPane:last-child{border-right:0}._7gOSaa_diffCanvas{min-height:100%}._7gOSaa_diffCell{white-space:pre;grid-template-columns:48px minmax(max-content,1fr);min-width:max-content;min-height:20px;display:grid}._7gOSaa_diffPane[data-git-diff-pane=old] ._7gOSaa_diffCell{grid-template-columns:minmax(max-content,1fr) 48px}._7gOSaa_diffCell code{font:inherit;padding:0 12px}._7gOSaa_lineNumber{z-index:1;color:var(--dsw-alias-label-tertiary);text-align:end;user-select:none;background:color-mix(in srgb, var(--dsw-alias-bg-base) 84%, var(--dsw-alias-border-l2));border-right:.5px solid var(--dsw-alias-border-l2);padding:0 8px;position:sticky;left:0}._7gOSaa_diffPane[data-git-diff-pane=old] ._7gOSaa_lineNumber{border-right:0;border-left:.5px solid var(--dsw-alias-border-l2);left:auto;right:0}._7gOSaa_added{color:var(--dsw-alias-state-success-primary);background:color-mix(in srgb, var(--dsw-alias-state-success-primary) 16%, transparent)}._7gOSaa_removed{color:var(--dsw-alias-state-error-primary);background:color-mix(in srgb, var(--dsw-alias-state-error-primary) 16%, transparent)}";
+		const css$2 = "._7gOSaa_root{height:100%;min-height:0;color:var(--dsw-alias-label-primary);font-size:var(--dsh-content-font-size-secondary,13px);flex-direction:column;flex:auto;padding:4px 0 0;line-height:1.5;display:flex;overflow:hidden}._7gOSaa_chrome{z-index:2;background:color-mix(in srgb, var(--dsw-alias-bg-base) 68%, transparent);backdrop-filter:blur(18px)saturate(130%);flex:none;position:relative}body[data-dsh-background-media] ._7gOSaa_chrome{background:color-mix(in srgb, var(--dsw-alias-bg-base) 46%, transparent)}._7gOSaa_body{flex-direction:column;flex:auto;min-height:0;padding-bottom:8px;display:flex;overflow:auto}._7gOSaa_header{color:var(--dsw-alias-label-secondary);flex:none;align-items:center;gap:6px;padding:4px 10px;font-weight:500;display:flex}._7gOSaa_icon{color:var(--dsw-alias-label-secondary);flex:none}._7gOSaa_name{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}._7gOSaa_changesTool{color:var(--dsw-alias-label-secondary);font:inherit;border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;background:0 0;border-radius:6px;flex:none;padding:3px 8px}._7gOSaa_changesTool:hover,._7gOSaa_changesTool[aria-pressed=true]{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_tool{width:24px;height:24px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;justify-content:center;align-items:center;margin-left:auto;padding:0;display:inline-flex}._7gOSaa_tool:hover{background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_search{flex:none;align-items:center;gap:6px;padding:2px 10px 6px;display:flex}._7gOSaa_input{flex:auto;min-width:0}._7gOSaa_searchTool{height:32px;color:var(--dsw-alias-label-primary);font:inherit;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 64%, transparent);border:.5px solid color-mix(in srgb, var(--dsw-alias-border-l4) 72%, transparent);backdrop-filter:blur(16px)saturate(125%);cursor:pointer;border-radius:16px;flex:none;padding:0 14px}._7gOSaa_searchTool:hover{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover) 72%, transparent)}._7gOSaa_level{margin:0;padding:0;list-style:none}._7gOSaa_item{margin:0;padding:0 4px}._7gOSaa_commitButton{width:100%;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;padding:3px 6px;display:block}._7gOSaa_commitButton:hover{background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_row{align-items:baseline;gap:6px;min-width:0;display:flex}._7gOSaa_hash{color:var(--dsw-alias-link);font-family:var(--ds-font-family-code);flex:none;font-size:12px}._7gOSaa_subject{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}._7gOSaa_meta{min-width:0;color:var(--dsw-alias-label-tertiary);align-items:baseline;gap:8px;font-size:12px;display:flex}._7gOSaa_author{white-space:nowrap;text-overflow:ellipsis;overflow:hidden}._7gOSaa_date{flex:none}._7gOSaa_note{color:var(--dsw-alias-label-tertiary);margin:0;padding:3px 10px;font-size:12px}._7gOSaa_error{color:var(--dsw-alias-state-error-primary);margin:0;padding:3px 10px;font-size:12px}._7gOSaa_more{color:var(--dsw-alias-label-secondary);font:inherit;border:1px solid var(--dsw-alias-border-l2);cursor:pointer;background:0 0;border-radius:6px;align-self:center;margin:6px 0 0;padding:3px 12px}._7gOSaa_more:hover{background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_moreBusy{cursor:default;opacity:.6}._7gOSaa_status{flex-direction:column;padding:12px 10px;display:flex}._7gOSaa_statusLine{color:var(--dsw-alias-label-secondary);font-size:var(--dsh-content-font-size-secondary,13px);margin:0;line-height:1.6}._7gOSaa_detailDialog{background:var(--dsw-alias-bg-layer-2);width:min(1120px,100vw - 48px);height:min(760px,100vh - 48px);padding-bottom:18px}._7gOSaa_detailDialogFullscreen{position:relative;inset:auto;width:100%;height:100%;max-height:100%;border-radius:10px}body[data-dsh-background-media] ._7gOSaa_detailDialog{background:color-mix(in srgb, var(--dsw-alias-bg-layer-2) 72%, transparent);backdrop-filter:blur(16px)saturate(125%)}._7gOSaa_detailMeta{min-height:30px;color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);justify-content:space-between;align-items:center;padding:0 24px;font-size:12px;display:flex}._7gOSaa_detailMetaFullscreen{justify-content:flex-end}._7gOSaa_detailTools{flex:none;align-items:center;gap:4px;display:flex}._7gOSaa_detailLayout{border-top:.5px solid var(--dsw-alias-border-l2);height:min(620px,100vh - 180px);margin-top:12px;display:grid}._7gOSaa_detailLayoutFullscreen{height:calc(100vh - 126px);margin-top:4px}._7gOSaa_detailLayoutFullscreen ._7gOSaa_fileList,._7gOSaa_detailLayoutFullscreen ._7gOSaa_filePaneResize{display:none}._7gOSaa_detailLayoutFullscreen ._7gOSaa_diff{contain:layout paint style}._7gOSaa_workingDiffLayout{grid-template-columns:minmax(0,1fr)}._7gOSaa_fileList{min-width:0;padding:8px;overflow:auto}._7gOSaa_fileList,._7gOSaa_diffPane{scrollbar-color:color-mix(in srgb, var(--dsw-alias-label-secondary) 62%, transparent) color-mix(in srgb, var(--dsw-alias-bg-layer-1) 78%, transparent);scrollbar-width:auto}._7gOSaa_fileList::-webkit-scrollbar,._7gOSaa_diffPane::-webkit-scrollbar{width:12px;height:12px}._7gOSaa_fileList::-webkit-scrollbar-track,._7gOSaa_diffPane::-webkit-scrollbar-track{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 82%, transparent);border:1px solid color-mix(in srgb, var(--dsw-alias-border-l2) 78%, transparent);border-radius:8px}._7gOSaa_fileList::-webkit-scrollbar-thumb,._7gOSaa_diffPane::-webkit-scrollbar-thumb{background:color-mix(in srgb, var(--dsw-alias-label-secondary) 66%, transparent);background-clip:content-box;border:3px solid #0000;border-radius:8px;min-width:32px;min-height:32px}._7gOSaa_fileList::-webkit-scrollbar-thumb:hover,._7gOSaa_diffPane::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb, var(--dsw-alias-label-primary) 82%, transparent);background-clip:content-box}._7gOSaa_fileList::-webkit-scrollbar-corner,._7gOSaa_diffPane::-webkit-scrollbar-corner{background:0 0}body[data-dsh-background-media] ._7gOSaa_fileList,body[data-dsh-background-media] ._7gOSaa_diffPane{scrollbar-color:color-mix(in srgb, var(--dsw-alias-label-primary) 72%, transparent) color-mix(in srgb, var(--dsw-alias-bg-layer-1) 46%, transparent)}._7gOSaa_treeLevel{min-width:max-content;margin:0;padding:0;list-style:none}._7gOSaa_treeRow{width:100%;min-width:max-content;color:var(--dsw-alias-label-secondary);font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;align-items:center;gap:7px;padding:6px 8px;display:flex}._7gOSaa_treeRow:hover,._7gOSaa_detailFileSelected{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_treeFile{padding-right:16px}._7gOSaa_fileName{min-width:0}._7gOSaa_fileTypeIcon{width:18px;height:18px;color:var(--dsw-alias-label-secondary);font:600 6px/1 var(--ds-font-family-code);flex:0 0 18px;justify-content:center;align-items:center;display:inline-flex;position:relative}._7gOSaa_fileTypeIcon svg{width:18px;height:18px;position:absolute;inset:0}._7gOSaa_fileTypeMark{letter-spacing:-.35px;white-space:nowrap;max-width:13px;position:relative;top:2px;overflow:hidden}._7gOSaa_fileType_java ._7gOSaa_fileTypeMark:after{content:\"J\"}._7gOSaa_fileType_xml ._7gOSaa_fileTypeMark:after{content:\"<>\"}._7gOSaa_fileType_text ._7gOSaa_fileTypeMark:after{content:\"TXT\"}._7gOSaa_fileType_python ._7gOSaa_fileTypeMark:after{content:\"PY\"}._7gOSaa_fileType_typescript ._7gOSaa_fileTypeMark:after{content:\"TS\"}._7gOSaa_fileType_javascript ._7gOSaa_fileTypeMark:after{content:\"JS\"}._7gOSaa_fileType_json ._7gOSaa_fileTypeMark:after{content:\"{}\"}._7gOSaa_fileType_markdown ._7gOSaa_fileTypeMark:after{content:\"MD\"}._7gOSaa_fileType_style ._7gOSaa_fileTypeMark:after{content:\"#\"}._7gOSaa_fileType_html ._7gOSaa_fileTypeMark:after{content:\"</>\"}._7gOSaa_fileType_shell ._7gOSaa_fileTypeMark:after{content:\"$_\"}._7gOSaa_fileType_generic ._7gOSaa_fileTypeMark:after{content:\"—\"}._7gOSaa_fileType_java{color:#c96b3b}._7gOSaa_fileType_xml,._7gOSaa_fileType_html{color:#d57b2d}._7gOSaa_fileType_text,._7gOSaa_fileType_markdown{color:#66737f}._7gOSaa_fileType_python{color:#3572a5}._7gOSaa_fileType_typescript{color:#3178c6}._7gOSaa_fileType_javascript{color:#a78300}._7gOSaa_fileType_json{color:#7b7f28}._7gOSaa_fileType_style{color:#8a55b5}._7gOSaa_fileType_shell{color:#438b57}._7gOSaa_treeChevron{flex:none;transition:transform .12s}._7gOSaa_treeChevronExpanded{transform:rotate(90deg)}._7gOSaa_filePaneResize{cursor:col-resize;touch-action:none;position:relative}._7gOSaa_filePaneResize:after{content:\"\";background:var(--dsw-alias-border-l2);width:1px;position:absolute;top:0;bottom:0;left:2px}._7gOSaa_filePaneResize:hover:after{background:var(--dsw-alias-label-tertiary);width:2px}._7gOSaa_fileStatus{color:var(--dsw-alias-label-tertiary);font-size:11px;font-family:var(--ds-font-family-code);flex:none;margin-left:auto;padding-left:8px}._7gOSaa_diff{background:var(--dsw-alias-bg-base);flex-direction:column;min-width:0;display:flex;overflow:hidden}._7gOSaa_diffHint{color:var(--dsw-alias-label-tertiary);margin:0;padding:12px 16px}._7gOSaa_diffTable{width:100%;min-height:0;color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);flex:auto;grid-template-columns:minmax(0,1fr) minmax(0,1fr);font-size:12px;line-height:20px;display:grid;position:relative}._7gOSaa_syntax_comment{color:var(--dsw-alias-label-tertiary);font-style:italic}._7gOSaa_syntax_string{color:#2f8a57}._7gOSaa_syntax_number{color:#b56a2b}._7gOSaa_syntax_keyword{color:#8750b4;font-weight:500}._7gOSaa_syntax_tag{color:#167f8c}._7gOSaa_syntax_attribute{color:#a65b2e}._7gOSaa_searchMatch{color:inherit;background:#f2c94cad;border-radius:2px;padding:0 1px}._7gOSaa_searchActiveRow ._7gOSaa_searchMatch{background:#ff9f2fd1;box-shadow:0 0 0 1px #9b5b006b}._7gOSaa_zoomIndicator{z-index:4;min-width:48px;color:var(--dsw-alias-label-primary);font:12px/1 var(--ds-font-family-code);text-align:center;pointer-events:none;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 92%, transparent);border:1px solid var(--dsw-alias-border-l2);opacity:0;border-radius:7px;padding:5px 9px;transition:opacity .16s,transform .16s;position:absolute;bottom:16px;right:16px;transform:translateY(4px);box-shadow:0 4px 14px #00000029}._7gOSaa_zoomIndicatorVisible{opacity:1;transform:translateY(0)}body[data-dsh-background-media] ._7gOSaa_zoomIndicator{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 68%, transparent);backdrop-filter:blur(16px)saturate(125%)}._7gOSaa_diffHeader{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border-bottom:.5px solid var(--dsw-alias-border-l2);flex:none;grid-template-columns:minmax(0,1fr) minmax(0,1fr);font-size:12px;display:grid}._7gOSaa_diffHeaderSide{grid-template-columns:minmax(80px,1fr) minmax(150px,220px);align-items:center;min-width:0;padding:5px 8px 5px 12px;display:grid}._7gOSaa_diffHeaderSide:first-child{border-right:.5px solid var(--dsw-alias-border-l2)}._7gOSaa_diffHeaderSide>span{text-align:center;min-width:0}._7gOSaa_diffSearch{background:var(--dsw-alias-bg-base);border:1px solid var(--dsw-alias-border-l2);border-radius:7px;justify-self:end;align-items:center;width:100%;min-width:0;height:28px;display:flex;overflow:hidden}._7gOSaa_diffSearch:focus-within{border-color:var(--dsw-alias-label-secondary);box-shadow:0 0 0 2px color-mix(in srgb, var(--dsw-alias-label-secondary) 14%, transparent)}._7gOSaa_diffSearch input{min-width:0;height:100%;color:var(--dsw-alias-label-primary);font:12px/1 var(--ds-font-family);background:0 0;border:0;outline:0;padding:0 7px}._7gOSaa_diffSearch input::placeholder{color:var(--dsw-alias-label-tertiary)}._7gOSaa_diffSearch output{color:var(--dsw-alias-label-tertiary);font:10px/1 var(--ds-font-family-code);flex:none}._7gOSaa_diffSearch button{width:28px;height:26px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:0;flex:0 0 28px;justify-content:center;align-items:center;padding:0;display:inline-flex}._7gOSaa_diffSearch button:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_diffSearch ._7gOSaa_diffSearchClear{width:24px;color:var(--dsw-alias-label-tertiary);flex-basis:24px}._7gOSaa_diffSearch ._7gOSaa_diffSearchSubmit{border-left:1px solid color-mix(in srgb, var(--dsw-alias-border-l2) 72%, transparent);margin-left:0}body[data-dsh-background-media] ._7gOSaa_diffSearch{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 52%, transparent);backdrop-filter:blur(12px)saturate(125%)}body[data-dsh-background-media] ._7gOSaa_diffHeader{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 60%, transparent);backdrop-filter:blur(16px)saturate(125%)}._7gOSaa_iconTool{width:28px;height:28px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:1px solid #0000;border-radius:6px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}._7gOSaa_iconTool:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}._7gOSaa_iconTool[aria-pressed=true]{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-active);border-color:color-mix(in srgb, var(--dsw-alias-label-primary) 48%, transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--dsw-alias-label-primary) 12%, transparent)}._7gOSaa_iconTool[aria-pressed=false]{color:var(--dsw-alias-label-tertiary)}body[data-dsh-background-media] ._7gOSaa_iconTool{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 60%, transparent);backdrop-filter:blur(16px)saturate(125%)}body[data-dsh-background-media] ._7gOSaa_iconTool[aria-pressed=true]{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-active) 76%, transparent)}body[data-dsh-background-media] ._7gOSaa_diff{background:0 0}._7gOSaa_binaryNotice{color:var(--dsw-alias-label-secondary);margin:0;padding:18px}._7gOSaa_diffPane{border-right:.5px solid var(--dsw-alias-border-l2);min-width:0;overflow:auto}._7gOSaa_diffPane:last-child{border-right:0}._7gOSaa_diffCanvas{min-height:100%}._7gOSaa_diffCell{white-space:pre;grid-template-columns:48px minmax(max-content,1fr);min-width:max-content;min-height:20px;display:grid}._7gOSaa_diffPane[data-git-diff-pane=old] ._7gOSaa_diffCell{grid-template-columns:minmax(max-content,1fr) 48px}._7gOSaa_diffCell code{font:inherit;padding:0 12px}._7gOSaa_lineNumber{z-index:1;color:var(--dsw-alias-label-tertiary);text-align:end;user-select:none;background:color-mix(in srgb, var(--dsw-alias-bg-base) 84%, var(--dsw-alias-border-l2));border-right:.5px solid var(--dsw-alias-border-l2);padding:0 8px;position:sticky;left:0}._7gOSaa_diffPane[data-git-diff-pane=old] ._7gOSaa_lineNumber{border-right:0;border-left:.5px solid var(--dsw-alias-border-l2);left:auto;right:0}._7gOSaa_added{color:var(--dsw-alias-state-success-primary);background:color-mix(in srgb, var(--dsw-alias-state-success-primary) 16%, transparent)}._7gOSaa_removed{color:var(--dsw-alias-state-error-primary);background:color-mix(in srgb, var(--dsw-alias-state-error-primary) 16%, transparent)}._7gOSaa_added ._7gOSaa_lineNumber{color:var(--dsw-alias-state-success-primary);background:color-mix(in srgb, var(--dsw-alias-state-success-primary) 16%, color-mix(in srgb, var(--dsw-alias-bg-base) 84%, var(--dsw-alias-border-l2)));box-shadow:inset 2px 0 0 var(--dsw-alias-state-success-primary)}._7gOSaa_removed ._7gOSaa_lineNumber{color:var(--dsw-alias-state-error-primary);background:color-mix(in srgb, var(--dsw-alias-state-error-primary) 16%, color-mix(in srgb, var(--dsw-alias-bg-base) 84%, var(--dsw-alias-border-l2)));box-shadow:inset -2px 0 0 var(--dsw-alias-state-error-primary)}";
 		const tagId$2 = "@deepseek-ai/dsh-client-ui-sidebar-git-history/GitHistoryBody.module.css";
-		if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$2) + "]") === null) {
-			const tag = document.createElement("style");
-			tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
-			tag.dataset.pluginCss = tagId$2;
-			tag.textContent = css$2;
-			document.head.appendChild(tag);
-		}
+		/** The author dropdown beside the subject search: one applied filter each. */
+		const cssAuthorSelect$2 = "._7gOSaa_authorSelect{flex:0 1 auto;min-width:0;max-width:46%;height:32px;padding:0 8px;color:var(--dsw-alias-label-primary);font:inherit;text-overflow:ellipsis;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 64%, transparent);border:.5px solid color-mix(in srgb, var(--dsw-alias-border-l4) 72%, transparent);border-radius:16px;backdrop-filter:blur(16px)saturate(125%);cursor:pointer}._7gOSaa_authorSelect:hover{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover) 72%, transparent)}._7gOSaa_authorSelect:focus-visible{outline:2px solid var(--dsw-alias-border-l4);outline-offset:1px}._7gOSaa_authorSelect option{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-1)}._7gOSaa_dateToolActive{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-active);border-color:color-mix(in srgb, var(--dsw-alias-label-primary) 48%, transparent)}._7gOSaa_dateRow{display:flex;flex:0 0 auto;align-items:center;gap:6px;padding:0 10px 6px}._7gOSaa_dateInput{flex:1 1 auto;min-width:0;height:32px;padding:0 10px;color:var(--dsw-alias-label-primary);font:inherit;background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 64%, transparent);border:.5px solid color-mix(in srgb, var(--dsw-alias-border-l4) 72%, transparent);border-radius:16px}._7gOSaa_dateInput:focus-visible{outline:2px solid var(--dsw-alias-border-l4);outline-offset:1px}._7gOSaa_dateDash{flex:0 0 auto;color:var(--dsw-alias-label-tertiary)}._7gOSaa_dateClear{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;width:24px;height:24px;padding:0;color:var(--dsw-alias-label-tertiary);background:0 0;border:0;border-radius:6px;cursor:pointer}._7gOSaa_dateClear:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}";
+		if (typeof document !== "undefined") {
+			const sheet = css$2 + cssAuthorSelect$2;
+			const existing = document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$2) + "]");
+			if (existing === null) {
+				const tag = document.createElement("style");
+				tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
+				tag.dataset.pluginCss = tagId$2;
+				tag.textContent = sheet;
+				document.head.appendChild(tag);
+			} else if (existing.textContent !== sheet) existing.textContent = sheet;
+			}
 		var GitHistoryBody_module_css_default = {
 			"added": "_7gOSaa_added",
 			"author": "_7gOSaa_author",
+			"authorSelect": "_7gOSaa_authorSelect",
 			"binaryNotice": "_7gOSaa_binaryNotice",
 			"body": "_7gOSaa_body",
 			"changesTool": "_7gOSaa_changesTool",
 			"chrome": "_7gOSaa_chrome",
 			"commitButton": "_7gOSaa_commitButton",
 			"date": "_7gOSaa_date",
+			"dateClear": "_7gOSaa_dateClear",
+			"dateDash": "_7gOSaa_dateDash",
+			"dateInput": "_7gOSaa_dateInput",
+			"dateRow": "_7gOSaa_dateRow",
+			"dateToolActive": "_7gOSaa_dateToolActive",
 			"detailDialog": "_7gOSaa_detailDialog",
 			"detailDialogFullscreen": "_7gOSaa_detailDialogFullscreen",
 			"detailFileSelected": "_7gOSaa_detailFileSelected",
@@ -1394,7 +1767,7 @@ const GitReview=((require) => {
 			if (state.commits.length === 0) return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
 				className: GitHistoryBody_module_css_default.note,
 				"data-git-row": "empty",
-				children: state.search === "" ? t("empty") : t("emptySearch")
+				children: state.search === "" && state.author === "" && state.since === "" && state.until === "" ? t("empty") : t("emptySearch")
 			});
 			return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("ul", {
 				className: GitHistoryBody_module_css_default.level,
@@ -2020,6 +2393,7 @@ const GitReview=((require) => {
 				const zoom = (event) => {
 					if (!matchesDiffZoomModifier(event, zoomModifier) || event.deltaY === 0) return;
 					event.preventDefault();
+					event.stopPropagation();
 					setFontSize((value) => {
 						const next = Math.max(DIFF_FONT_MIN, Math.min(DIFF_FONT_MAX, value + (event.deltaY < 0 ? 1 : -1)));
 						if (next === value) return value;
@@ -2087,6 +2461,7 @@ const GitReview=((require) => {
 				if (other === null) return;
 				synchronizing.current = true;
 				other.scrollTop = event.currentTarget.scrollTop;
+				other.scrollLeft = event.currentTarget.scrollLeft;
 				window.requestAnimationFrame(() => {
 					synchronizing.current = false;
 				});
@@ -2425,6 +2800,7 @@ const GitReview=((require) => {
 			const layoutRef = (0, react.useRef)(null);
 			const stopResizeRef = (0, react.useRef)(void 0);
 			const [files, setFiles] = (0, react.useState)(void 0);
+            const [commitMessage, setCommitMessage] = (0, react.useState)(void 0);
 			const [selectedPath, setSelectedPath] = (0, react.useState)(void 0);
 			const [comparison, setComparison] = (0, react.useState)(void 0);
 			const [synchronized, setSynchronized] = (0, react.useState)(true);
@@ -2444,7 +2820,7 @@ const GitReview=((require) => {
 				setFailure(void 0);
 				readCommitFiles(workspaceId, commit.hash.trim(), controller.signal).then((result) => {
 					if (controller.signal.aborted) return;
-					if (result.ok) setFiles(result.value.files);
+					if (result.ok) { setFiles(result.value.files); setCommitMessage({ hash: commit.hash, value: result.value.message ?? commit.subject }); }
 					else setFailure(failureLine(t, result.error));
 				});
 				return () => {
@@ -2511,10 +2887,11 @@ const GitReview=((require) => {
 				window.addEventListener("mousemove", move);
 				window.addEventListener("mouseup", stop);
 			};
-			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(_deepseek_ai_dsh_client_ui_primitives.Modal, {
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(ComparisonDialog, { fullscreen,
 				open: commit !== void 0,
 				className: clsx(GitHistoryBody_module_css_default.detailDialog, fullscreen && GitHistoryBody_module_css_default.detailDialogFullscreen),
 				title: commit?.subject ?? t("detail.title"),
+                fullText: commitMessage?.hash === commit?.hash ? commitMessage?.value : void 0, copyDisabled: files === void 0,
 				closeLabel: t("detail.close"),
 				onClose: close,
 				children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
@@ -2633,7 +3010,7 @@ const GitReview=((require) => {
 				request.current?.abort();
 				onClose();
 			};
-			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(_deepseek_ai_dsh_client_ui_primitives.Modal, {
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(ComparisonDialog, { fullscreen,
 				open: file !== void 0,
 				className: clsx(GitHistoryBody_module_css_default.detailDialog, fullscreen && GitHistoryBody_module_css_default.detailDialogFullscreen),
 				title: file?.path ?? t("detail.title"),
@@ -2697,6 +3074,7 @@ const GitReview=((require) => {
 			const state = useStore((store) => store.byTab[tab.id]);
 			const [query, setQuery] = (0, react.useState)("");
 			const [selectedCommit, setSelectedCommit] = (0, react.useState)(void 0);
+			const [dateOpen, setDateOpen] = (0, react.useState)(false);
 			const changesVisible = useGitChangesVisible(sessionId);
 			(0, react.useEffect)(() => {
 				if (state !== void 0 || workspaceId === void 0 || signal.aborted) return;
@@ -2709,13 +3087,24 @@ const GitReview=((require) => {
 				start
 			]);
 			const historySearch = state?.search;
+			const historyAuthor = state?.author;
+			const historySince = state?.since;
+			const historyUntil = state?.until;
 			(0, react.useEffect)(() => {
-				if (workspaceId === void 0 || historySearch === void 0) return;
+				if (workspaceId === void 0 || historySearch === void 0 || historyAuthor === void 0 || historySince === void 0 || historyUntil === void 0) return;
 				return subscribeGitHistoryRefresh(sessionId, () => {
-					if (!signal.aborted) reload(tab.id, workspaceId, historySearch, signal);
+					if (!signal.aborted) reload(tab.id, workspaceId, {
+						search: historySearch,
+						author: historyAuthor,
+						since: historySince,
+						until: historyUntil
+					}, signal);
 				});
 			}, [
+				historyAuthor,
 				historySearch,
+				historySince,
+				historyUntil,
 				reload,
 				sessionId,
 				signal,
@@ -2732,10 +3121,48 @@ const GitReview=((require) => {
 				})
 			});
 			if (state === void 0) return null;
+			/** The filter one read carries: the window's applied bounds, plus what the reader just typed. */
+			const filterOf = (overrides = {}) => ({
+				search: query.trim(),
+				author: state.author,
+				since: state.since,
+				until: state.until,
+				...overrides
+			});
 			const submit = (event) => {
 				event.preventDefault();
-				reload(tab.id, workspaceId, query.trim(), signal);
+				reload(tab.id, workspaceId, filterOf({ search: query.trim() }), signal);
 			};
+			/** Apply one author choice at once: a dropdown choice is the filter itself. */
+			const chooseAuthor = (author) => {
+				if (author === state.author) return;
+				reload(tab.id, workspaceId, filterOf({ author }), signal);
+			};
+			/** Apply one date bound at once; a cleared field simply drops that bound. */
+			const chooseDate = (bound, value) => {
+				if (state[bound] === value) return;
+				const next = filterOf();
+				reload(tab.id, workspaceId, bound === "since" ? {
+					...next,
+					since: value
+				} : {
+					...next,
+					until: value
+				}, signal);
+			};
+			const clearDates = () => {
+				setDateOpen(true);
+				if (state.since === '' && state.until === '') return;
+				reload(tab.id, workspaceId, filterOf({
+					since: "",
+					until: ""
+				}), signal);
+			};
+			const dateFiltered = state.since !== "" || state.until !== "";
+			const dateTitle = state.since !== "" && state.until !== "" ? t("search.date.range", {
+				since: state.since,
+				until: state.until
+			}) : state.since !== "" ? t("search.date.sinceRange", { since: state.since }) : state.until !== "" ? t("search.date.untilRange", { until: state.until }) : t("search.date.toggle");
 			const title = state.branch === void 0 ? t("header.detached") : t("header.branch", { branch: state.branch });
 			const workspaceTitle = cwd === void 0 ? "" : workspaceTitleOf(cwd);
 			const failed = state.failure === void 0 ? void 0 : failureLine(t, state.failure);
@@ -2780,7 +3207,12 @@ const GitReview=((require) => {
 									title: t("reload"),
 									"data-git-reload": true,
 									onClick: () => {
-										reload(tab.id, workspaceId, state.search, signal);
+										reload(tab.id, workspaceId, {
+											search: state.search,
+											author: state.author,
+											since: state.since,
+											until: state.until
+										}, signal);
 									},
 									children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconRefreshOutlineRegular, {})
 								})
@@ -2788,7 +3220,18 @@ const GitReview=((require) => {
 						}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("form", {
 							className: GitHistoryBody_module_css_default.search,
 							onSubmit: submit,
-							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.Input, {
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(AuthorFilter, { authors: state.authors, value: state.author, allLabel: t("search.author.all"), label: t("search.author.label"), onChange: chooseAuthor }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: clsx(GitHistoryBody_module_css_default.searchTool, dateFiltered && GitHistoryBody_module_css_default.dateToolActive),
+								"aria-label": dateTitle,
+								title: dateTitle,
+								"aria-pressed": dateFiltered,
+								"data-git-date-toggle": true,
+								onClick: () => {
+									setDateOpen((value) => !value);
+								},
+								children: t("search.date.toggle")
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.Input, {
 								className: GitHistoryBody_module_css_default.input,
 								type: "search",
 								value: query,
@@ -2802,6 +3245,36 @@ const GitReview=((require) => {
 								className: GitHistoryBody_module_css_default.searchTool,
 								"data-git-search": true,
 								children: t("search.submit")
+							})]
+						}), (dateOpen || dateFiltered) && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+							className: GitHistoryBody_module_css_default.dateRow,
+							"data-git-date-row": true,
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(HistoryDatePicker, {
+								value: state.since,
+								max: state.until === "" ? void 0 : state.until,
+								"aria-label": t("search.date.since"),
+								title: t("search.date.since"),
+								"data-git-since": true,
+								onChange: (value) => { chooseDate("since", value); }
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: GitHistoryBody_module_css_default.dateDash,
+								"aria-hidden": "true",
+								children: "–"
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)(HistoryDatePicker, {
+								value: state.until,
+								min: state.since === "" ? void 0 : state.since,
+								"aria-label": t("search.date.until"),
+								title: t("search.date.until"),
+								"data-git-until": true,
+								onChange: (value) => { chooseDate("until", value); }
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: GitHistoryBody_module_css_default.dateClear,
+								"aria-label": t("search.date.clear"),
+								title: t("search.date.clear"),
+								"data-git-date-clear": true,
+								onClick: clearDates,
+								children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconCloseOutlineRegular, { size: 13 })
 							})]
 						})]
 					}),
@@ -2834,7 +3307,12 @@ const GitReview=((require) => {
 								"data-git-more": true,
 								disabled: state.loadingMore,
 								onClick: () => {
-									loadMore(tab.id, workspaceId, state.search, state.skip, signal);
+									loadMore(tab.id, workspaceId, {
+										search: state.search,
+										author: state.author,
+										since: state.since,
+										until: state.until
+									}, state.skip, signal);
 								},
 								children: state.loadingMore ? t("loadingMore") : t("more")
 							})
@@ -2896,15 +3374,19 @@ const GitReview=((require) => {
 		}
 		//#endregion
 		//#region dsh-css:source/git-review/client/GitChangesBody.module.css.mjs
-		const css$1 = ".jdsH1W_root{height:50%;min-height:0;color:var(--dsw-alias-label-primary);font-size:var(--dsh-content-font-size-secondary,13px);border-bottom:.5px solid var(--dsw-alias-border-l2);flex-direction:column;flex:none;line-height:1.5;display:flex;position:relative;overflow:hidden}.jdsH1W_content{min-height:0;padding:4px 0 8px;overflow:auto}.jdsH1W_resizeHandle{z-index:3;cursor:row-resize;touch-action:none;height:6px;position:absolute;bottom:-3px;left:0;right:0}.jdsH1W_resizeHandle:after{content:\"\";background:var(--dsw-alias-border-l2);height:1px;position:absolute;top:2px;left:0;right:0}.jdsH1W_resizeHandle:hover:after{background:var(--dsw-alias-label-tertiary);height:2px}.jdsH1W_reviewToolbar{flex:none;justify-content:space-between;align-items:center;min-height:28px;padding:0 10px 10px;display:flex}.jdsH1W_reviewTitle{color:var(--dsw-alias-label-primary);font-size:14px}.jdsH1W_header{color:var(--dsw-alias-label-secondary);flex:none;align-items:center;gap:6px;padding:3px 10px;display:flex}.jdsH1W_sectionToggle{min-width:0;color:var(--dsw-alias-label-primary);font:inherit;text-align:start;background:color-mix(in srgb, var(--dsw-alias-bg-base) 68%, transparent);border:.5px solid var(--dsw-alias-border-l2);backdrop-filter:blur(18px)saturate(130%);cursor:pointer;border-radius:7px;flex:auto;align-items:center;gap:5px;padding:4px 8px;font-size:14px;display:flex}.jdsH1W_sectionToggle:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_sectionToggle .jdsH1W_count{color:var(--dsw-alias-label-secondary);font-size:13px}body[data-dsh-background-media] .jdsH1W_sectionToggle{background:color-mix(in srgb, var(--dsw-alias-bg-base) 46%, transparent)}.jdsH1W_sectionChevron{flex:none;transition:transform .12s;transform:rotate(-90deg)}.jdsH1W_sectionChevronExpanded{transform:rotate(0)}.jdsH1W_subsectionHeader{color:var(--dsw-alias-label-secondary);align-items:center;gap:5px;padding:5px 18px 2px;display:flex}.jdsH1W_headerActions{align-items:center;gap:2px;margin-left:auto;display:inline-flex}.jdsH1W_operationStatus{max-width:180px;color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis;align-items:center;gap:6px;margin-right:4px;font-size:12px;display:inline-flex;overflow:hidden}.jdsH1W_operationSpinner{border:1.5px solid color-mix(in srgb, currentColor 28%, transparent);border-top-color:currentColor;border-radius:50%;width:12px;height:12px;animation:.72s linear infinite jdsH1W_git-operation-spin}@keyframes jdsH1W_git-operation-spin{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.jdsH1W_operationSpinner{animation-duration:1.8s}}.jdsH1W_actionButton{height:24px;color:var(--dsw-alias-label-secondary);font:inherit;background:color-mix(in srgb, var(--dsw-alias-bg-base) 68%, transparent);border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;border-radius:6px;align-items:center;gap:3px;padding:0 8px;display:inline-flex}.jdsH1W_actionButton:hover:not(:disabled){color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_actionButton:disabled{cursor:default;opacity:.5}.jdsH1W_rollbackButton{color:var(--dsw-alias-state-error-primary)}.jdsH1W_rollbackWarning{color:var(--dsw-alias-label-secondary);margin:0}.jdsH1W_actionIcon{stroke:currentColor;stroke-width:1.25px;stroke-linecap:round;stroke-linejoin:round;width:16px;height:16px;display:block}.jdsH1W_actionError{border:1px solid var(--dsw-alias-state-error-primary);color:var(--dsw-alias-state-error-primary);overflow-wrap:anywhere;white-space:pre-wrap;border-radius:8px;margin:0 10px 8px;padding:6px 10px;font-size:12px}body[data-dsh-background-media] .jdsH1W_actionDialog{background:color-mix(in srgb, var(--dsw-alias-bg-layer-2) 72%, transparent);backdrop-filter:blur(16px)saturate(125%)}.jdsH1W_lastMessage{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border:.5px solid var(--dsw-alias-border-l2);border-radius:8px;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;margin-top:10px;padding:7px 9px;font-size:12px;display:grid}body[data-dsh-background-media] .jdsH1W_lastMessage{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 60%, transparent);backdrop-filter:blur(16px)saturate(125%)}.jdsH1W_lastMessageLabel{white-space:nowrap}.jdsH1W_lastMessageText{min-width:0;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.jdsH1W_fillMessageButton{color:var(--dsw-alias-label-secondary);font:inherit;background:var(--dsw-alias-interactive-bg-hover);border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;border-radius:5px;padding:2px 7px}.jdsH1W_fillMessageButton:hover{color:var(--dsw-alias-label-primary)}.jdsH1W_name{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_count{color:var(--dsw-alias-label-tertiary);flex:none;font-size:12px}.jdsH1W_tool{width:24px;height:24px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.jdsH1W_tool:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_closeFloating{position:absolute;top:4px;right:10px}.jdsH1W_list{flex-direction:column;flex:none;display:flex}.jdsH1W_level{margin:0;padding:0;list-style:none}.jdsH1W_pendingCommit{padding:0 10px}.jdsH1W_pendingCommitButton{width:100%;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;grid-template-columns:auto minmax(0,1fr);align-items:baseline;gap:0 7px;padding:3px 8px;display:grid}.jdsH1W_pendingCommitButton:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_pendingHash{color:var(--dsw-alias-link);font-family:var(--ds-font-family-code);grid-row:1/span 2;font-size:12px}.jdsH1W_pendingSubject{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_pendingMeta{min-width:0;color:var(--dsw-alias-label-tertiary);white-space:nowrap;text-overflow:ellipsis;font-size:12px;overflow:hidden}.jdsH1W_item{align-items:center;margin:0;padding:0 4px;display:flex}.jdsH1W_fileCheckbox{width:14px;height:14px;accent-color:var(--dsw-alias-brand-primary);cursor:pointer;flex:none;margin:0 2px}.jdsH1W_fileRow{width:100%;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;align-items:baseline;gap:6px;padding:3px 6px;display:flex}.jdsH1W_fileRow:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_rowAction{width:24px;height:24px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.jdsH1W_rowAction:hover:not(:disabled){color:var(--dsw-alias-state-error-primary);background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_rowAction:disabled{cursor:default;opacity:.5}.jdsH1W_badge{color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);flex:none;font-size:12px}.jdsH1W_badgeModified{color:var(--dsw-alias-state-warn-primary)}.jdsH1W_badgeAdded{color:var(--dsw-alias-state-success-primary)}.jdsH1W_badgeDeleted{color:var(--dsw-alias-state-error-primary)}.jdsH1W_badgeRenamed{color:var(--dsw-alias-link)}.jdsH1W_badgeConflict{color:var(--dsw-alias-state-error-primary)}.jdsH1W_fileName{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_fileDir{min-width:0;color:var(--dsw-alias-label-tertiary);white-space:nowrap;text-overflow:ellipsis;flex:0 auto;font-size:12px;overflow:hidden}.jdsH1W_stashRow{align-items:center;gap:6px;padding:2px 6px;display:flex}.jdsH1W_stashCollection{background:color-mix(in srgb, var(--dsw-alias-bg-base) 52%, transparent);border:.5px solid var(--dsw-alias-border-l2);border-radius:7px;margin:0 4px 4px;overflow:hidden}.jdsH1W_stashToggle{min-width:0;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;flex:auto;align-items:center;gap:5px;padding:4px 2px;display:flex}.jdsH1W_stashChevron{flex:none;transition:transform .12s;transform:rotate(-90deg)}.jdsH1W_stashChevronExpanded{transform:rotate(0)}.jdsH1W_stashSubject{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_stashDate{color:var(--dsw-alias-label-tertiary);flex:none;margin-left:auto;font-size:12px}.jdsH1W_restoreButton{color:var(--dsw-alias-label-secondary);font:inherit;background:var(--dsw-alias-interactive-bg-hover);border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;border-radius:5px;flex:none;padding:2px 7px}.jdsH1W_stashActions{flex:none;gap:4px;display:inline-flex}.jdsH1W_deleteButton{color:var(--dsw-alias-state-error-primary)}.jdsH1W_restoreButton:disabled{cursor:default;opacity:.5}.jdsH1W_stashDetails{border-top:.5px solid var(--dsw-alias-border-l2);padding:2px 4px 5px 19px}.jdsH1W_stashFile{align-items:baseline;gap:6px;min-width:0;padding:2px 6px;display:flex}.jdsH1W_note{color:var(--dsw-alias-label-tertiary);margin:0;padding:3px 10px;font-size:12px}.jdsH1W_ignoreNote{color:var(--dsw-alias-label-secondary);background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 76%, transparent);border:.5px solid var(--dsw-alias-border-l2);border-radius:6px;margin:3px 8px 5px;padding:6px 9px;font-size:12px}body[data-dsh-background-media] .jdsH1W_ignoreNote{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 48%, transparent);backdrop-filter:blur(12px)saturate(125%)}.jdsH1W_error{color:var(--dsw-alias-state-error-primary);margin:0;padding:3px 10px;font-size:12px}";
+		const css$1 = ".jdsH1W_root{height:50%;box-sizing:border-box;min-height:0;color:var(--dsw-alias-label-primary);font-size:var(--dsh-content-font-size-secondary,13px);border-bottom:.5px solid var(--dsw-alias-border-l2);box-shadow:inset 0 1px 0 var(--dsw-alias-border-l2);flex-direction:column;flex:none;line-height:1.5;display:flex;position:relative;overflow:hidden}.jdsH1W_content{min-height:0;padding:0 0 8px;overflow:auto}.jdsH1W_resizeHandle{z-index:4;cursor:row-resize;touch-action:none;height:10px;position:absolute;top:0;left:0;right:0}.jdsH1W_resizeHandle:after{content:\"\";background:0 0;height:1px;position:absolute;top:0;left:0;right:0;transition:background 120ms ease,height 120ms ease}.jdsH1W_resizeHandle:hover:after,.jdsH1W_resizeHandle[data-active=true]:after{background:var(--dsw-alias-label-tertiary);height:2px}.jdsH1W_reviewToolbar{z-index:2;flex:none;justify-content:space-between;align-items:center;gap:6px;min-height:32px;padding:8px 10px;background:color-mix(in srgb, var(--dsw-alias-bg-base) 86%, transparent);backdrop-filter:blur(18px)saturate(130%);box-shadow:inset 0 1px 0 var(--dsw-alias-border-l2),inset 0 -1px 0 var(--dsw-alias-border-l2);position:sticky;top:0;display:flex}body[data-dsh-background-media] .jdsH1W_reviewToolbar{background:color-mix(in srgb, var(--dsw-alias-bg-base) 70%, transparent)}.jdsH1W_reviewTitle{color:var(--dsw-alias-label-primary);font-size:14px}.jdsH1W_header{color:var(--dsw-alias-label-secondary);flex:none;align-items:center;gap:6px;padding:5px 10px;display:flex}.jdsH1W_sectionToggle{min-width:0;color:var(--dsw-alias-label-primary);font:inherit;text-align:start;background:color-mix(in srgb, var(--dsw-alias-bg-base) 68%, transparent);border:.5px solid var(--dsw-alias-border-l2);backdrop-filter:blur(18px)saturate(130%);cursor:pointer;border-radius:7px;flex:auto;align-items:center;gap:5px;padding:4px 8px;font-size:14px;display:flex}.jdsH1W_sectionToggle:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_sectionToggle .jdsH1W_count{color:var(--dsw-alias-label-secondary);font-size:13px}body[data-dsh-background-media] .jdsH1W_sectionToggle{background:color-mix(in srgb, var(--dsw-alias-bg-base) 46%, transparent)}.jdsH1W_sectionChevron{flex:none;transition:transform .12s;transform:rotate(-90deg)}.jdsH1W_sectionChevronExpanded{transform:rotate(0)}.jdsH1W_subsectionHeader{width:100%;font:inherit;text-align:start;background:transparent;border:0;border-radius:6px;cursor:pointer;color:var(--dsw-alias-label-secondary);align-items:center;gap:5px;padding:5px 18px 2px;display:flex}.jdsH1W_subsectionHeader:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_headerActions{align-items:center;gap:2px;margin-left:auto;display:inline-flex}.jdsH1W_operationStatus{max-width:180px;color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis;align-items:center;gap:6px;margin-right:4px;font-size:12px;display:inline-flex;overflow:hidden}.jdsH1W_operationSpinner{border:1.5px solid color-mix(in srgb, currentColor 28%, transparent);border-top-color:currentColor;border-radius:50%;width:12px;height:12px;animation:.72s linear infinite jdsH1W_git-operation-spin}@keyframes jdsH1W_git-operation-spin{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.jdsH1W_operationSpinner{animation-duration:1.8s}}.jdsH1W_actionButton{height:24px;color:var(--dsw-alias-label-secondary);font:inherit;background:color-mix(in srgb, var(--dsw-alias-bg-base) 68%, transparent);border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;border-radius:6px;align-items:center;gap:3px;padding:0 8px;display:inline-flex}.jdsH1W_actionButton:hover:not(:disabled){color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_actionButton:disabled{cursor:default;opacity:.5}.jdsH1W_rollbackButton{color:var(--dsw-alias-state-error-primary)}.jdsH1W_rollbackWarning{color:var(--dsw-alias-label-secondary);margin:0}.jdsH1W_actionIcon{stroke:currentColor;stroke-width:1.25px;stroke-linecap:round;stroke-linejoin:round;width:16px;height:16px;display:block}.jdsH1W_actionError{border:1px solid var(--dsw-alias-state-error-primary);color:var(--dsw-alias-state-error-primary);overflow-wrap:anywhere;white-space:pre-wrap;border-radius:8px;margin:0 10px 8px;padding:6px 10px;font-size:12px}body[data-dsh-background-media] .jdsH1W_actionDialog{background:color-mix(in srgb, var(--dsw-alias-bg-layer-2) 72%, transparent);backdrop-filter:blur(16px)saturate(125%)}.jdsH1W_lastMessage{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border:.5px solid var(--dsw-alias-border-l2);border-radius:8px;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;margin-top:10px;padding:7px 9px;font-size:12px;display:grid}body[data-dsh-background-media] .jdsH1W_lastMessage{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 60%, transparent);backdrop-filter:blur(16px)saturate(125%)}.jdsH1W_lastMessageLabel{white-space:nowrap}.jdsH1W_lastMessageText{min-width:0;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.jdsH1W_fillMessageButton{color:var(--dsw-alias-label-secondary);font:inherit;background:var(--dsw-alias-interactive-bg-hover);border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;border-radius:5px;padding:2px 7px}.jdsH1W_fillMessageButton:hover{color:var(--dsw-alias-label-primary)}.jdsH1W_name{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_count{color:var(--dsw-alias-label-tertiary);flex:none;font-size:12px}.jdsH1W_tool{width:24px;height:24px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.jdsH1W_tool:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_closeFloating{position:absolute;top:4px;right:10px}.jdsH1W_list{flex-direction:column;flex:none;display:flex}.jdsH1W_level{margin:0;padding:0;list-style:none}.jdsH1W_pendingCommit{padding:0 10px}.jdsH1W_pendingCommitButton{width:100%;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;grid-template-columns:auto minmax(0,1fr);align-items:baseline;gap:0 7px;padding:3px 8px;display:grid}.jdsH1W_pendingCommitButton:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_pendingHash{color:var(--dsw-alias-link);font-family:var(--ds-font-family-code);grid-row:1/span 2;font-size:12px}.jdsH1W_pendingSubject{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_pendingMeta{min-width:0;color:var(--dsw-alias-label-tertiary);white-space:nowrap;text-overflow:ellipsis;font-size:12px;overflow:hidden}.jdsH1W_item{align-items:center;margin:0;padding:0 4px;display:flex}.jdsH1W_fileCheckbox{width:14px;height:14px;accent-color:var(--dsw-alias-brand-primary);cursor:pointer;flex:none;margin:0 2px}.jdsH1W_fileRow{width:100%;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;border-radius:6px;align-items:baseline;gap:6px;padding:3px 6px;display:flex}.jdsH1W_fileRow:hover{background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_rowAction{width:24px;height:24px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.jdsH1W_rowAction:hover:not(:disabled){color:var(--dsw-alias-state-error-primary);background:var(--dsw-alias-interactive-bg-hover)}.jdsH1W_rowAction:disabled{cursor:default;opacity:.5}.jdsH1W_badge{color:var(--dsw-alias-label-secondary);font-family:var(--ds-font-family-code);flex:none;font-size:12px}.jdsH1W_badgeModified{color:var(--dsw-alias-state-warn-primary)}.jdsH1W_badgeAdded{color:var(--dsw-alias-state-success-primary)}.jdsH1W_badgeDeleted{color:var(--dsw-alias-state-error-primary)}.jdsH1W_badgeRenamed{color:var(--dsw-alias-link)}.jdsH1W_badgeConflict{color:var(--dsw-alias-state-error-primary)}.jdsH1W_fileName{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_fileDir{min-width:0;color:var(--dsw-alias-label-tertiary);white-space:nowrap;text-overflow:ellipsis;flex:0 auto;font-size:12px;overflow:hidden}.jdsH1W_stashRow{align-items:center;gap:6px;padding:2px 6px;display:flex}.jdsH1W_stashCollection{background:color-mix(in srgb, var(--dsw-alias-bg-base) 52%, transparent);border:.5px solid var(--dsw-alias-border-l2);border-radius:7px;margin:0 4px 4px;overflow:hidden}.jdsH1W_stashToggle{min-width:0;color:inherit;font:inherit;text-align:start;cursor:pointer;background:0 0;border:0;flex:auto;align-items:center;gap:5px;padding:4px 2px;display:flex}.jdsH1W_stashChevron{flex:none;transition:transform .12s;transform:rotate(-90deg)}.jdsH1W_stashChevronExpanded{transform:rotate(0)}.jdsH1W_stashSubject{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.jdsH1W_stashDate{color:var(--dsw-alias-label-tertiary);flex:none;margin-left:auto;font-size:12px}.jdsH1W_restoreButton{color:var(--dsw-alias-label-secondary);font:inherit;background:var(--dsw-alias-interactive-bg-hover);border:.5px solid var(--dsw-alias-border-l2);cursor:pointer;border-radius:5px;flex:none;padding:2px 7px}.jdsH1W_stashActions{flex:none;gap:4px;display:inline-flex}.jdsH1W_deleteButton{color:var(--dsw-alias-state-error-primary)}.jdsH1W_restoreButton:disabled{cursor:default;opacity:.5}.jdsH1W_stashDetails{border-top:.5px solid var(--dsw-alias-border-l2);padding:2px 4px 5px 19px}.jdsH1W_stashFile{align-items:baseline;gap:6px;min-width:0;padding:2px 6px;display:flex}.jdsH1W_note{color:var(--dsw-alias-label-tertiary);margin:0;padding:3px 10px;font-size:12px}.jdsH1W_ignoreNote{color:var(--dsw-alias-label-secondary);background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 76%, transparent);border:.5px solid var(--dsw-alias-border-l2);border-radius:6px;margin:3px 8px 5px;padding:6px 9px;font-size:12px}body[data-dsh-background-media] .jdsH1W_ignoreNote{background:color-mix(in srgb, var(--dsw-alias-bg-layer-1) 48%, transparent);backdrop-filter:blur(12px)saturate(125%)}.jdsH1W_error{color:var(--dsw-alias-state-error-primary);margin:0;padding:3px 10px;font-size:12px}";
 		const tagId$1 = "@deepseek-ai/dsh-client-ui-sidebar-git-history/GitChangesBody.module.css";
-		if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$1) + "]") === null) {
-			const tag = document.createElement("style");
-			tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
-			tag.dataset.pluginCss = tagId$1;
-			tag.textContent = css$1;
-			document.head.appendChild(tag);
-		}
+		if (typeof document !== "undefined") {
+			const sheet = css$1;
+			const existing = document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$1) + "]");
+			if (existing === null) {
+				const tag = document.createElement("style");
+				tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
+				tag.dataset.pluginCss = tagId$1;
+				tag.textContent = sheet;
+				document.head.appendChild(tag);
+			} else if (existing.textContent !== sheet) existing.textContent = sheet;
+			}
 		var GitChangesBody_module_css_default = {
 			"actionButton": "jdsH1W_actionButton",
 			"actionDialog": "jdsH1W_actionDialog",
@@ -2986,6 +3468,16 @@ const GitReview=((require) => {
 		*/
 		const MIN_REGION_HEIGHT = 96;
 		/**
+		* The height a drag to `pointerY` asks for: the region hugs the bottom of the
+		* panel, so the pointer distance to that edge is the height, clamped so both
+		* regions keep their minimum.
+		*/
+		function regionHeightAt(panelRect, pointerY) {
+			return Math.max(MIN_REGION_HEIGHT, Math.min(panelRect.height - MIN_REGION_HEIGHT, panelRect.bottom - pointerY));
+		}
+		/** The height the reader last dragged the region to; a layout preference, not state. */
+		let rememberedHeight;
+		/**
 		* The badge a file row shows: the side that carries the change. An untracked
 		* file reads as `?`; otherwise the work-tree letter wins, then the index one.
 		* @param file - one settled status row.
@@ -3027,63 +3519,65 @@ const GitReview=((require) => {
 			"?": GitChangesBody_module_css_default.badgeAdded
 		};
 		/** One file row: badge, name, and dimmed directory; pressing it opens the file. */
-		function FileRow({ file, selected, disabled, onSelect, onOpen, onRollback, t }) {
-			const badge = statusBadgeOf(file);
-			const { name, dir } = pathSegments(file.path);
-			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("li", {
-				className: GitChangesBody_module_css_default.item,
-				children: [
-					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
-						type: "checkbox",
-						className: GitChangesBody_module_css_default.fileCheckbox,
-						checked: selected,
-						"aria-label": t("changes.selectFile", { path: file.path }),
-						"data-git-file-select": file.path,
-						onChange: (event) => {
-							onSelect(event.target.checked);
-						}
-					}),
-					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
-						type: "button",
-						className: GitChangesBody_module_css_default.fileRow,
-						title: file.renamedFrom === void 0 ? file.path : `${file.renamedFrom} → ${file.path}`,
-						"data-git-file": file.path,
-						onClick: () => {
-							onOpen(file);
-						},
-						children: [
-							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
-								className: clsx(GitChangesBody_module_css_default.badge, BADGE_CLASS[badge]),
-								"data-git-status": badge,
-								children: badge
-							}),
-							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
-								className: GitChangesBody_module_css_default.fileName,
-								children: name
-							}),
-							dir !== "" && /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
-								className: GitChangesBody_module_css_default.fileDir,
-								children: dir
-							})
-						]
-					}),
-					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
-						type: "button",
-						className: GitChangesBody_module_css_default.rowAction,
-						disabled,
-						"aria-label": t("rollback.single", { path: file.path }),
-						title: t("rollback.single", { path: file.path }),
-						"data-git-rollback-file": file.path,
-						onClick: () => {
-							onRollback(file);
-						},
-						children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(RollbackIcon, {})
-					})
-				]
-			});
-		}
-		/** One file stored inside an expanded stash collection. */
-		function StashFileRow({ file }) {
+		function FileRow({
+  file,
+  selected,
+  disabled,
+  onSelect,
+  onOpen,
+  onRollback,
+  onTrack,
+  t
+}) {
+  const badge = statusBadgeOf(file);
+  const { name, dir } = pathSegments(file.path);
+  return /* @__PURE__ */ react.createElement("li", { className: GitChangesBody_module_css_default.item }, !file.untracked && /* @__PURE__ */ react.createElement(
+    "input",
+    {
+      type: "checkbox",
+      className: GitChangesBody_module_css_default.fileCheckbox,
+      checked: selected,
+      "aria-label": t("changes.selectFile", { path: file.path }),
+      "data-git-file-select": file.path,
+      onChange: (event) => {
+        onSelect(event.target.checked);
+      },
+      disabled
+    }
+  ), /* @__PURE__ */ react.createElement(
+    "button",
+    {
+      type: "button",
+      className: GitChangesBody_module_css_default.fileRow,
+      title: file.renamedFrom === void 0 ? file.path : `${file.renamedFrom} \u2192 ${file.path}`,
+      "data-git-file": file.path,
+      onClick: () => {
+        onOpen(file);
+      }
+    },
+    /* @__PURE__ */ react.createElement("span", { className: clsx(GitChangesBody_module_css_default.badge, BADGE_CLASS[badge]), "data-git-status": badge }, badge),
+    /* @__PURE__ */ react.createElement("span", { className: GitChangesBody_module_css_default.fileName }, name),
+    dir !== "" && /* @__PURE__ */ react.createElement("span", { className: GitChangesBody_module_css_default.fileDir }, dir)
+  ), file.untracked && /* @__PURE__ */ react.createElement("button", { type: "button", className: GitChangesBody_module_css_default.rowAction, disabled, "aria-label": t("changes.track"), title: t("changes.track"), "data-git-track-file": file.path, onClick: () => {
+    onTrack?.(file);
+  } }, /* @__PURE__ */ react.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", "aria-hidden": "true" }, /* @__PURE__ */ react.createElement("path", { d: "M8 3v10M3 8h10" }))), /* @__PURE__ */ react.createElement(
+    "button",
+    {
+      type: "button",
+      className: GitChangesBody_module_css_default.rowAction,
+      disabled,
+      "aria-label": t("rollback.single", { path: file.path }),
+      title: t("rollback.single", { path: file.path }),
+      "data-git-rollback-file": file.path,
+      onClick: () => {
+        onRollback(file);
+      }
+    },
+    /* @__PURE__ */ react.createElement(RollbackIcon, null)
+  ));
+}
+
+function StashFileRow({ file }) {
 			const { name, dir } = pathSegments(file.path);
 			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("li", {
 				className: GitChangesBody_module_css_default.stashFile,
@@ -3464,7 +3958,7 @@ const GitReview=((require) => {
 			return t("actions.failedWithReason", { message: failure.message });
 		}
 		/** Mutation controls shown in the working-changes header. */
-		function GitActionControls({ workspaceId, paths, commit, commitAndPush, push, pull, stash, onRollback, operation, setOperation, error, setError, onDone, t }) {
+		function GitActionControls({ workspaceId, paths, generateCommitMessage, commit, commitAndPush, push, pull, stash, onRollback, operation, setOperation, error, setError, onDone, t }) {
 			const operationRef = (0, react.useRef)(void 0);
 			const [menuOpen, setMenuOpen] = (0, react.useState)(false);
 			const [mode, setMode] = (0, react.useState)(void 0);
@@ -3498,6 +3992,7 @@ const GitReview=((require) => {
 					setOperation(void 0);
 					if (failure !== void 0) {
 						setError(actionFailureLine(t, failure));
+                    if (selectedMode === "commit-push") onDone("commit");
 						return;
 					}
 					const kind = selectedMode === "stash" ? "stash" : "commit";
@@ -3602,8 +4097,9 @@ const GitReview=((require) => {
 					onClick: onRollback,
 					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(RollbackIcon, {}), t("rollback.batch")]
 				}),
-				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)(_deepseek_ai_dsh_client_ui_primitives.Modal, {
+				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)(CommitMessageDialog, {
 					open: mode !== void 0,
+          ai: mode !== void 0 && mode !== "stash" ? { workspaceId, paths, message, generate: generateCommitMessage, onMessage: setMessage, onError: setError } : void 0,
 					className: clsx(GitChangesBody_module_css_default.actionDialog),
 					onClose: () => {
 						setMode(void 0);
@@ -3663,7 +4159,7 @@ const GitReview=((require) => {
 			] });
 		}
 		/** The code-review region and its independently collapsible Git sections. */
-		function GitChangesBody({ sessionId, useSessions, useWorkspaces, readChanges, commitChanges, commitAndPushChanges, pushChanges, pullChanges, stashChanges, rollbackChanges, readStashFiles, restoreStash, dropStash, readWorkingDiff, readCommitFiles, readCommitDiff, useDiffZoomModifier, t }) {
+		function GitChangesBody({ sessionId, useSessions, useWorkspaces, readChanges, commitChanges, commitAndPushChanges, pushChanges, pullChanges, stashChanges, rollbackChanges, readStashFiles, restoreStash, dropStash, readWorkingDiff, readCommitFiles, readCommitDiff, useDiffZoomModifier, t , generateCommitMessage , trackFiles }) {
 			const zoomModifier = useDiffZoomModifier((value) => value);
 			const visible = useGitChangesVisible(sessionId);
 			const rootRef = (0, react.useRef)(null);
@@ -3674,11 +4170,14 @@ const GitReview=((require) => {
 				if (owned !== void 0) return owned.workspaceId;
 				return workspaces.items.find((workspace) => workspace.path === cwd)?.workspaceId;
 			});
+			const trackRequest = (0, react.useRef)(void 0);
+(0, react.useEffect)(() => { trackRequest.current?.abort(); trackRequest.current = undefined; setOperation(undefined); return () => { trackRequest.current?.abort(); }; }, [workspaceId]);
 			const [read, setRead] = (0, react.useState)(void 0);
 			const [selected, setSelected] = (0, react.useState)(/* @__PURE__ */ new Set());
 			const [revision, setRevision] = (0, react.useState)(0);
 			const [pendingExpanded, setPendingExpanded] = (0, react.useState)(true);
 			const [changesExpanded, setChangesExpanded] = (0, react.useState)(true);
+			const [untrackedExpanded, setUntrackedExpanded] = (0, react.useState)(false);
 			const [stashExpanded, setStashExpanded] = (0, react.useState)(true);
 			const [selectedCommit, setSelectedCommit] = (0, react.useState)(void 0);
 			const [selectedWorkingFile, setSelectedWorkingFile] = (0, react.useState)(void 0);
@@ -3692,7 +4191,7 @@ const GitReview=((require) => {
 				readChanges(workspaceId, controller.signal).then((next) => {
 					if (!alive || controller.signal.aborted) return;
 					setRead(next);
-					setSelected(new Set(next.files.filter((file) => !isGitIgnorePath(file.path)).map((file) => file.path)));
+					setSelected(new Set(next.files.filter((file) => !file.untracked && !isGitIgnorePath(file.path)).map((file) => file.path)));
 				});
 				return () => {
 					alive = false;
@@ -3716,14 +4215,19 @@ const GitReview=((require) => {
 				if (panel === null) return;
 				event.preventDefault();
 				stopResizeRef.current?.();
+				const handle = event.currentTarget;
 				let nextY = event.clientY;
+				let height = root.getBoundingClientRect().height;
 				let frame;
 				const previousUserSelect = document.body.style.userSelect;
+				const previousCursor = document.body.style.cursor;
 				document.body.style.userSelect = "none";
+				document.body.style.cursor = "row-resize";
+				handle.dataset.active = "true";
 				const applyHeight = () => {
 					frame = void 0;
-					const panelRect = panel.getBoundingClientRect();
-					const next = Math.max(MIN_REGION_HEIGHT, Math.min(panelRect.height - MIN_REGION_HEIGHT, nextY - panelRect.top));
+					const next = regionHeightAt(panel.getBoundingClientRect(), nextY);
+					height = next;
 					root.style.height = `${next}px`;
 				};
 				const move = (moveEvent) => {
@@ -3733,14 +4237,21 @@ const GitReview=((require) => {
 				const stop = () => {
 					if (frame !== void 0) cancelAnimationFrame(frame);
 					applyHeight();
+					rememberedHeight = height;
 					window.removeEventListener("mousemove", move);
 					window.removeEventListener("mouseup", stop);
 					document.body.style.userSelect = previousUserSelect;
+					document.body.style.cursor = previousCursor;
+					delete handle.dataset.active;
 					stopResizeRef.current = void 0;
 				};
 				stopResizeRef.current = stop;
 				window.addEventListener("mousemove", move);
 				window.addEventListener("mouseup", stop);
+			};
+			const resetHeight = () => {
+				rememberedHeight = void 0;
+				if (rootRef.current !== null) rootRef.current.style.height = "";
 			};
 			const close = () => {
 				setGitChangesVisible(sessionId, false);
@@ -3773,7 +4284,8 @@ const GitReview=((require) => {
 						"aria-label": t("changes.resize"),
 						"aria-orientation": "horizontal",
 						"data-git-changes-resize": true,
-						onMouseDown: beginResize
+						onMouseDown: beginResize,
+						onDoubleClick: resetHeight
 					})
 				]
 			});
@@ -3791,9 +4303,27 @@ const GitReview=((require) => {
 			const open = (file) => {
 				setSelectedWorkingFile(file);
 			};
-			const allSelected = files.length > 0 && files.every((file) => selected.has(file.path));
-			const operationPaths = files.flatMap((file) => selected.has(file.path) ? [file.path, ...file.renamedFrom === void 0 ? [] : [file.renamedFrom]] : []);
-			const selectedFiles = files.filter((file) => selected.has(file.path));
+			const trackFile = (file) => {
+  if (operation !== void 0 || trackRequest.current) return;
+  const controller = new AbortController();
+  trackRequest.current = controller;
+  setOperation({ kind: "track" });
+  setActionError(void 0);
+  void trackFiles(workspaceId, controller.signal, [file.path]).then(() => {
+    if (!controller.signal.aborted) setRevision((value) => value + 1);
+  }).catch((error) => {
+    if (!controller.signal.aborted) setActionError(error instanceof Error ? error.message : String(error));
+  }).finally(() => {
+    if (trackRequest.current === controller) {
+      trackRequest.current = void 0;
+      if (!controller.signal.aborted) setOperation(void 0);
+    }
+  });
+};
+
+const allSelected = tracked.length > 0 && tracked.every((file) => selected.has(file.path));
+			const operationPaths = tracked.flatMap((file) => selected.has(file.path) ? [file.path, ...file.renamedFrom === void 0 ? [] : [file.renamedFrom]] : []);
+			const selectedFiles = tracked.filter((file) => selected.has(file.path));
 			const setFileSelected = (path, checked) => {
 				setSelected((current) => {
 					const next = new Set(current);
@@ -3806,6 +4336,7 @@ const GitReview=((require) => {
 				ref: rootRef,
 				className: GitChangesBody_module_css_default.root,
 				"data-git-changes": workspaceId,
+				style: rememberedHeight === void 0 ? void 0 : { height: `${rememberedHeight}px` },
 				children: [
 					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
 						className: GitChangesBody_module_css_default.content,
@@ -3815,7 +4346,8 @@ const GitReview=((require) => {
 								operations: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(GitActionControls, {
 									workspaceId,
 									paths: operationPaths,
-									commit: commitChanges,
+									generateCommitMessage,
+								commit: commitChanges,
 									commitAndPush: commitAndPushChanges,
 									push: pushChanges,
 									pull: pullChanges,
@@ -3828,6 +4360,7 @@ const GitReview=((require) => {
 									error: actionError,
 									setError: setActionError,
 									onDone: (completed) => {
+                  if (completed === "commit" || completed === "commit-push" || completed === "push" || completed === "pull") notifyGitHistoryRefresh(sessionId);
 										if (completed === "push") {
 											setRead((current) => current === void 0 ? current : {
 												...current,
@@ -3837,7 +4370,6 @@ const GitReview=((require) => {
 											});
 											return;
 										}
-										if (completed === "pull") notifyGitHistoryRefresh(sessionId);
 										setRevision((current) => current + 1);
 									},
 									t
@@ -3901,19 +4433,19 @@ const GitReview=((require) => {
 							/* @__PURE__ */ (0, react_jsx_runtime.jsx)(SectionHeader, {
 								section: "changes",
 								title: t("changes.sectionTitle"),
-								count: read === void 0 ? 0 : tracked.length + untracked.length,
+								count: read === void 0 ? 0 : tracked.length,
 								expanded: changesExpanded,
 								onToggle: () => {
 									setChangesExpanded((value) => !value);
 								},
-								selection: files.length > 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+								selection: tracked.length > 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
 									type: "checkbox",
 									className: GitChangesBody_module_css_default.fileCheckbox,
 									checked: allSelected,
 									"aria-label": t("changes.selectAll"),
 									"data-git-select-all": true,
 									onChange: (event) => {
-										setSelected(event.target.checked ? new Set(files.map((file) => file.path)) : /* @__PURE__ */ new Set());
+										setSelected(event.target.checked ? new Set(tracked.map((file) => file.path)) : /* @__PURE__ */ new Set());
 									}
 								}) : void 0
 							}),
@@ -3950,7 +4482,7 @@ const GitReview=((require) => {
 										className: GitChangesBody_module_css_default.level,
 										children: tracked.map((file) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)(FileRow, {
 											file,
-											selected: selected.has(file.path),
+											selected: selected.has(file.path), onTrack: trackFile,
 											disabled: operation !== void 0,
 											onSelect: (checked) => {
 												setFileSelected(file.path, checked);
@@ -3962,18 +4494,13 @@ const GitReview=((require) => {
 											t
 										}, file.path))
 									}),
-									repository && untracked.length > 0 && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(react_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
-										className: GitChangesBody_module_css_default.subsectionHeader,
-										"data-git-changes-header": "untracked",
-										children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: t("changes.untrackedTitle") }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
-											className: GitChangesBody_module_css_default.count,
-											children: untracked.length
-										})]
-									}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("ul", {
+									repository && untracked.length > 0 && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(react_jsx_runtime.Fragment, { children: [/* @__PURE__ */ react.createElement("button", { type: "button", className: GitChangesBody_module_css_default.subsectionHeader, "data-git-changes-header": "untracked", "aria-expanded": untrackedExpanded, onClick: () => {
+  setUntrackedExpanded((value) => !value);
+} }, /* @__PURE__ */ react.createElement(_deepseek_ai_dsh_client_ui_primitives.IconChevronDownOutlineRegular, { className: clsx(GitChangesBody_module_css_default.sectionChevron, untrackedExpanded && GitChangesBody_module_css_default.sectionChevronExpanded) }), /* @__PURE__ */ react.createElement("span", null, t("changes.untrackedTitle")), /* @__PURE__ */ react.createElement("span", { className: GitChangesBody_module_css_default.count }, untracked.length)), untrackedExpanded && /* @__PURE__ */ (0, react_jsx_runtime.jsx)("ul", {
 										className: GitChangesBody_module_css_default.level,
 										children: untracked.map((file) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)(FileRow, {
 											file,
-											selected: selected.has(file.path),
+											selected: selected.has(file.path), onTrack: trackFile,
 											disabled: operation !== void 0,
 											onSelect: (checked) => {
 												setFileSelected(file.path, checked);
@@ -4071,7 +4598,8 @@ const GitReview=((require) => {
 						"aria-label": t("changes.resize"),
 						"aria-orientation": "horizontal",
 						"data-git-changes-resize": true,
-						onMouseDown: beginResize
+						onMouseDown: beginResize,
+						onDoubleClick: resetHeight
 					})
 				]
 			});
@@ -4080,13 +4608,17 @@ const GitReview=((require) => {
 		//#region dsh-css:source/git-review/client/GitReviewPage.module.css.mjs
 		const css = ".VpfCBq_page{height:100%;min-height:0;color:var(--dsw-alias-label-primary);flex-direction:column;flex:auto;display:flex;overflow:hidden}";
 		const tagId = "@deepseek-ai/dsh-client-ui-sidebar-git-history/GitReviewPage.module.css";
-		if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId) + "]") === null) {
-			const tag = document.createElement("style");
-			tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
-			tag.dataset.pluginCss = tagId;
-			tag.textContent = css;
-			document.head.appendChild(tag);
-		}
+		if (typeof document !== "undefined") {
+			const sheet = css;
+			const existing = document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId) + "]");
+			if (existing === null) {
+				const tag = document.createElement("style");
+				tag.dataset.plugin = "@deepseek-ai/dsh-client-ui-sidebar-git-history";
+				tag.dataset.pluginCss = tagId;
+				tag.textContent = sheet;
+				document.head.appendChild(tag);
+			} else if (existing.textContent !== sheet) existing.textContent = sheet;
+			}
 		var GitReviewPage_module_css_default = { "page": "VpfCBq_page" };
 		//#endregion
 		//#region src/client/GitReviewPage.tsx
@@ -4118,6 +4650,15 @@ const GitReview=((require) => {
 			more: "加载更多",
 			"search.placeholder": "搜索提交说明…",
 			"search.submit": "搜索",
+			"search.author.all": "全部作者",
+			"search.author.label": "按提交作者筛选",
+			"search.date.toggle": "日期",
+			"search.date.since": "起始日期（含当天）",
+			"search.date.until": "结束日期（含当天）",
+			"search.date.clear": "清除日期",
+			"search.date.range": "提交日期：{since} 至 {until}",
+			"search.date.sinceRange": "提交日期：{since} 之后",
+			"search.date.untilRange": "提交日期：{until} 之前",
 			"detail.title": "提交详情",
 			"detail.close": "关闭提交详情",
 			"detail.files": "提交文件",
@@ -4132,8 +4673,8 @@ const GitReview=((require) => {
 			"detail.resize": "调整文件目录宽度",
 			"detail.binary": "这是二进制或不支持的文件，无法以代码形式对比。",
 			"detail.sync": "同步滚动",
-			"detail.sync.enable": "开启左右同步滚动",
-			"detail.sync.disable": "关闭左右同步滚动",
+			"detail.sync.enable": "开启横向和竖向同步滚动",
+			"detail.sync.disable": "关闭横向和竖向同步滚动",
 			"detail.fullscreen.enter": "全屏显示提交详情",
 			"detail.fullscreen.exit": "退出提交详情全屏",
 			"detail.search.placeholder": "搜索代码…",
@@ -4142,7 +4683,7 @@ const GitReview=((require) => {
 			"detail.search.next": "查找下一处",
 			"detail.search.clear": "清空搜索",
 			"settings.diffZoom.title": "代码对比缩放",
-			"settings.diffZoom.description": "按住选择的按键并在代码对比区滚动；默认为 Alt，避免与浏览器 Ctrl + 滚轮缩放冲突。",
+			"settings.diffZoom.description": "在代码对比区按 Ctrl + 滚轮缩放代码；也支持下方选择的附加按键，默认为 Alt。",
 			"settings.diffZoom.alt": "Alt + 滚轮",
 			"settings.diffZoom.control": "Ctrl + 滚轮",
 			"settings.diffZoom.shift": "Shift + 滚轮",
@@ -4182,7 +4723,8 @@ const GitReview=((require) => {
 			"operations.stash": "正在搁置…",
 			"operations.stash-restore": "正在恢复搁置…",
 			"operations.stash-delete": "正在删除搁置…",
-			"operations.rollback": "正在回滚…",
+			"operations.track": "正在加入版本管理…", "changes.track": "加入版本管理",
+"operations.rollback": "正在回滚…",
 			"changes.untrackedTitle": "未进行版本管理的文件",
 			"changes.empty": "没有未提交的更改。",
 			"changes.selectAll": "选择全部更改",
@@ -4192,7 +4734,7 @@ const GitReview=((require) => {
 			"rollback.single": "回滚 {path}",
 			"rollback.titleSingle": "回滚文件",
 			"rollback.titleBatch": "批量回滚",
-			"rollback.warning": "将放弃所选的 {count} 项工作区更改，恢复后无法撤销。",
+			"rollback.warning": "将回滚所选的 {count} 项：已有文件恢复到上次提交；尚未提交的新文件仅取消版本管理并保留内容。已有文件的修改将丢失。",
 			"rollback.untrackedWarning": "所选内容包含未跟踪文件；这些文件将被永久删除。",
 			"rollback.confirm": "确认回滚",
 			"stash.title": "搁置",
@@ -4221,6 +4763,15 @@ const GitReview=((require) => {
 			more: "Load more",
 			"search.placeholder": "Search commit messages…",
 			"search.submit": "Search",
+			"search.author.all": "All authors",
+			"search.author.label": "Filter by commit author",
+			"search.date.toggle": "Date",
+			"search.date.since": "Start date (inclusive)",
+			"search.date.until": "End date (inclusive)",
+			"search.date.clear": "Clear dates",
+			"search.date.range": "Commit date: {since} to {until}",
+			"search.date.sinceRange": "Commit date: from {since}",
+			"search.date.untilRange": "Commit date: up to {until}",
 			"detail.title": "Commit details",
 			"detail.close": "Close commit details",
 			"detail.files": "Commit files",
@@ -4235,8 +4786,8 @@ const GitReview=((require) => {
 			"detail.resize": "Resize the file tree",
 			"detail.binary": "This binary or unsupported file cannot be compared as code.",
 			"detail.sync": "Sync scrolling",
-			"detail.sync.enable": "Enable synchronized scrolling",
-			"detail.sync.disable": "Disable synchronized scrolling",
+			"detail.sync.enable": "Enable horizontal and vertical synchronized scrolling",
+			"detail.sync.disable": "Disable horizontal and vertical synchronized scrolling",
 			"detail.fullscreen.enter": "Show commit details fullscreen",
 			"detail.fullscreen.exit": "Exit commit details fullscreen",
 			"detail.search.placeholder": "Search code…",
@@ -4245,7 +4796,7 @@ const GitReview=((require) => {
 			"detail.search.next": "Find next match",
 			"detail.search.clear": "Clear search",
 			"settings.diffZoom.title": "Code comparison zoom",
-			"settings.diffZoom.description": "Hold the selected key while scrolling over a comparison. Alt is the default to avoid the browser Ctrl+wheel gesture.",
+			"settings.diffZoom.description": "Use Ctrl+wheel to zoom comparison text. The selected key is also supported; Alt is the default additional modifier.",
 			"settings.diffZoom.alt": "Alt + wheel",
 			"settings.diffZoom.control": "Ctrl + wheel",
 			"settings.diffZoom.shift": "Shift + wheel",
@@ -4285,7 +4836,8 @@ const GitReview=((require) => {
 			"operations.stash": "Stashing…",
 			"operations.stash-restore": "Restoring stash…",
 			"operations.stash-delete": "Deleting stash…",
-			"operations.rollback": "Rolling back…",
+			"operations.track": "Adding to version control…", "changes.track": "Add to version control",
+"operations.rollback": "Rolling back…",
 			"changes.untrackedTitle": "Untracked Files",
 			"changes.empty": "No uncommitted changes.",
 			"changes.selectAll": "Select all changes",
@@ -4295,7 +4847,7 @@ const GitReview=((require) => {
 			"rollback.single": "Rollback {path}",
 			"rollback.titleSingle": "Rollback file",
 			"rollback.titleBatch": "Rollback selected files",
-			"rollback.warning": "Discard {count} selected workspace change(s). This cannot be undone.",
+			"rollback.warning": "Roll back {count} selected change(s): restore existing files to the last commit; return new, uncommitted files to untracked status while preserving their contents. Edits to existing files will be lost.",
 			"rollback.untrackedWarning": "The selection contains untracked files. Those files will be permanently deleted.",
 			"rollback.confirm": "Rollback",
 			"stash.title": "Shelves",
@@ -4344,10 +4896,14 @@ const GitReview=((require) => {
 				draft.commits = append ? [...draft.commits, ...page.commits] : [...page.commits];
 				draft.skip = append ? draft.skip + page.commits.length : page.commits.length;
 				draft.more = page.more;
+				// Only a first page carries the author list; a later page keeps what the
+				// window already offers so the dropdown does not empty while paging.
+				if (page.authors !== void 0) draft.authors = [...page.authors];
 			} else {
 				draft.commits = [];
 				draft.skip = 0;
 				draft.more = false;
+				draft.authors = [];
 			}
 		}
 		/**
@@ -4371,6 +4927,10 @@ const GitReview=((require) => {
 							repository: true,
 							commits: [],
 							search: "",
+							author: "",
+							since: "",
+							until: "",
+							authors: [],
 							skip: 0,
 							more: false,
 							status: "loading",
@@ -4379,14 +4939,17 @@ const GitReview=((require) => {
 						};
 					},
 					/**
-					* Mark a first-page read (open, reload, or a new search) as in flight.
+					* Mark a first-page read (open, reload, or a new filter) as in flight.
 					* @param d - draft state.
 					* @param tabId - the tab being drawn.
-					* @param search - the subject filter the read carries.
+					* @param filter - the subject, author, and date filters the read carries.
 					*/
-					loading: (d, tabId, search) => {
+					loading: (d, tabId, filter) => {
 						const state = bucket(d, tabId);
-						state.search = search;
+						state.search = filter.search;
+						state.author = filter.author;
+						state.since = filter.since;
+						state.until = filter.until;
 						state.status = "loading";
 						state.failure = void 0;
 					},
@@ -4472,6 +5035,15 @@ const GitReview=((require) => {
 			const zoomPreference = new DiffZoomPreferenceController(ctx.configForms.get(GIT_HISTORY_SETTINGS_NAMESPACE));
 			const zoomHooks = { diffZoomModifier: zoomPreference.diffZoomModifier };
 			const changesFace = {
+trackFiles: async (workspaceId, signal, paths) => {
+      const result = await ctx.remote.gitWorkspace.trackFiles({ workspaceId, paths }, signal)
+      if (!result.ok) throw new Error(result.error.message)
+    },
+generateCommitMessage: async (workspaceId, signal, paths) => {
+      const result = await ctx.remote.gitWorkspace.generateCommitMessage({ workspaceId, paths }, signal)
+      if (!result.ok) throw new Error(result.error.message)
+      return result.value.message
+    },
 				readChanges: createReadChanges(ctx.remote),
 				commitChanges: async (workspaceId, signal, paths, message) => {
 					const result = await ctx.remote.gitWorkspace.commit({
@@ -4617,7 +5189,7 @@ module.exports = __toCommonJS(index_exports);
 var import_react = __toESM(require("react"), 1);
 var import_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-primitives");
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/external.js
+// packages/controller/node_modules/zod/v4/classic/external.js
 var external_exports = {};
 __export(external_exports, {
   $brand: () => $brand,
@@ -4880,7 +5452,7 @@ __export(external_exports, {
   xor: () => xor
 });
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/index.js
+// packages/controller/node_modules/zod/v4/core/index.js
 var core_exports2 = {};
 __export(core_exports2, {
   $ZodAny: () => $ZodAny,
@@ -5197,7 +5769,7 @@ __export(core_exports2, {
   withParser: () => withParser
 });
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/util.js
+// packages/controller/node_modules/zod/v4/core/util.js
 var util_exports = {};
 __export(util_exports, {
   BIGINT_FORMAT_RANGES: () => BIGINT_FORMAT_RANGES,
@@ -6053,7 +6625,7 @@ function constantCatch(value) {
   return fn;
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/core.js
+// packages/controller/node_modules/zod/v4/core/core.js
 var _a;
 var NEVER = /* @__PURE__ */ Object.freeze({
   status: "aborted"
@@ -6175,7 +6747,7 @@ function config(newConfig) {
   return globalConfig;
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/errors.js
+// packages/controller/node_modules/zod/v4/core/errors.js
 function _getMessage() {
   const internals = this._zod;
   internals.message ?? (internals.message = JSON.stringify(internals.def, jsonStringifyReplacer, 2));
@@ -6367,7 +6939,7 @@ function prettifyError(error62) {
   return lines.join("\n");
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/parse.js
+// packages/controller/node_modules/zod/v4/core/parse.js
 function finalizeParams(callee, params) {
   return { callee: params?.callee ?? callee, Err: params?.Err };
 }
@@ -6527,7 +7099,7 @@ var _safeDecodeAsync = (_Err) => async (schema, value, _ctx) => {
 };
 var safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync($ZodRealError);
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/regexes.js
+// packages/controller/node_modules/zod/v4/core/regexes.js
 var regexes_exports = {};
 __export(regexes_exports, {
   anyString: () => anyString,
@@ -6699,7 +7271,7 @@ var sha512_hex = /^[0-9a-fA-F]{128}$/;
 var sha512_base64 = /* @__PURE__ */ fixedBase64(86, "==");
 var sha512_base64url = /* @__PURE__ */ fixedBase64url(86);
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/checks.js
+// packages/controller/node_modules/zod/v4/core/checks.js
 var $ZodCheck = /* @__PURE__ */ $constructor("$ZodCheck", (inst, def) => {
   var _a3;
   inst._zod ?? (inst._zod = {});
@@ -7175,7 +7747,7 @@ var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (ins
   };
 });
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/doc.js
+// packages/controller/node_modules/zod/v4/core/doc.js
 var Doc = class {
   constructor(args = [], closed = {}) {
     this.content = [];
@@ -7216,14 +7788,14 @@ ${content.join("\n")}
   }
 };
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/versions.js
+// packages/controller/node_modules/zod/v4/core/versions.js
 var version = {
   major: 4,
   minor: 6,
   patch: 7
 };
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/schemas.js
+// packages/controller/node_modules/zod/v4/core/schemas.js
 var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
   var _a3;
   inst ?? (inst = {});
@@ -9665,7 +10237,7 @@ function handleRefineResult(result, payload, input2, inst) {
   }
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/memoizer.js
+// packages/controller/node_modules/zod/v4/core/memoizer.js
 var $ZodCyclicError = class extends Error {
   constructor() {
     super(`Cannot parse a reference cycle that closes through a transform`);
@@ -9942,7 +10514,7 @@ function isBackEdge(ctx, value) {
   return backEdges !== void 0 && isRef(value) && backEdges.has(value);
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/index.js
+// packages/controller/node_modules/zod/v4/locales/index.js
 var locales_exports = {};
 __export(locales_exports, {
   ar: () => ar_default,
@@ -10010,7 +10582,7 @@ __export(locales_exports, {
   zhTW: () => zh_TW_default
 });
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ar.js
+// packages/controller/node_modules/zod/v4/locales/ar.js
 var error = () => {
   const Sizable = {
     string: { unit: "\u062D\u0631\u0641", verb: "\u0623\u0646 \u064A\u062D\u0648\u064A" },
@@ -10122,7 +10694,7 @@ function ar_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/az.js
+// packages/controller/node_modules/zod/v4/locales/az.js
 var error2 = () => {
   const Sizable = {
     string: { unit: "simvol", verb: "olmal\u0131d\u0131r" },
@@ -10233,7 +10805,7 @@ function az_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/be.js
+// packages/controller/node_modules/zod/v4/locales/be.js
 function getBelarusianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
   const lastDigit = absCount % 10;
@@ -10402,7 +10974,7 @@ function be_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/bg.js
+// packages/controller/node_modules/zod/v4/locales/bg.js
 var error4 = () => {
   const Sizable = {
     string: { unit: "\u0441\u0438\u043C\u0432\u043E\u043B\u0430", verb: "\u0434\u0430 \u0441\u044A\u0434\u044A\u0440\u0436\u0430" },
@@ -10528,7 +11100,7 @@ function bg_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/bn.js
+// packages/controller/node_modules/zod/v4/locales/bn.js
 var error5 = () => {
   const Sizable = {
     string: { unit: "\u0985\u0995\u09CD\u09B7\u09B0", verb: "\u09A5\u09BE\u0995\u09A4\u09C7 \u09B9\u09AC\u09C7" },
@@ -10642,7 +11214,7 @@ function bn_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ca.js
+// packages/controller/node_modules/zod/v4/locales/ca.js
 var error6 = () => {
   const Sizable = {
     string: { unit: "car\xE0cters", verb: "contenir" },
@@ -10756,7 +11328,7 @@ function ca_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ckb.js
+// packages/controller/node_modules/zod/v4/locales/ckb.js
 var error7 = () => {
   const Sizable = {
     string: { unit: "\u067E\u06CC\u062A", verb: "\u0628\u06CE\u062A" },
@@ -10889,7 +11461,7 @@ function ckb_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/cs.js
+// packages/controller/node_modules/zod/v4/locales/cs.js
 var error8 = () => {
   const Sizable = {
     string: { unit: "znak\u016F", verb: "m\xEDt" },
@@ -11006,7 +11578,7 @@ function cs_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/da.js
+// packages/controller/node_modules/zod/v4/locales/da.js
 var error9 = () => {
   const Sizable = {
     string: { unit: "tegn", verb: "havde" },
@@ -11127,7 +11699,7 @@ function da_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/de.js
+// packages/controller/node_modules/zod/v4/locales/de.js
 var error10 = () => {
   const Sizable = {
     string: { unit: "Zeichen", verb: "zu haben" },
@@ -11241,7 +11813,7 @@ function de_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/el.js
+// packages/controller/node_modules/zod/v4/locales/el.js
 var error11 = () => {
   const Sizable = {
     string: { unit: "\u03C7\u03B1\u03C1\u03B1\u03BA\u03C4\u03AE\u03C1\u03B5\u03C2", verb: "\u03BD\u03B1 \u03AD\u03C7\u03B5\u03B9" },
@@ -11354,7 +11926,7 @@ function el_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/en.js
+// packages/controller/node_modules/zod/v4/locales/en.js
 var error12 = () => {
   const Sizable = {
     string: { unit: "characters", verb: "to have" },
@@ -11479,7 +12051,7 @@ function en_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/eo.js
+// packages/controller/node_modules/zod/v4/locales/eo.js
 var error13 = () => {
   const Sizable = {
     string: { unit: "karaktrojn", verb: "havi" },
@@ -11594,7 +12166,7 @@ function eo_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/es.js
+// packages/controller/node_modules/zod/v4/locales/es.js
 var error14 = () => {
   const Sizable = {
     string: { unit: "caracteres", verb: "tener" },
@@ -11731,7 +12303,7 @@ function es_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fa.js
+// packages/controller/node_modules/zod/v4/locales/fa.js
 var error15 = () => {
   const Sizable = {
     string: { unit: "\u06A9\u0627\u0631\u0627\u06A9\u062A\u0631", verb: "\u062F\u0627\u0634\u062A\u0647 \u0628\u0627\u0634\u062F" },
@@ -11851,7 +12423,7 @@ function fa_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fi.js
+// packages/controller/node_modules/zod/v4/locales/fi.js
 var error16 = () => {
   const Sizable = {
     string: { unit: "merkki\xE4", subject: "merkkijonon" },
@@ -11969,7 +12541,7 @@ function fi_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fr.js
+// packages/controller/node_modules/zod/v4/locales/fr.js
 var error17 = () => {
   const Sizable = {
     string: { unit: "caract\xE8res", verb: "avoir" },
@@ -12099,7 +12671,7 @@ function fr_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fr-CA.js
+// packages/controller/node_modules/zod/v4/locales/fr-CA.js
 var error18 = () => {
   const Sizable = {
     string: { unit: "caract\xE8res", verb: "avoir" },
@@ -12212,7 +12784,7 @@ function fr_CA_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/gu.js
+// packages/controller/node_modules/zod/v4/locales/gu.js
 var error19 = () => {
   const Sizable = {
     string: { unit: "\u0A85\u0A95\u0ACD\u0AB7\u0AB0", verb: "\u0AB9\u0ACB\u0AB5\u0ABE \u0A9C\u0ACB\u0A88\u0A8F" },
@@ -12326,7 +12898,7 @@ function gu_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/he.js
+// packages/controller/node_modules/zod/v4/locales/he.js
 var error20 = () => {
   const TypeNames = {
     string: { label: "\u05DE\u05D7\u05E8\u05D5\u05D6\u05EA", gender: "f" },
@@ -12528,7 +13100,7 @@ function he_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hi.js
+// packages/controller/node_modules/zod/v4/locales/hi.js
 var error21 = () => {
   const Sizable = {
     string: { unit: "\u0905\u0915\u094D\u0937\u0930", verb: "\u0930\u0916\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F" },
@@ -12640,7 +13212,7 @@ function hi_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hr.js
+// packages/controller/node_modules/zod/v4/locales/hr.js
 var error22 = () => {
   const Sizable = {
     string: { unit: "znakova", verb: "imati" },
@@ -12767,7 +13339,7 @@ function hr_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hu.js
+// packages/controller/node_modules/zod/v4/locales/hu.js
 var error23 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "legyen" },
@@ -12881,7 +13453,7 @@ function hu_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hy.js
+// packages/controller/node_modules/zod/v4/locales/hy.js
 function getArmenianPlural(count, one, many) {
   return Math.abs(count) === 1 ? one : many;
 }
@@ -13040,7 +13612,7 @@ function hy_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/id.js
+// packages/controller/node_modules/zod/v4/locales/id.js
 var error25 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "memiliki" },
@@ -13152,7 +13724,7 @@ function id_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/is.js
+// packages/controller/node_modules/zod/v4/locales/is.js
 var error26 = () => {
   const Sizable = {
     string: { unit: "stafi", verb: "a\xF0 hafa" },
@@ -13267,7 +13839,7 @@ function is_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/it.js
+// packages/controller/node_modules/zod/v4/locales/it.js
 var error27 = () => {
   const Sizable = {
     string: { unit: "caratteri", verb: "avere" },
@@ -13381,7 +13953,7 @@ function it_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ja.js
+// packages/controller/node_modules/zod/v4/locales/ja.js
 var error28 = () => {
   const Sizable = {
     string: { unit: "\u6587\u5B57", verb: "\u3067\u3042\u308B" },
@@ -13494,7 +14066,7 @@ function ja_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ka.js
+// packages/controller/node_modules/zod/v4/locales/ka.js
 var error29 = () => {
   const Sizable = {
     string: { unit: "\u10E1\u10D8\u10DB\u10D1\u10DD\u10DA\u10DD", verb: "\u10E3\u10DC\u10D3\u10D0 \u10E8\u10D4\u10D8\u10EA\u10D0\u10D5\u10D3\u10D4\u10E1" },
@@ -13612,7 +14184,7 @@ function ka_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/km.js
+// packages/controller/node_modules/zod/v4/locales/km.js
 var error30 = () => {
   const Sizable = {
     string: { unit: "\u178F\u17BD\u17A2\u1780\u17D2\u179F\u179A", verb: "\u1782\u17BD\u179A\u1798\u17B6\u1793" },
@@ -13728,12 +14300,12 @@ function km_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/kh.js
+// packages/controller/node_modules/zod/v4/locales/kh.js
 function kh_default() {
   return km_default();
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/kn.js
+// packages/controller/node_modules/zod/v4/locales/kn.js
 var error31 = () => {
   const Sizable = {
     string: { unit: "\u0C85\u0C95\u0CCD\u0CB7\u0CB0\u0C97\u0CB3\u0CC1", verb: "\u0CB9\u0CCA\u0C82\u0CA6\u0CB2\u0CC1" },
@@ -13849,7 +14421,7 @@ function kn_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ko.js
+// packages/controller/node_modules/zod/v4/locales/ko.js
 var error32 = () => {
   const Sizable = {
     string: { unit: "\uBB38\uC790", verb: "to have" },
@@ -13966,7 +14538,7 @@ function ko_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/lt.js
+// packages/controller/node_modules/zod/v4/locales/lt.js
 var capitalizeFirstCharacter = (text) => {
   return text.charAt(0).toUpperCase() + text.slice(1);
 };
@@ -14174,7 +14746,7 @@ function lt_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/mk.js
+// packages/controller/node_modules/zod/v4/locales/mk.js
 var error34 = () => {
   const Sizable = {
     string: { unit: "\u0437\u043D\u0430\u0446\u0438", verb: "\u0434\u0430 \u0438\u043C\u0430\u0430\u0442" },
@@ -14289,7 +14861,7 @@ function mk_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ms.js
+// packages/controller/node_modules/zod/v4/locales/ms.js
 var error35 = () => {
   const Sizable = {
     string: { unit: "aksara", verb: "mempunyai" },
@@ -14402,7 +14974,7 @@ function ms_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ne.js
+// packages/controller/node_modules/zod/v4/locales/ne.js
 var error36 = () => {
   const Sizable = {
     string: { unit: "\u0905\u0915\u094D\u0937\u0930", verb: "\u0939\u0941\u0928\u0941\u092A\u0930\u094D\u091B" },
@@ -14514,7 +15086,7 @@ function ne_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/nl.js
+// packages/controller/node_modules/zod/v4/locales/nl.js
 var error37 = () => {
   const Sizable = {
     string: { unit: "tekens", verb: "heeft" },
@@ -14630,7 +15202,7 @@ function nl_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/nn.js
+// packages/controller/node_modules/zod/v4/locales/nn.js
 var error38 = () => {
   const Sizable = {
     string: { unit: "teikn", verb: "\xE5 ha" },
@@ -14744,7 +15316,7 @@ function nn_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/no.js
+// packages/controller/node_modules/zod/v4/locales/no.js
 var error39 = () => {
   const Sizable = {
     string: { unit: "tegn", verb: "\xE5 ha" },
@@ -14858,7 +15430,7 @@ function no_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ota.js
+// packages/controller/node_modules/zod/v4/locales/ota.js
 var error40 = () => {
   const Sizable = {
     string: { unit: "harf", verb: "olmal\u0131d\u0131r" },
@@ -14973,7 +15545,7 @@ function ota_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ps.js
+// packages/controller/node_modules/zod/v4/locales/ps.js
 var error41 = () => {
   const Sizable = {
     string: { unit: "\u062A\u0648\u06A9\u064A", verb: "\u0648\u0644\u0631\u064A" },
@@ -15093,7 +15665,7 @@ function ps_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pl.js
+// packages/controller/node_modules/zod/v4/locales/pl.js
 var error42 = () => {
   const Sizable = {
     string: { unit: "znak\xF3w", verb: "mie\u0107" },
@@ -15208,7 +15780,7 @@ function pl_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pt.js
+// packages/controller/node_modules/zod/v4/locales/pt.js
 var error43 = () => {
   const Sizable = {
     string: { unit: "caracteres" },
@@ -15352,7 +15924,7 @@ function pt_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pt-BR.js
+// packages/controller/node_modules/zod/v4/locales/pt-BR.js
 var error44 = () => {
   const Sizable = {
     string: { unit: "caracteres" },
@@ -15497,7 +16069,7 @@ function pt_BR_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ro.js
+// packages/controller/node_modules/zod/v4/locales/ro.js
 var error45 = () => {
   const Sizable = {
     string: { unit: "caractere", verb: "s\u0103 aib\u0103" },
@@ -15620,7 +16192,7 @@ function ro_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ru.js
+// packages/controller/node_modules/zod/v4/locales/ru.js
 function getRussianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
   const lastDigit = absCount % 10;
@@ -15789,7 +16361,7 @@ function ru_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sk.js
+// packages/controller/node_modules/zod/v4/locales/sk.js
 var error47 = () => {
   const Sizable = {
     string: { unit: "znakov", verb: "ma\u0165" },
@@ -15906,7 +16478,7 @@ function sk_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sl.js
+// packages/controller/node_modules/zod/v4/locales/sl.js
 var error48 = () => {
   const Sizable = {
     string: { unit: "znakov", verb: "imeti" },
@@ -16021,7 +16593,7 @@ function sl_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sv.js
+// packages/controller/node_modules/zod/v4/locales/sv.js
 var error49 = () => {
   const Sizable = {
     string: { unit: "tecken", verb: "att ha" },
@@ -16137,7 +16709,7 @@ function sv_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ta.js
+// packages/controller/node_modules/zod/v4/locales/ta.js
 var error50 = () => {
   const Sizable = {
     string: { unit: "\u0B8E\u0BB4\u0BC1\u0BA4\u0BCD\u0BA4\u0BC1\u0B95\u0BCD\u0B95\u0BB3\u0BCD", verb: "\u0B95\u0BCA\u0BA3\u0BCD\u0B9F\u0BBF\u0BB0\u0BC1\u0B95\u0BCD\u0B95 \u0BB5\u0BC7\u0BA3\u0BCD\u0B9F\u0BC1\u0BAE\u0BCD" },
@@ -16253,7 +16825,7 @@ function ta_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tg.js
+// packages/controller/node_modules/zod/v4/locales/tg.js
 var error51 = () => {
   const Sizable = {
     string: { unit: "\u0430\u043B\u043E\u043C\u0430\u0442", verb: "\u0434\u043E\u0448\u0442\u0430 \u0431\u043E\u0448\u0430\u0434" },
@@ -16370,7 +16942,7 @@ function tg_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/th.js
+// packages/controller/node_modules/zod/v4/locales/th.js
 var error52 = () => {
   const Sizable = {
     string: { unit: "\u0E15\u0E31\u0E27\u0E2D\u0E31\u0E01\u0E29\u0E23", verb: "\u0E04\u0E27\u0E23\u0E21\u0E35" },
@@ -16486,7 +17058,7 @@ function th_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tk.js
+// packages/controller/node_modules/zod/v4/locales/tk.js
 var error53 = () => {
   const Sizable = {
     string: { unit: "simwol", verb: "bolmaly" },
@@ -16594,7 +17166,7 @@ function tk_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tr.js
+// packages/controller/node_modules/zod/v4/locales/tr.js
 var error54 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "olmal\u0131" },
@@ -16705,7 +17277,7 @@ function tr_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/uk.js
+// packages/controller/node_modules/zod/v4/locales/uk.js
 var error55 = () => {
   const Sizable = {
     string: { unit: "\u0441\u0438\u043C\u0432\u043E\u043B\u0456\u0432", verb: "\u043C\u0430\u0442\u0438\u043C\u0435" },
@@ -16819,12 +17391,12 @@ function uk_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ua.js
+// packages/controller/node_modules/zod/v4/locales/ua.js
 function ua_default() {
   return uk_default();
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ur.js
+// packages/controller/node_modules/zod/v4/locales/ur.js
 var error56 = () => {
   const Sizable = {
     string: { unit: "\u062D\u0631\u0648\u0641", verb: "\u06C1\u0648\u0646\u0627" },
@@ -16940,7 +17512,7 @@ function ur_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/uz.js
+// packages/controller/node_modules/zod/v4/locales/uz.js
 var error57 = () => {
   const Sizable = {
     string: { unit: "belgi", verb: "bo\u2018lishi kerak" },
@@ -17054,7 +17626,7 @@ function uz_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/vi.js
+// packages/controller/node_modules/zod/v4/locales/vi.js
 var error58 = () => {
   const Sizable = {
     string: { unit: "k\xFD t\u1EF1", verb: "c\xF3" },
@@ -17168,7 +17740,7 @@ function vi_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/zh-CN.js
+// packages/controller/node_modules/zod/v4/locales/zh-CN.js
 var error59 = () => {
   const Sizable = {
     string: { unit: "\u5B57\u7B26", verb: "\u5305\u542B" },
@@ -17283,7 +17855,7 @@ function zh_CN_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/zh-TW.js
+// packages/controller/node_modules/zod/v4/locales/zh-TW.js
 var error60 = () => {
   const Sizable = {
     string: { unit: "\u5B57\u5143", verb: "\u64C1\u6709" },
@@ -17396,7 +17968,7 @@ function zh_TW_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/yo.js
+// packages/controller/node_modules/zod/v4/locales/yo.js
 var error61 = () => {
   const Sizable = {
     string: { unit: "\xE0mi", verb: "n\xED" },
@@ -17509,7 +18081,7 @@ function yo_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/registries.js
+// packages/controller/node_modules/zod/v4/core/registries.js
 var _a2;
 var $output = /* @__PURE__ */ Symbol("ZodOutput");
 var $input = /* @__PURE__ */ Symbol("ZodInput");
@@ -17559,7 +18131,7 @@ function registry() {
 (_a2 = globalThis).__zod_globalRegistry ?? (_a2.__zod_globalRegistry = registry());
 var globalRegistry = globalThis.__zod_globalRegistry;
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/compile.js
+// packages/controller/node_modules/zod/v4/core/compile.js
 var INVALID = /* @__PURE__ */ Symbol.for("zod.compile.invalid");
 var FALLBACK_FLAG = /* @__PURE__ */ Symbol.for("zod.compile.fallback");
 var ZodCompileAsyncError = class extends Error {
@@ -19169,7 +19741,7 @@ function generateTransformCheck(doc, ctx, schema, accessor) {
   return accessor;
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/api.js
+// packages/controller/node_modules/zod/v4/core/api.js
 function snapshotChecks(def) {
   if (def.checks)
     def.checks = [...def.checks];
@@ -20228,7 +20800,7 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
   return inst;
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/to-json-schema.js
+// packages/controller/node_modules/zod/v4/core/to-json-schema.js
 function assignProps(target, ...sources) {
   for (const source of sources) {
     for (const key of Reflect.ownKeys(source)) {
@@ -20758,7 +21330,7 @@ var createStandardJSONSchemaMethod = (schema, io, processors = {}) => (params) =
   return finalize(ctx, schema);
 };
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema-processors.js
+// packages/controller/node_modules/zod/v4/core/json-schema-processors.js
 var narrowMin = (agg, key, value) => {
   if (agg[key] === void 0 || value > agg[key])
     agg[key] = value;
@@ -21506,7 +22078,7 @@ function toJSONSchema(input2, params) {
   return finalize(ctx, input2);
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema-generator.js
+// packages/controller/node_modules/zod/v4/core/json-schema-generator.js
 var JSONSchemaGenerator = class {
   /** @deprecated Access via ctx instead */
   get metadataRegistry() {
@@ -21584,10 +22156,10 @@ var JSONSchemaGenerator = class {
   }
 };
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema.js
+// packages/controller/node_modules/zod/v4/core/json-schema.js
 var json_schema_exports = {};
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/schemas.js
+// packages/controller/node_modules/zod/v4/classic/schemas.js
 var schemas_exports2 = {};
 __export(schemas_exports2, {
   ZodAny: () => ZodAny,
@@ -21768,7 +22340,7 @@ __export(schemas_exports2, {
   xor: () => xor
 });
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/checks.js
+// packages/controller/node_modules/zod/v4/classic/checks.js
 var checks_exports2 = {};
 __export(checks_exports2, {
   endsWith: () => _endsWith,
@@ -21803,7 +22375,7 @@ __export(checks_exports2, {
   uppercase: () => _uppercase
 });
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/errors.js
+// packages/controller/node_modules/zod/v4/classic/errors.js
 var _installedErrorProtos = /* @__PURE__ */ new WeakSet([Object.prototype, Error.prototype]);
 function _lazyMethod(proto, key, make) {
   Object.defineProperty(proto, key, {
@@ -21849,7 +22421,7 @@ var ZodRealError = /* @__PURE__ */ $constructor("ZodError", initializer2, void 0
   Parent: Error
 });
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/parse.js
+// packages/controller/node_modules/zod/v4/classic/parse.js
 var parse2 = /* @__PURE__ */ _parse(ZodRealError);
 var parseAsync2 = /* @__PURE__ */ _parseAsync(ZodRealError);
 var safeParse2 = /* @__PURE__ */ _safeParse(ZodRealError);
@@ -21863,7 +22435,7 @@ var safeDecode2 = /* @__PURE__ */ _safeDecode(ZodRealError);
 var safeEncodeAsync2 = /* @__PURE__ */ _safeEncodeAsync(ZodRealError);
 var safeDecodeAsync2 = /* @__PURE__ */ _safeDecodeAsync(ZodRealError);
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/schemas.js
+// packages/controller/node_modules/zod/v4/classic/schemas.js
 function _ensureDefaultLocale() {
   if (!globalConfig.localeError)
     config(en_default());
@@ -23328,7 +23900,7 @@ function preprocess(fn, schema) {
   });
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/compat.js
+// packages/controller/node_modules/zod/v4/classic/compat.js
 var ZodIssueCode = {
   invalid_type: "invalid_type",
   too_big: "too_big",
@@ -23354,7 +23926,7 @@ var ZodFirstPartyTypeKind;
 /* @__PURE__ */ (function(ZodFirstPartyTypeKind2) {
 })(ZodFirstPartyTypeKind || (ZodFirstPartyTypeKind = {}));
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/iso.js
+// packages/controller/node_modules/zod/v4/classic/iso.js
 var iso_exports = {};
 __export(iso_exports, {
   ZodISODate: () => ZodISODate,
@@ -23379,7 +23951,7 @@ function duration2(params) {
   return _isoDuration(ZodISODuration, params);
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/from-json-schema.js
+// packages/controller/node_modules/zod/v4/classic/from-json-schema.js
 var z = {
   ...schemas_exports2,
   ...checks_exports2,
@@ -24112,7 +24684,7 @@ function fromJSONSchema(schema, params) {
   return convertSchema(normalized, ctx);
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/visit.js
+// packages/controller/node_modules/zod/v4/core/visit.js
 var RESOLVING = /* @__PURE__ */ Symbol("z.visit/resolving");
 function visit(schema, fnOrHandlers) {
   const fn = typeof fnOrHandlers === "function" ? fnOrHandlers : (node2, rewritten) => {
@@ -24267,7 +24839,7 @@ function visit(schema, fnOrHandlers) {
   return run(schema);
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/deep-partial.js
+// packages/controller/node_modules/zod/v4/classic/deep-partial.js
 function deepPartial(schema) {
   return visit(schema, {
     object: (s) => s.partial(),
@@ -24279,7 +24851,7 @@ function deepPartial(schema) {
   });
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/in-out.js
+// packages/controller/node_modules/zod/v4/classic/in-out.js
 function withChecks(side, checks) {
   if (!checks?.length)
     return side;
@@ -24309,7 +24881,7 @@ function output(schema) {
   });
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/coerce.js
+// packages/controller/node_modules/zod/v4/classic/coerce.js
 var coerce_exports = {};
 __export(coerce_exports, {
   bigint: () => bigint3,
@@ -24545,6 +25117,7 @@ var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_param
 });
 var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_result$schema$value;
 var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_result$schema = () => _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_result$schema$value ??= external_exports.object({
+  "message": external_exports.string().readonly().optional(),
   "repository": external_exports.literal(true).readonly(),
   "files": external_exports.array(external_exports.object({
     "status": external_exports.string().readonly(),
@@ -24601,6 +25174,9 @@ var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_parameter_0$s
   "skip": external_exports.number().readonly().optional().describe("Commits skipped from the tip; the paging offset. Values below zero are clamped."),
   "limit": external_exports.number().readonly().optional().describe("Commits to return; the Host clamps to its page cap."),
   "search": external_exports.string().readonly().optional().describe("Case-insensitive subject substring filter; blank means no filter."),
+  "author": external_exports.string().readonly().optional().describe("Case-insensitive, literal author-name filter; blank means every author."),
+  "since": external_exports.string().readonly().optional().describe("Inclusive `YYYY-MM-DD` lower bound on the commit date; blank means unbounded."),
+  "until": external_exports.string().readonly().optional().describe("Inclusive `YYYY-MM-DD` upper bound on the commit date; blank means unbounded."),
   "workspaceId": external_exports.string().readonly()
 });
 var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_result$schema$value;
@@ -24617,7 +25193,8 @@ var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_result$schema
     "date": external_exports.string().readonly().describe("Author date in strict ISO 8601.")
   })).readonly(),
   "more": external_exports.boolean().readonly().describe("More commits exist beyond this page; the Client asks again with a larger `skip`."),
-  "branch": external_exports.string().readonly().optional().describe("Checked-out branch name; absent in detached HEAD.")
+  "branch": external_exports.string().readonly().optional().describe("Checked-out branch name; absent in detached HEAD."),
+  "authors": external_exports.array(external_exports.string()).readonly().optional().describe("Distinct author names in the read branch; sent with the first page only.")
 })]);
 var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0$schema$value;
 var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0$schema = () => _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0$schema$value ??= external_exports.object({
@@ -24802,6 +25379,9 @@ var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_parameter_0_s
   "skip": external_exports.number().readonly().optional().describe("Commits skipped from the tip; the paging offset. Values below zero are clamped."),
   "limit": external_exports.number().readonly().optional().describe("Commits to return; the Host clamps to its page cap."),
   "search": external_exports.string().readonly().optional().describe("Case-insensitive subject substring filter; blank means no filter."),
+  "author": external_exports.string().readonly().optional().describe("Case-insensitive, literal author-name filter; blank means every author."),
+  "since": external_exports.string().readonly().optional().describe("Inclusive `YYYY-MM-DD` lower bound on the commit date; blank means unbounded."),
+  "until": external_exports.string().readonly().optional().describe("Inclusive `YYYY-MM-DD` upper bound on the commit date; blank means unbounded."),
   "workspaceId": external_exports.string().readonly()
 });
 var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0_strict$schema$value;
@@ -24858,9 +25438,28 @@ var _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_workingDiff_param
   "untracked": external_exports.boolean().readonly(),
   "workspaceId": external_exports.string().readonly()
 });
+var commitMessageRequestSchema = () => external_exports.object({ workspaceId: external_exports.string(), paths: external_exports.array(external_exports.string()) });
+var commitMessageStrictSchema = () => external_exports.strictObject({ workspaceId: external_exports.string(), paths: external_exports.array(external_exports.string()) });
+var commitMessageResultSchema = () => external_exports.object({ message: external_exports.string() });
 var TYPERT_REMOTE = createTypertRemoteInfo({
-  package: "@deepseek-ai/dsh-api-git-workspace-controller",
+  package: "@monster-30cl/dsh-git-workspace-controller",
   methods: {
+    "gitWorkspace/generateCommitMessage": {
+      service: "gitWorkspaceController",
+      description: "Generate a commit message for selected changes using the configured AI model.",
+      invocation: { kind: "direct" },
+      parameters: [{ name: "request", source: "json", codec: { mode: "strict", typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageRequest", create: commitMessageRequestSchema, jsonSchema: { type: "object", properties: { workspaceId: { type: "string" }, paths: { type: "array", items: { type: "string" } } }, required: ["workspaceId", "paths"], additionalProperties: true } }, strictCodec: { mode: "strict", typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageRequest", create: commitMessageStrictSchema, jsonSchema: { type: "object", properties: { workspaceId: { type: "string" }, paths: { type: "array", items: { type: "string" } } }, required: ["workspaceId", "paths"], additionalProperties: false } } }],
+      cancellation: { parameter: "signal" },
+      result: { mode: "strict", typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageResult", create: commitMessageResultSchema, jsonSchema: { type: "object", properties: { message: { type: "string" } }, required: ["message"], additionalProperties: true } }
+    },
+    "gitWorkspace/trackFiles": {
+      service: "gitWorkspaceController",
+      description: "Explicitly add selected untracked files to version control.",
+      invocation: { kind: "direct" },
+      parameters: [{ name: "request", source: "json", codec: { mode: "strict", typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageRequest", create: commitMessageRequestSchema, jsonSchema: { type: "object", properties: { workspaceId: { type: "string" }, paths: { type: "array", items: { type: "string" } } }, required: ["workspaceId", "paths"], additionalProperties: true } }, strictCodec: { mode: "strict", typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GenerateCommitMessageRequest", create: commitMessageStrictSchema, jsonSchema: { type: "object", properties: { workspaceId: { type: "string" }, paths: { type: "array", items: { type: "string" } } }, required: ["workspaceId", "paths"], additionalProperties: false } } }],
+      cancellation: { parameter: "signal" },
+      result: { mode: "strict", typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState", create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commit_result$schema, jsonSchema: { type: "object", properties: { repository: { type: "boolean", const: true } }, required: ["repository"], additionalProperties: true } }
+    },
     "gitWorkspace/checkout": {
       service: "gitWorkspaceController",
       description: "Check out one existing local branch in the Workspace directory.",
@@ -24872,13 +25471,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_checkout_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "branch": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["branch", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_checkout_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "branch": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["branch", "workspaceId"], "additionalProperties": false }
           }
@@ -24887,7 +25486,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_checkout_result$schema,
         description: "refreshed local branch state.",
         jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "localBranches": { "type": "array", "items": { "type": "string" } }, "remoteBranches": { "type": "array", "items": { "type": "string" }, "description": "Remote-tracking branches, excluding symbolic remote HEAD aliases." }, "current": { "type": "string" }, "detached": { "type": "boolean" } }, "required": ["repository", "localBranches", "remoteBranches", "detached"], "additionalProperties": true }] }
@@ -24905,13 +25504,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_checkoutRemote_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "branch": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["branch", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_checkoutRemote_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "branch": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["branch", "workspaceId"], "additionalProperties": false }
           }
@@ -24920,7 +25519,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_checkoutRemote_result$schema,
         description: "Checked-out branch and the refreshed local and remote branch lists.",
         jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "localBranches": { "type": "array", "items": { "type": "string" } }, "remoteBranches": { "type": "array", "items": { "type": "string" }, "description": "Remote-tracking branches, excluding symbolic remote HEAD aliases." }, "current": { "type": "string" }, "detached": { "type": "boolean" } }, "required": ["repository", "localBranches", "remoteBranches", "detached"], "additionalProperties": true }] }
@@ -24938,13 +25537,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commit_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "message": { "type": "string" }, "paths": { "type": "array", "items": { "type": "string" }, "description": "Workspace-relative paths selected from the current status result." }, "push": { "type": "boolean", "description": "Push the current branch after the commit succeeds." }, "workspaceId": { "type": "string" } }, "required": ["message", "paths", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commit_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "message": { "type": "string" }, "paths": { "type": "array", "items": { "type": "string" }, "description": "Workspace-relative paths selected from the current status result." }, "push": { "type": "boolean", "description": "Push the current branch after the commit succeeds." }, "workspaceId": { "type": "string" } }, "required": ["message", "paths", "workspaceId"], "additionalProperties": false }
           }
@@ -24953,7 +25552,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commit_result$schema,
         description: "Repository status after committing the selected paths and optionally pushing.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true } }, "required": ["repository"], "additionalProperties": true }
@@ -24971,13 +25570,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitFileRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitFileRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitDiff_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "path": { "type": "string" }, "previousPath": { "type": "string" }, "commit": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["path", "commit", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitFileRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitFileRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitDiff_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "path": { "type": "string" }, "previousPath": { "type": "string" }, "commit": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["path", "commit", "workspaceId"], "additionalProperties": false }
           }
@@ -24986,7 +25585,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitDiffState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitDiffState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitDiff_result$schema,
         description: "Bounded before and after contents of one committed file.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "binary": { "type": "boolean" }, "before": { "type": "string" }, "after": { "type": "string" }, "patch": { "type": "string" } }, "required": ["repository", "binary", "before", "after", "patch"], "additionalProperties": true }
@@ -25004,13 +25603,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitSelectionRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitSelectionRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "commit": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["commit", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitSelectionRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitSelectionRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "commit": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["commit", "workspaceId"], "additionalProperties": false }
           }
@@ -25019,10 +25618,10 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitFilesState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitFilesState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_commitFiles_result$schema,
         description: "Changed files and change kinds for the selected commit.",
-        jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "files": { "type": "array", "items": { "type": "object", "properties": { "status": { "type": "string" }, "path": { "type": "string" }, "renamedFrom": { "type": "string" } }, "required": ["status", "path"], "additionalProperties": true } } }, "required": ["repository", "files"], "additionalProperties": true }
+        jsonSchema: { "type": "object", "properties": { "message": { "type": "string" }, "repository": { "type": "boolean", "const": true }, "files": { "type": "array", "items": { "type": "object", "properties": { "status": { "type": "string" }, "path": { "type": "string" }, "renamedFrom": { "type": "string" } }, "required": ["status", "path"], "additionalProperties": true } } }, "required": ["repository", "files"], "additionalProperties": true }
       },
       sourceLocation: { "file": "packages/api/git-workspace-controller/src/index.ts", "line": 237, "column": 9 }
     },
@@ -25037,13 +25636,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_create_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "branch": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["branch", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_create_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "branch": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["branch", "workspaceId"], "additionalProperties": false }
           }
@@ -25052,7 +25651,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_create_result$schema,
         description: "refreshed local branch state.",
         jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "localBranches": { "type": "array", "items": { "type": "string" } }, "remoteBranches": { "type": "array", "items": { "type": "string" }, "description": "Remote-tracking branches, excluding symbolic remote HEAD aliases." }, "current": { "type": "string" }, "detached": { "type": "boolean" } }, "required": ["repository", "localBranches", "remoteBranches", "detached"], "additionalProperties": true }] }
@@ -25070,13 +25669,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_delete_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "branch": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["branch", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_delete_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "branch": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["branch", "workspaceId"], "additionalProperties": false }
           }
@@ -25085,12 +25684,45 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_delete_result$schema,
         description: "Branch lists after deleting the requested local branch.",
         jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "localBranches": { "type": "array", "items": { "type": "string" } }, "remoteBranches": { "type": "array", "items": { "type": "string" }, "description": "Remote-tracking branches, excluding symbolic remote HEAD aliases." }, "current": { "type": "string" }, "detached": { "type": "boolean" } }, "required": ["repository", "localBranches", "remoteBranches", "detached"], "additionalProperties": true }] }
       },
       sourceLocation: { "file": "packages/api/git-workspace-controller/src/index.ts", "line": 180, "column": 9 }
+    },
+    "gitWorkspace/fetchBranches": {
+      service: "gitWorkspaceController",
+      description: "Fetch all remotes, prune deleted remote branches, and return refreshed branch lists.",
+      invocation: { kind: "direct" },
+      parameters: [
+        {
+          name: "request",
+          description: "target Workspace.",
+          source: "json",
+          codec: {
+            mode: "strict",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
+            create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_list_parameter_0$schema,
+            jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": true }
+          },
+          strictCodec: {
+            mode: "strict",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
+            create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_list_parameter_0_strict$schema,
+            jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": false }
+          }
+        }
+      ],
+      cancellation: { parameter: "signal" },
+      result: {
+        mode: "strict",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchState",
+        create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_list_result$schema,
+        description: "repository absence or the complete branch lists.",
+        jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "localBranches": { "type": "array", "items": { "type": "string" } }, "remoteBranches": { "type": "array", "items": { "type": "string" }, "description": "Remote-tracking branches, excluding symbolic remote HEAD aliases." }, "current": { "type": "string" }, "detached": { "type": "boolean" } }, "required": ["repository", "localBranches", "remoteBranches", "detached"], "additionalProperties": true }] }
+      },
+      sourceLocation: { "file": "packages/api/git-workspace-controller/src/index.ts", "line": 85, "column": 9 }
     },
     "gitWorkspace/list": {
       service: "gitWorkspaceController",
@@ -25103,13 +25735,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_list_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_list_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": false }
           }
@@ -25118,7 +25750,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceBranchState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceBranchState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_list_result$schema,
         description: "repository absence or the complete branch lists.",
         jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "localBranches": { "type": "array", "items": { "type": "string" } }, "remoteBranches": { "type": "array", "items": { "type": "string" }, "description": "Remote-tracking branches, excluding symbolic remote HEAD aliases." }, "current": { "type": "string" }, "detached": { "type": "boolean" } }, "required": ["repository", "localBranches", "remoteBranches", "detached"], "additionalProperties": true }] }
@@ -25132,29 +25764,29 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       parameters: [
         {
           name: "request",
-          description: "target Workspace, page bounds, and optional subject filter.",
+          description: "target Workspace, page bounds, and optional subject, author, and date filters.",
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceLogRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceLogRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_parameter_0$schema,
-            jsonSchema: { "type": "object", "properties": { "skip": { "type": "number", "description": "Commits skipped from the tip; the paging offset. Values below zero are clamped." }, "limit": { "type": "number", "description": "Commits to return; the Host clamps to its page cap." }, "search": { "type": "string", "description": "Case-insensitive subject substring filter; blank means no filter." }, "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": true }
+            jsonSchema: { "type": "object", "properties": { "skip": { "type": "number", "description": "Commits skipped from the tip; the paging offset. Values below zero are clamped." }, "limit": { "type": "number", "description": "Commits to return; the Host clamps to its page cap." }, "search": { "type": "string", "description": "Case-insensitive subject substring filter; blank means no filter." }, "author": { "type": "string", "description": "Case-insensitive, literal author-name filter; blank means every author." }, "since": { "type": "string", "description": "Inclusive `YYYY-MM-DD` lower bound on the commit date; blank means unbounded." }, "until": { "type": "string", "description": "Inclusive `YYYY-MM-DD` upper bound on the commit date; blank means unbounded." }, "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceLogRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceLogRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_parameter_0_strict$schema,
-            jsonSchema: { "type": "object", "properties": { "skip": { "type": "number", "description": "Commits skipped from the tip; the paging offset. Values below zero are clamped." }, "limit": { "type": "number", "description": "Commits to return; the Host clamps to its page cap." }, "search": { "type": "string", "description": "Case-insensitive subject substring filter; blank means no filter." }, "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": false }
+            jsonSchema: { "type": "object", "properties": { "skip": { "type": "number", "description": "Commits skipped from the tip; the paging offset. Values below zero are clamped." }, "limit": { "type": "number", "description": "Commits to return; the Host clamps to its page cap." }, "search": { "type": "string", "description": "Case-insensitive subject substring filter; blank means no filter." }, "author": { "type": "string", "description": "Case-insensitive, literal author-name filter; blank means every author." }, "since": { "type": "string", "description": "Inclusive `YYYY-MM-DD` lower bound on the commit date; blank means unbounded." }, "until": { "type": "string", "description": "Inclusive `YYYY-MM-DD` upper bound on the commit date; blank means unbounded." }, "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": false }
           }
         }
       ],
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceLogState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceLogState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_log_result$schema,
         description: "repository absence or the page with the checked-out branch.",
-        jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "commits": { "type": "array", "items": { "type": "object", "properties": { "hash": { "type": "string", "description": "Full commit hash." }, "shortHash": { "type": "string", "description": "Abbreviated hash as Git rendered it." }, "subject": { "type": "string", "description": "Commit subject line." }, "authorName": { "type": "string" }, "authorEmail": { "type": "string" }, "date": { "type": "string", "description": "Author date in strict ISO 8601." } }, "required": ["hash", "shortHash", "subject", "authorName", "authorEmail", "date"], "additionalProperties": true } }, "more": { "type": "boolean", "description": "More commits exist beyond this page; the Client asks again with a larger `skip`." }, "branch": { "type": "string", "description": "Checked-out branch name; absent in detached HEAD." } }, "required": ["repository", "commits", "more"], "additionalProperties": true }] }
+        jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "commits": { "type": "array", "items": { "type": "object", "properties": { "hash": { "type": "string", "description": "Full commit hash." }, "shortHash": { "type": "string", "description": "Abbreviated hash as Git rendered it." }, "subject": { "type": "string", "description": "Commit subject line." }, "authorName": { "type": "string" }, "authorEmail": { "type": "string" }, "date": { "type": "string", "description": "Author date in strict ISO 8601." } }, "required": ["hash", "shortHash", "subject", "authorName", "authorEmail", "date"], "additionalProperties": true } }, "more": { "type": "boolean", "description": "More commits exist beyond this page; the Client asks again with a larger `skip`." }, "branch": { "type": "string", "description": "Checked-out branch name; absent in detached HEAD." }, "authors": { "type": "array", "items": { "type": "string" }, "description": "Distinct author names in the read branch; sent with the first page only." } }, "required": ["repository", "commits", "more"], "additionalProperties": true }] }
       },
       sourceLocation: { "file": "packages/api/git-workspace-controller/src/index.ts", "line": 194, "column": 9 }
     },
@@ -25169,13 +25801,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": false }
           }
@@ -25184,7 +25816,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspacePendingPushState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspacePendingPushState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pendingPush_result$schema,
         description: "Current upstream and commits awaiting push.",
         jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "upstream": { "type": "boolean", "description": "False when the current branch has no configured upstream." }, "commits": { "type": "array", "items": { "type": "object", "properties": { "hash": { "type": "string", "description": "Full commit hash." }, "shortHash": { "type": "string", "description": "Abbreviated hash as Git rendered it." }, "subject": { "type": "string", "description": "Commit subject line." }, "authorName": { "type": "string" }, "authorEmail": { "type": "string" }, "date": { "type": "string", "description": "Author date in strict ISO 8601." } }, "required": ["hash", "shortHash", "subject", "authorName", "authorEmail", "date"], "additionalProperties": true } }, "more": { "type": "boolean", "description": "More unpublished commits exist beyond the configured response cap." } }, "required": ["repository", "upstream", "commits", "more"], "additionalProperties": true }] }
@@ -25202,13 +25834,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pull_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pull_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": false }
           }
@@ -25217,7 +25849,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_pull_result$schema,
         description: "Repository status after merging updates from the configured upstream.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true } }, "required": ["repository"], "additionalProperties": true }
@@ -25235,13 +25867,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_push_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_push_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": false }
           }
@@ -25250,7 +25882,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_push_result$schema,
         description: "Repository status after pushing the current branch.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true } }, "required": ["repository"], "additionalProperties": true }
@@ -25268,13 +25900,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRollbackRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRollbackRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_rollback_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "trackedPaths": { "type": "array", "items": { "type": "string" }, "description": "Tracked paths restored from HEAD in both the index and working tree." }, "untrackedPaths": { "type": "array", "items": { "type": "string" }, "description": "Untracked paths permanently removed from the working tree." }, "workspaceId": { "type": "string" } }, "required": ["trackedPaths", "untrackedPaths", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRollbackRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRollbackRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_rollback_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "trackedPaths": { "type": "array", "items": { "type": "string" }, "description": "Tracked paths restored from HEAD in both the index and working tree." }, "untrackedPaths": { "type": "array", "items": { "type": "string" }, "description": "Untracked paths permanently removed from the working tree." }, "workspaceId": { "type": "string" } }, "required": ["trackedPaths", "untrackedPaths", "workspaceId"], "additionalProperties": false }
           }
@@ -25283,7 +25915,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_rollback_result$schema,
         description: "Repository status after restoring the selected paths.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true } }, "required": ["repository"], "additionalProperties": true }
@@ -25301,13 +25933,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stash_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stash_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": false }
           }
@@ -25316,7 +25948,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stash_result$schema,
         description: "repository absence or the complete stash list.",
         jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "entries": { "type": "array", "items": { "type": "object", "properties": { "selector": { "type": "string", "description": "Reflog selector, e.g. `stash@{0}`." }, "date": { "type": "string", "description": "Entry date in strict ISO 8601." }, "subject": { "type": "string", "description": "Stash subject line." } }, "required": ["selector", "date", "subject"], "additionalProperties": true } } }, "required": ["repository", "entries"], "additionalProperties": true }] }
@@ -25334,13 +25966,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashCreateRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashCreateRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashCreate_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "message": { "type": "string" }, "paths": { "type": "array", "items": { "type": "string" }, "description": "Workspace-relative paths selected from the current status result." }, "workspaceId": { "type": "string" } }, "required": ["message", "paths", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashCreateRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashCreateRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashCreate_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "message": { "type": "string" }, "paths": { "type": "array", "items": { "type": "string" }, "description": "Workspace-relative paths selected from the current status result." }, "workspaceId": { "type": "string" } }, "required": ["message", "paths", "workspaceId"], "additionalProperties": false }
           }
@@ -25349,7 +25981,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashCreate_result$schema,
         description: "Repository status after storing the selected changes.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true } }, "required": ["repository"], "additionalProperties": true }
@@ -25367,13 +25999,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashDrop_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "selector": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["selector", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashDrop_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "selector": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["selector", "workspaceId"], "additionalProperties": false }
           }
@@ -25382,7 +26014,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashDrop_result$schema,
         description: "Repository status after removing the selected stash.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true } }, "required": ["repository"], "additionalProperties": true }
@@ -25400,13 +26032,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashFiles_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "selector": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["selector", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashFiles_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "selector": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["selector", "workspaceId"], "additionalProperties": false }
           }
@@ -25415,7 +26047,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashFilesState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashFilesState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashFiles_result$schema,
         description: "File paths and change kinds recorded by the selected stash.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "files": { "type": "array", "items": { "type": "object", "properties": { "status": { "type": "string" }, "path": { "type": "string" }, "renamedFrom": { "type": "string" } }, "required": ["status", "path"], "additionalProperties": true } } }, "required": ["repository", "files"], "additionalProperties": true }
@@ -25433,13 +26065,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashPop_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "selector": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["selector", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStashSelectionRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashPop_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "selector": { "type": "string" }, "workspaceId": { "type": "string" } }, "required": ["selector", "workspaceId"], "additionalProperties": false }
           }
@@ -25448,7 +26080,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceMutationState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceMutationState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_stashPop_result$schema,
         description: "Repository status after applying and removing the selected stash.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true } }, "required": ["repository"], "additionalProperties": true }
@@ -25466,13 +26098,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_status_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_status_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "workspaceId": { "type": "string" } }, "required": ["workspaceId"], "additionalProperties": false }
           }
@@ -25481,7 +26113,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceStatusState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceStatusState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_status_result$schema,
         description: "repository absence or every changed and untracked file.",
         jsonSchema: { "oneOf": [{ "type": "object", "properties": { "repository": { "type": "boolean", "const": false } }, "required": ["repository"], "additionalProperties": true }, { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "files": { "type": "array", "items": { "type": "object", "properties": { "path": { "type": "string", "description": "Workspace-relative path with forward slashes, as Git spelled it." }, "indexStatus": { "type": "string", "description": "Index status letter; `.` means unchanged in the index." }, "worktreeStatus": { "type": "string", "description": "Work-tree status letter; `.` means unchanged against the index." }, "untracked": { "type": "boolean", "description": "The file is untracked." }, "renamedFrom": { "type": "string", "description": "Original path of a rename or copy record." } }, "required": ["path", "indexStatus", "worktreeStatus", "untracked"], "additionalProperties": true }, "description": "Every reported file: tracked changes and untracked files together." } }, "required": ["repository", "files"], "additionalProperties": true }] }
@@ -25499,13 +26131,13 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
           source: "json",
           codec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceWorkingDiffRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceWorkingDiffRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_workingDiff_parameter_0$schema,
             jsonSchema: { "type": "object", "properties": { "path": { "type": "string" }, "previousPath": { "type": "string" }, "untracked": { "type": "boolean" }, "workspaceId": { "type": "string" } }, "required": ["path", "untracked", "workspaceId"], "additionalProperties": true }
           },
           strictCodec: {
             mode: "strict",
-            typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceWorkingDiffRequest",
+            typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceWorkingDiffRequest",
             create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_workingDiff_parameter_0_strict$schema,
             jsonSchema: { "type": "object", "properties": { "path": { "type": "string" }, "previousPath": { "type": "string" }, "untracked": { "type": "boolean" }, "workspaceId": { "type": "string" } }, "required": ["path", "untracked", "workspaceId"], "additionalProperties": false }
           }
@@ -25514,7 +26146,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
       cancellation: { parameter: "signal" },
       result: {
         mode: "strict",
-        typeSymbol: "@deepseek-ai/dsh-api-git-workspace-controller/types#GitWorkspaceCommitDiffState",
+        typeSymbol: "@monster-30cl/dsh-git-workspace-controller/types#GitWorkspaceCommitDiffState",
         create: _deepseek_ai_dsh_api_git_workspace_controller_gitWorkspace_workingDiff_result$schema,
         description: "Bounded before and after contents of one working-tree file.",
         jsonSchema: { "type": "object", "properties": { "repository": { "type": "boolean", "const": true }, "binary": { "type": "boolean" }, "before": { "type": "string" }, "after": { "type": "string" }, "patch": { "type": "string" } }, "required": ["repository", "binary", "before", "after", "patch"], "additionalProperties": true }
@@ -25526,7 +26158,7 @@ var TYPERT_REMOTE = createTypertRemoteInfo({
 var typert_remote_client_default = TYPERT_REMOTE;
 
 // packages/panel/src/client/index.js
-var inject = ["slots", "remote", "sidebarRightTabs", "sidebarRight"];
+var inject = ["slots", "remote", "sidebarRightTabs", "sidebarRight", "uiSession", "layout", "shortcuts", "locale"];
 var BRANCHES_ID = "@local/dsh-git-branch-panel/branches";
 var BRANCHES_KIND = "gitBranches";
 var h = import_react.default.createElement;
@@ -25658,12 +26290,74 @@ function BranchChip({ sessionId, useWorkspaces, git, openPanel }) {
     )
   });
 }
+function WorkspacePicker({ workspaces, selected, disabled, onPick }) {
+  const [open2, setOpen] = import_react.default.useState(false);
+  const labelOf = (workspace) => workspace.title || workspace.path || workspace.workspaceId;
+  const current = workspaces.find((workspace) => workspace.workspaceId === selected);
+  const currentLabel = current === void 0 ? "\u9009\u62E9\u5DE5\u4F5C\u533A" : labelOf(current);
+  if (workspaces.length === 0) {
+    return h(import_dsh_client_ui_primitives.Button, {
+      size: "sm",
+      variant: "outline",
+      disabled: true,
+      style: { flex: 1, minWidth: 0, justifyContent: "flex-start" }
+    }, "\u6CA1\u6709\u5DE5\u4F5C\u533A");
+  }
+  const items = [{ type: "label", id: "workspace-label", text: "\u5DE5\u4F5C\u533A" }];
+  for (const workspace of workspaces) {
+    items.push({ id: `workspace:${workspace.workspaceId}`, label: labelOf(workspace) });
+  }
+  return h(import_dsh_client_ui_primitives.Menu, {
+    open: open2,
+    onClose: () => setOpen(false),
+    onSelect: (id) => {
+      setOpen(false);
+      if (id.startsWith("workspace:")) onPick(id.slice("workspace:".length));
+    },
+    items,
+    selectedId: selected === void 0 ? void 0 : `workspace:${selected}`,
+    align: "start",
+    side: "bottom",
+    portal: true,
+    dense: true,
+    anchor: h(
+      import_dsh_client_ui_primitives.Button,
+      {
+        size: "sm",
+        variant: "outline",
+        "aria-haspopup": "menu",
+        "aria-expanded": open2,
+        "aria-label": "\u9009\u62E9\u5DE5\u4F5C\u533A",
+        title: currentLabel,
+        disabled,
+        style: { flex: 1, minWidth: 0, justifyContent: "space-between", gap: 6 },
+        onClick: () => setOpen((value) => !value)
+      },
+      h(
+        "span",
+        { style: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } },
+        currentLabel
+      ),
+      h(import_dsh_client_ui_primitives.IconChevronDownOutlineRegular, { size: 14 })
+    )
+  });
+}
 function BranchesPage({ sessionId, useWorkspaces, git }) {
   const workspaces = useWorkspaces((state) => state.items) || [];
   const [workspaceId, setWorkspaceId] = import_react.default.useState(void 0);
   const selected = workspaceId ?? boundWorkspaceId(workspaces, sessionId);
   const { rows, error: error62, busy, refresh, run } = useBranches(git, selected);
   const [draft, setDraft] = import_react.default.useState("");
+  const [syncing, setSyncing] = import_react.default.useState(false);
+  const syncRemote = async () => {
+    if (busy || syncing || selected === void 0) return;
+    setSyncing(true);
+    try {
+      await run(() => git.fetchBranches(selected));
+    } finally {
+      setSyncing(false);
+    }
+  };
   const current = rows?.repository === true ? rows.current : null;
   const switchTo = (branch) => {
     if (!confirmed(`\u5207\u6362\u5171\u4EAB\u5DE5\u4F5C\u533A\u5230\u5206\u652F ${branch}\uFF1F`)) return;
@@ -25726,21 +26420,14 @@ function BranchesPage({ sessionId, useWorkspaces, git }) {
     h(
       "div",
       { style: { display: "flex", gap: 8, alignItems: "center" } },
-      h(
-        "select",
-        {
-          value: selected ?? "",
-          onChange: (event) => setWorkspaceId(event.target.value),
-          style: fieldStyle
-        },
-        workspaces.length === 0 && h("option", { key: "none", value: "" }, "\u6CA1\u6709\u5DE5\u4F5C\u533A"),
-        workspaces.map((workspace) => h(
-          "option",
-          { key: workspace.workspaceId, value: workspace.workspaceId },
-          workspace.title || workspace.path || workspace.workspaceId
-        ))
-      ),
-      h(import_dsh_client_ui_primitives.Button, { size: "sm", variant: "outline", disabled: busy || selected === void 0, onClick: () => void refresh() }, "\u5237\u65B0")
+      h(WorkspacePicker, {
+        workspaces,
+        selected,
+        disabled: busy || syncing,
+        onPick: (id) => setWorkspaceId(id)
+      }),
+      h(import_dsh_client_ui_primitives.Button, { size: "sm", variant: "outline", disabled: busy || selected === void 0, onClick: () => void refresh() }, "\u5237\u65B0"),
+      h(import_dsh_client_ui_primitives.Button, { size: "sm", variant: "outline", disabled: busy || syncing || selected === void 0, title: "\u540C\u6B65\u8FDC\u7AEF\u5206\u652F\u5E76\u6E05\u7406\u5DF2\u5220\u9664\u7684\u8FDC\u7AEF\u8BB0\u5F55\uFF0C\u4E0D\u5408\u5E76\u4EE3\u7801", "aria-busy": syncing, "data-git-fetch-branches": true, onClick: () => void syncRemote() }, syncing ? "\u540C\u6B65\u4E2D\u2026" : "\u540C\u6B65\u8FDC\u7AEF")
     ),
     error62 !== null && h("div", { style: { marginTop: 10, opacity: 0.85 } }, error62),
     rows === null && error62 === null && h("div", { style: { marginTop: 10, opacity: 0.7 } }, "\u52A0\u8F7D\u4E2D\u2026"),
@@ -25771,6 +26458,66 @@ function BranchesPage({ sessionId, useWorkspaces, git }) {
   );
 }
 function apply(ctx) {
+  const shortcutText = ctx.locale.bind("gitWorkspace.shortcuts");
+  ctx.effect(() => ctx.locale.register("gitWorkspace.shortcuts", { zh: { "review": "\u6253\u5F00 Git \u4EE3\u7801\u5BA1\u67E5", "branches": "\u6253\u5F00 Git \u5206\u652F\u5217\u8868", "noSession": "\u8BF7\u5148\u9009\u62E9\u4E00\u4E2A\u5BF9\u8BDD" }, en: { "review": "Open Git review", "branches": "Open Git branches", "noSession": "Select a conversation first" } }), "gitWorkspace.shortcuts: dictionaries");
+  ctx.effect(() => ctx.shortcuts.register({
+    id: "git.workspace.review.open",
+    label: () => shortcutText("review"),
+    aliases: ["Git", "\u4EE3\u7801\u5BA1\u67E5", "git review"],
+    defaults: {},
+    regions: ["page", "editable", "terminal"],
+    modals: [],
+    resolve: () => {
+      const sessionId = ctx.uiSession.adapter.current.getSnapshot().key;
+      if (sessionId === void 0) return { status: "blocked", reason: shortcutText("noSession") };
+      return { status: "handled", run: () => {
+        ctx.layout.selectPanel(null);
+        let attempts = 0;
+        const open2 = () => {
+          if (ctx.uiSession.adapter.current.getSnapshot().key !== sessionId) return;
+          if (ctx.sidebarRight.mounted.getSnapshot() === sessionId) {
+            try {
+              ctx.sidebarRight.openTab("gitHistory");
+              return;
+            } catch (error62) {
+              if (!(error62 instanceof Error) || !error62.message.includes("no session surface is mounted")) throw error62;
+            }
+          }
+          if (++attempts < 120) requestAnimationFrame(open2);
+        };
+        requestAnimationFrame(open2);
+      } };
+    }
+  }), "git.workspace.review.open: shortcut");
+  ctx.effect(() => ctx.shortcuts.register({
+    id: "git.workspace.branches.open",
+    label: () => shortcutText("branches"),
+    aliases: ["Git", "\u5206\u652F\u5217\u8868", "git branches"],
+    defaults: {},
+    regions: ["page", "editable", "terminal"],
+    modals: [],
+    resolve: () => {
+      const sessionId = ctx.uiSession.adapter.current.getSnapshot().key;
+      if (sessionId === void 0) return { status: "blocked", reason: shortcutText("noSession") };
+      return { status: "handled", run: () => {
+        ctx.layout.selectPanel(null);
+        let attempts = 0;
+        const open2 = () => {
+          if (ctx.uiSession.adapter.current.getSnapshot().key !== sessionId) return;
+          if (ctx.sidebarRight.mounted.getSnapshot() === sessionId) {
+            try {
+              ctx.sidebarRight.openTab("gitBranches");
+              return;
+            } catch (error62) {
+              if (!(error62 instanceof Error) || !error62.message.includes("no session surface is mounted")) throw error62;
+            }
+          }
+          if (++attempts < 120) requestAnimationFrame(open2);
+        };
+        requestAnimationFrame(open2);
+      } };
+    }
+  }), "git.workspace.branches.open: shortcut");
   ctx.inject(GitReview.inject, (reviewCtx) => {
     reviewCtx.plugin(GitReview);
   });
@@ -25798,6 +26545,7 @@ function apply(ctx) {
   };
   const git = {
     list: (workspaceId) => namespace().list({ workspaceId }),
+    fetchBranches: (workspaceId) => namespace().fetchBranches({ workspaceId }),
     checkout: (workspaceId, branch) => namespace().checkout({ workspaceId, branch }),
     checkoutRemote: (workspaceId, branch) => namespace().checkoutRemote({ workspaceId, branch }),
     create: (workspaceId, branch) => namespace().create({ workspaceId, branch })
