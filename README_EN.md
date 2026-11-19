@@ -7,9 +7,20 @@ kind: "package-bundle"
 
 [简体中文](README.md) | English
 
-## Summary
+**Review AI edits, generate commit messages, and push changes in DeepSeek Harness Desktop.**
 
-This plugin adds one Review page to the right Sidebar for commit history, file diffs, pending pushes, and working-tree changes. A branch entry in the Session header switches local or remote branches and opens the full branch page. The Host executes Git through the dsh Workspace and subprocess services; browser code does not run commands. Activation reads repository state but does not modify the Workspace automatically.
+[Download the desktop package](https://github.com/monster-30cl/dsh-git-workspace/releases) · [Installation](#install) · [Compatibility](#compatibility)
+
+- **Review changes.** Filter commit history by author, date, or message. Compare files side by side with synchronized scrolling and adjustable text size.
+- **Commit selected changes.** Pick the files, generate an editable commit message in Chinese, and confirm the commit or push. Add new files to version control explicitly.
+- **Manage branches.** Switch from the session header, or use the branch page to fetch remote updates and prune stale remote-tracking refs.
+
+```mermaid
+flowchart LR
+  A["Open Review"] --> B["Compare and select changes"]
+  B --> C["Generate or enter a message"]
+  C --> D["Confirm commit or push"]
+```
 
 ## Table of Contents
 
@@ -25,26 +36,11 @@ This plugin adds one Review page to the right Sidebar for commit history, file d
 <a id="install"></a>
 ## Install
 
-### Install from a GitHub checkout
+1. Open [GitHub Releases](https://github.com/monster-30cl/dsh-git-workspace/releases) and download `monster-30cl-dsh-git-workspace-*.tgz` from **Assets**.
+2. Open **Desktop Plugins…** from the DSH desktop menu and install the package using its absolute path.
+3. Enable **Git Workspace** and restart DSH. Open a Git workspace and select **Review** on the right sidebar start page.
 
-Node.js 22.19 or later is required.
-
-```powershell
-git clone https://github.com/monster-30cl/dsh-git-workspace.git
-cd dsh-git-workspace
-corepack enable
-pnpm install
-pnpm run check
-pnpm pack
-```
-
-After the build, open **Desktop Plugins…** from the application menu, enter the absolute path of the generated `monster-30cl-dsh-git-workspace-0.1.0.tgz`, and install it. Electron exclusively owns Desktop's reserved profile, so `dsh plugin --profile desktop` cannot modify it.
-
-Enable the Git Workspace plugin and restart Desktop after installation. The host must register the Session's Workspace. The UI can open for an ordinary directory, but Git operations report that the directory is not a worktree.
-
-### Install from a Release
-
-Each `v*` tag produces a `.tgz` Release asset. Download it, enter its absolute path, such as `C:\path\to\monster-30cl-dsh-git-workspace-0.1.0.tgz`, in the **Desktop Plugins…** window, and install it.
+To try the latest changes, [build the package](#develop-and-package) and follow the same steps from step 2. Electron manages the desktop profile, so install through the desktop menu.
 
 -----
 
@@ -83,6 +79,8 @@ Each `v*` tag produces a `.tgz` Release asset. Download it, enter its absolute p
 
 Commit, push, pull, stash, restore, and branch switching modify the shared Workspace. The plugin requests confirmation before switching branches. Rolling back uncommitted files and dropping a stash can permanently remove data; inspect the selected files first. The Host accepts only registered Workspace ids and confines paths to the selected Workspace.
 
+On activation, the plugin reads repository state. The Host runs Git through the DSH Workspace and subprocess services. Git operations require a registered workspace that is a Git worktree.
+
 Only selecting the AI generation icon sends the selected file list and diffs to the provider behind the default model. Review the generated message before confirming the commit.
 
 -----
@@ -95,13 +93,17 @@ The current build targets the client services and icon exports in DeepSeek Harne
 <a id="develop-and-package"></a>
 ## Develop and package
 
+Node.js 22.19 or later is required.
+
 ```powershell
+git clone https://github.com/monster-30cl/dsh-git-workspace.git
+cd dsh-git-workspace
 corepack enable
 pnpm install
-pnpm run build
-pnpm run verify
 pnpm run pack:release
 ```
+
+`pack:release` builds, verifies, and creates the desktop `.tgz` package.
 
 `packages/controller` provides the Workspace-scoped Git Remote. `packages/panel` provides the Review page, branch menu, and settings registration. `source/git-workspace-controller` builds the Host controller. The calendar and AI commit-message components in `source/git-review/client` are compiled into the client bundle. `vendor/git-review` stores the remaining dsh client build input consumed by the assembler and must stay in sync with its corresponding `source` files. The build reads repository-local files only and does not depend on a maintainer's Harness checkout.
 

@@ -1,6 +1,6 @@
 {
   "name": "@monster-30cl/dsh-git-workspace-panel",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Desktop Git review and branch-switching interface for dsh.",
   "license": "MIT",
   "repository": {

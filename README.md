@@ -7,9 +7,20 @@ kind: "package-bundle"
 
 简体中文 | [English](README_EN.md)
 
-## 概要
+**在 DeepSeek Harness 桌面端审查 AI 改动、生成提交备注并推送代码。**
 
-这个插件在右侧栏提供统一的“审查”页面，用于查看提交历史、文件差异、待推送提交和工作区更改。会话头部的分支入口可以切换本地或远程分支，并可打开完整分支页面。Host 通过 dsh 的 Workspace 与 subprocess 服务执行 Git，浏览器代码不直接运行命令。插件启动时只读取仓库状态，不会自动修改工作区。
+[下载桌面安装包](https://github.com/monster-30cl/dsh-git-workspace/releases) · [查看安装步骤](#安装) · [兼容性](#兼容性)
+
+- **审查代码**。按作者、日期或备注搜索提交，双栏对比支持同步滚动和字号缩放。
+- **提交选中的改动**。勾选文件，一键生成可编辑的中文提交备注，确认后提交或推送。新文件需要先手动加入版本管理。
+- **管理分支**。从会话头部切换分支，在分支页面同步远端并清理失效的远端跟踪记录。
+
+```mermaid
+flowchart LR
+  A["打开审查面板"] --> B["对比差异并勾选文件"]
+  B --> C["生成或填写提交备注"]
+  C --> D["确认提交或推送"]
+```
 
 ## 目录
 
@@ -25,26 +36,11 @@ kind: "package-bundle"
 <a id="安装"></a>
 ## 安装
 
-### 从 GitHub 源码安装
+1. 打开 [GitHub Releases](https://github.com/monster-30cl/dsh-git-workspace/releases)，在 **Assets** 下下载 `monster-30cl-dsh-git-workspace-*.tgz`。
+2. 打开 DSH 桌面菜单中的“桌面插件…”，输入下载包的绝对路径并安装。
+3. 启用“Git 工作区”并重启 DSH。打开一个 Git 工作区，在右侧栏开始页选择 **审查**。
 
-需要 Node.js 22.19 或更高版本。
-
-```powershell
-git clone https://github.com/monster-30cl/dsh-git-workspace.git
-cd dsh-git-workspace
-corepack enable
-pnpm install
-pnpm run check
-pnpm pack
-```
-
-构建完成后，在桌面端菜单中打开“桌面插件…”，把生成的 `monster-30cl-dsh-git-workspace-0.1.0.tgz` 绝对路径填入安装框并执行安装。Desktop 的保留 profile 由 Electron 独占，不能通过 `dsh plugin --profile desktop` 修改。
-
-安装完成后启用“Git 工作区”插件并重启桌面端。宿主必须已经注册会话对应的 Workspace；普通目录可以打开界面，但 Git 操作会显示该目录不是工作树。
-
-### 从 Release 安装
-
-每个 `v*` 标签会生成一个 `.tgz` Release 附件。下载附件后，在桌面端“桌面插件…”窗口中输入 tarball 的绝对路径，例如 `C:\path\to\monster-30cl-dsh-git-workspace-0.1.0.tgz`，然后执行安装。
+使用主分支的最新改动时，可按[开发与打包](#开发与打包)生成安装包，再从第 2 步安装。桌面 profile 由 Electron 管理，请通过桌面菜单安装。
 
 -----
 
@@ -83,6 +79,8 @@ pnpm pack
 
 提交、推送、拉取、搁置、恢复和分支切换会修改共享 Workspace。插件在执行分支切换前请求确认。回滚未提交文件和删除搁置可能永久丢失数据，请先检查选中的文件。Host 只接受已注册的 Workspace id，并将路径限制在对应 Workspace 内。
 
+插件启动时只读取仓库状态。Git 命令由 Host 通过 DSH 的 Workspace 与 subprocess 服务执行。会话需关联已注册的 Git 工作区才能执行 Git 操作。
+
 仅在点击 AI 生成图标后，插件才会将本次勾选文件的列表和差异发送给默认模型对应的服务商。生成结果需由用户检查后确认提交。
 
 -----
@@ -95,15 +93,17 @@ pnpm pack
 <a id="开发与打包"></a>
 ## 开发与打包
 
+需要 Node.js 22.19 或更高版本。
+
 ```powershell
+git clone https://github.com/monster-30cl/dsh-git-workspace.git
+cd dsh-git-workspace
 corepack enable
 pnpm install
-pnpm run build
-pnpm run verify
 pnpm run pack:release
 ```
 
-`packages/controller` 提供 Workspace 范围内的 Git Remote；`packages/panel` 提供右侧审查页、分支菜单和设置注册。undefined构建脚本只读取仓库内文件，不依赖维护者机器上的 Harness 路径。
+`pack:release` 会构建、验证并生成桌面安装用的 `.tgz` 文件。`packages/controller` 提供 Workspace 范围内的 Git Remote，`packages/panel` 提供右侧审查页、分支菜单和设置注册。构建脚本只读取仓库内文件。
 
 -----
 

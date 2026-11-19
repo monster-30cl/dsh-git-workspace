@@ -1,6 +1,6 @@
 {
   "name": "@monster-30cl/dsh-git-workspace",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Git history, review, working-tree actions, and branch switching for DeepSeek Harness desktop workspaces.",
   "license": "MIT",
   "type": "module",
